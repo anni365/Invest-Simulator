@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Registro{% endblock %}
+{% block content %}
+    <style>
+    h1 {color:blue;}
+    h2 {color:green;}
+    p  {color:brown;}
+    button {
+    background-color: green;
+    border: none;
+    color: white;
+    padding: 10px 27px;
+    }
+    </style>
+  <center>
+  <h2>Registrate</h2>
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+      <p>
+        {{ field.label_tag }}<br>
+        {{ field }}
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        {% for error in field.errors %}
+        <p style="color: red">{{ error }}</p>
+        {% endfor %}</p>
+    {% endfor %}
+
+    <button type="submit">Crear Cuenta</button>
+  </form>
+{% endblock %}

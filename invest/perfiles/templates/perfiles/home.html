@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Bievenido{% endblock %}
+
+{% block content %}
+    <style>
+    h1 {color:violet;}
+    a1 {color:IndianRed;}
+    </style>
+    {% if user.is_authenticated %}
+      <div align="center">
+        <a href="{% url 'sign_out' %}">Cerrar sesión</a> &nbsp
+        <a href="{% url 'change_password' %}">Cambiar contraseña</a></div>
+      <div align="center">
+      <h1 color="blue">Invest Simulator</h1></div>
+    {% else %}
+      <div align="center">
+        <h1><a1>Bienvenido Invest Simulator</a1>
+        <br>para poder continuar puedes<br>
+        <a href="{% url 'sign_up' %}">Registrarte</a> <br>o si ya tienes cuenta<br>
+        <a href="{% url 'sign_in' %}">Inicia Sesión</a></a></div>
+    {% endif %}
+
+{% endblock content %}
