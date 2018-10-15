@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 
-from perfiles.views import SignUpView, BienvenidaView, SignInView, SignOutView, WalletView, PriceView
+from perfiles.views import SignUpView, BienvenidaView, SignInView, SignOutView
 from TestInvest import settings
 from perfiles import views
 from django.conf.urls.static import static
@@ -29,9 +29,10 @@ urlpatterns = [
     url(r'^logout/$', SignOutView.as_view(), name='sign_out'),
     url(r'^password/$', login_required(views.change_password),
         name='change_password'),
-    url(r'^wallet/$', views.show_wallet, name= "wallet"),
-    url(r'^price/$', views.show_price, name='price'),
+    url(r'^wallet/$', views.show_wallet, name='wallet'),
+    url(r'^price/$', views.show_assets, name='price'),
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)

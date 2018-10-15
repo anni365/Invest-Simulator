@@ -22,7 +22,7 @@ class SignUpView(CreateView):
         usuario = form.cleaned_data.get('username')
         password = form.cleaned_data.get('password1')
         usuario = authenticate(username=usuario, password=password)
-        return redirect('/')
+        return render(self.request, 'perfiles/signup.html', {'form': form})
 
 
 class BienvenidaView(TemplateView):
@@ -61,8 +61,9 @@ def show_wallet(request):
         wallet = json.load(wallet_json)
     if wallet != []:
         wallet = wallet.get("wallet")
-    return render_to_response('perfiles/wallet.html', {'wallet':  wallet,
-                              'portfolio_quote': portfolio_quote,
+    return render_to_response('perfiles/wallet.html',
+                              {'wallet': wallet,
+                               'portfolio_quote': portfolio_quote,
                                'liquid_money': liquid_money})
 
 

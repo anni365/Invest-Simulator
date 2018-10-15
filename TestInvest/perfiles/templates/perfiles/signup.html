@@ -2,30 +2,59 @@
 {% block title %}Registro{% endblock %}
 {% block content %}
     <style>
-    h1 {color:blue;}
-    h2 {color:green;}
+    a {color:blue;}
+    h2 {color:#512e5f;}
     p  {color:brown;}
+    a1  {color:#6c3483;}
     button {
-    background-color: green;
+    background-color: #e74c3c;
     border: none;
     color: white;
     padding: 10px 27px;
     }
     </style>
   <center>
-  <h2>Registrate</h2>
-  <form method="post" enctype="multipart/form-data">
+  <h2 id="signup">Registrate</h2>
+  <h2 id="message"></h2>
+  <form method="post" enctype="multipart/form-data" id="myForm">
     {% csrf_token %}
     {% for field in form %}
       <p>
         {{ field.label_tag }}<br>
         {{ field }}
-        <meta name="viewport" content="width=device-width, initial-scale=1">
         {% for error in field.errors %}
         <p style="color: red">{{ error }}</p>
         {% endfor %}</p>
     {% endfor %}
-
-    <button type="submit">Crear Cuenta</button>
+    <button type="submit"">Crear Cuenta</button><br><br>
   </form>
+  {% if form.is_valid %}
+    <script>
+    myFunction();
+    function myFunction() {
+        document.getElementById("signup").innerHTML = "";
+    }
+    </script>
+    <script>
+    document.getElementById("myForm").innerHTML = "";
+    var totalTiempo=10;
+    var url="http://localhost:8000";
+    function updateReloj()
+    {
+        document.getElementById('message').innerHTML = `El registro se
+        realizo correctamente!<br/> Redireccionando a la pagina principal
+        en ${totalTiempo} segundos <br/> o haga click 
+        <a href="{% url 'home' %}">aqui</a> para ir directamente`;
+        if(totalTiempo==0)
+        {
+            window.location=url;
+        }else{
+            totalTiempo-=1;
+            setTimeout("updateReloj()",1000);
+        }
+    }
+    window.onload=updateReloj;
+    </script>
+    {% endif %}
 {% endblock %}
+
