@@ -1,0 +1,46 @@
+{
+    "wallet": [
+        {
+            "name": "Claro",
+            "count": 600,
+            "type": "Accion",
+            "price_buy": 500,
+            "price_sell": 700
+        },
+        {
+            "name": "Shell",
+            "count": 400,
+            "type": "Divisa",
+            "price_buy": 400,
+            "price_sell": 600
+        },
+        {
+            "name": "YPF",
+            "count": 600,
+            "type": "Accion",
+            "price_buy": 500,
+            "price_sell": 700
+        },
+        {
+            "name": "Axion",
+            "count": 200,
+            "type": "Divisa",
+            "price_buy": 350,
+            "price_sell": 450
+        },
+        {
+            "name": "Movistar",
+            "count": 50,
+            "type": "Accion",
+            "price_buy": 800,
+            "price_sell": 1000
+        },
+        {
+            "name": "Personal",
+            "count": 20,
+            "type": "Divisa",
+            "price_buy": 5000,
+            "price_sell": 10000
+        }
+    ]
+}

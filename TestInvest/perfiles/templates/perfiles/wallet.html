@@ -1,12 +1,66 @@
 {% extends "base.html" %}
-
-{% block title %}Cartera de inversiones{% endblock %}
-
+{% block title %}Cartera de Inversiones{% endblock %}
 {% block content %}
-    {% if user.is_authenticated %}
-      <h1 align="center">Cartera de inversiones</h1>
-    {% else %}
-      
-    {% endif %}
+  <style>
+  h2 {color:#8A0886}
+  a {color:#C70039}
+  button {
+  background-color: #e74c3c;
+  border: none;
+  color: white;
+  padding: 10px 27px;
+  }
+  table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+  }
 
+  td, th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+  }
+  tr:nth-child(even) {
+      background-color: #dddddd;
+  }
+  th {
+      color: #8A0829;
+  }
+  </style>
+  <center>
+  <h2>Cartera de inversiones</h2>
+  {% if wallet %}
+     <h2> Nombre : {{nombre}}</h2>
+  <TABLE BORDER>
+     <TR>
+      <TH>Nombre</TH>
+      <TH>Cantidad</TH>
+      <TH>Tipo</TH>
+      <TH>Valor de compra</TH>
+      <TH>Valor de venta</TH> 
+      </TR>
+      <tbody>
+      {% for wallet in wallet %}
+        {% if wallet.price_sell != None and wallet.price_buy != None %}
+        <tr>
+          <td>{{ wallet.name }}</td>
+          <td>{{ wallet.count }}</td>
+          <td>{{ wallet.type }}</td>
+          <td>{{ wallet.price_buy }}</td>
+          <td>{{ wallet.price_sell }}</td>
+        </tr>
+        {% endif %}
+      {% endfor %}
+      </tbody>
+  </TABLE>
+  <h2>Cotizacion de Cartera :</h2>
+  {{portfolio_quote}}
+  {% else %}
+   <h1> No dispone de activos!!!</h1>
+  <h2>Cotizacion de Cartera :</h2>
+    {{liquid_money}}
+  {% endif %}
+  <center>
+  <a></a>
 {% endblock content %}
+

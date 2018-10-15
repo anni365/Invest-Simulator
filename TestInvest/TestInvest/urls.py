@@ -29,7 +29,7 @@ urlpatterns = [
     url(r'^logout/$', SignOutView.as_view(), name='sign_out'),
     url(r'^password/$', login_required(views.change_password),
         name='change_password'),
-    url(r'^wallet/$', WalletView.as_view(), name='wallet'),
+    url(r'^wallet/$', views.show_wallet, name= "wallet"),
     url(r'^price/$', PriceView.as_view(), name='price'),
 ]
 
