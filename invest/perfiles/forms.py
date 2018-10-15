@@ -2,12 +2,11 @@ from django import forms
 from django.contrib.auth.forms import (
   UserCreationForm, AuthenticationForm, PasswordChangeForm)
 from django.contrib.auth.models import User
-
-from .models import Perfil
-
+from .models import CustomUser
+from django.contrib.auth.forms import UserChangeForm
+from django.core.files.images import get_image_dimensions
 
 class SignUpForm(UserCreationForm):
-
     first_name = forms.CharField(label="Nombre", max_length=140, required=True)
     last_name = forms.CharField(label="Apellido", max_length=140,
                                 required=True)
@@ -22,7 +21,7 @@ class SignUpForm(UserCreationForm):
         return email2
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = (
             'username',
             'email',
@@ -31,4 +30,6 @@ class SignUpForm(UserCreationForm):
             'last_name',
             'password1',
             'password2',
+            'avatar',
         )
+

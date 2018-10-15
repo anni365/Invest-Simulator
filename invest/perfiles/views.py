@@ -4,15 +4,15 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, update_session_auth_hash
 from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import CreateView, TemplateView
-from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
+from django.contrib.auth.forms import PasswordChangeForm
 
-from .models import Perfil
 from .forms import SignUpForm
 from django.contrib import messages
+from .models import CustomUser
 
 
 class SignUpView(CreateView):
-    model = Perfil
+    model = CustomUser
     form_class = SignUpForm
     template_name = 'perfiles/signup.html'
 
@@ -47,3 +47,9 @@ class SignInView(LoginView):
 
 class SignOutView(LogoutView):
     pass
+
+class WalletView(TemplateView):
+    template_name = 'perfiles/wallet.html'
+
+class PriceView(TemplateView):
+    template_name = 'perfiles/price.html'
