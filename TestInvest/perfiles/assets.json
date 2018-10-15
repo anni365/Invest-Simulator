@@ -1,0 +1,25 @@
+{
+    "assets": [
+        {
+            "name": "Dolar",
+            "price_sell": 10.1,
+            "price_buy": 15.2,
+            "type_a": "Divisa",
+            "date": "2017-03-03"
+        },
+        {
+            "name": "Euro",
+            "price_sell": 15.3,
+            "price_buy": 20.4,
+            "type_a": "Divisa",
+            "date": "2017-03-04"
+        },
+        {
+            "name": "Lira",
+            "price_sell": null,
+            "price_buy": 20,
+            "type_a": "Divisa",
+            "date": "2017-03-05"
+        }
+    ]
+}
