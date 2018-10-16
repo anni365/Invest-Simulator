@@ -29,8 +29,8 @@ urlpatterns = [
     url(r'^logout/$', SignOutView.as_view(), name='sign_out'),
     url(r'^password/$', login_required(views.change_password),
         name='change_password'),
-    url(r'^wallet/$', views.show_my_asset, name='wallet'),
-    url(r'^price/$', views.show_assets, name='price'),
+    url(r'^wallet/$', login_required(views.show_my_asset), name='wallet'),
+    url(r'^price/$', login_required(views.show_assets), name='price'),
 ]
 
 if settings.DEBUG:

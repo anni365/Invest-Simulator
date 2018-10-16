@@ -55,10 +55,6 @@
       </tbody>
     </table>
   <br><a href="{% url 'home' %}">Volver al inicio</a>
-  {% else %}
-    <center>
-    <h2>No hay activos disponibles</h2>
-  {% endif %}
   <script>
     {% for asset in assets %}
       {% if asset.price_sell != null and asset.price_buy != null %}
@@ -71,4 +67,9 @@
       document.getElementById("tab").innerHTML = ""
     {% endif %}
   </script>
+  {% else %}
+    <center>
+    <h2>No hay activos disponibles</h2>
+    <br><a href="{% url 'home' %}">Volver al inicio</a>
+  {% endif %}
 {% endblock content %}
