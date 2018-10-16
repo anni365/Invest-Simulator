@@ -49,15 +49,24 @@ class SignInView(LoginView):
 class SignOutView(LogoutView):
     pass
 
+
 def show_my_asset(request):
     user = request.user
-    my_assets = Asset.objects.filter(user = request.user.id)
-    return render_to_response('perfiles/wallet.html', { 'my_assets':  my_assets,
+    my_assets = Asset.objects.filter(user=request.user.id)
+    return render_to_response('perfiles/wallet.html', {'my_assets': my_assets,
                               'user': user})
 
 
 def show_assets(request):
-    with open('perfiles/assets.json') as assets_json:
-        assets = json.load(assets_json)
-    assets = assets.get("assets")
+    with open('perfiles/asset/assets.json') as assets_json:
+        assets_name = json.load(assets_json)
+    assets_name = assets_name.get("availableAssets")
+    assets_price = []
+    assets = {}
+    if assets_name is not None:
+        for asset in assets_name:
+            name_as = 'perfiles/asset/'+str(asset.get("name"))+'.json'
+            with open(name_as) as assets_price:
+                pri = json.load(assets_price)
+                assets.update({(asset.get("name"), asset.get("type")): pri})
     return render_to_response('perfiles/price.html', {'assets': assets})

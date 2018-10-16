@@ -42,22 +42,22 @@
         </tr>
       </thead>
       <tbody>
-      {% for asset in assets %}
-        {% if asset.price_sell != None and asset.price_buy != None %}
+      {% for keys, values in assets.items %}
+       {% if values.sell != None and values.buy != None %}
         <tr>
-          <td>{{ asset.name }}</td>
-          <td>{{ asset.price_sell }}</td>
-          <td>{{ asset.price_buy }}</td>
-          <td>{{ asset.type_a }}</td>
+          <td>{{ keys.0 }}</td>
+          <td>{{ values.sell }}</td>
+          <td>{{ values.buy }}</td>
+          <td>{{ keys.1 }}</td>
         </tr>
         {% endif %}
       {% endfor %}
       </tbody>
     </table>
   <br><a href="{% url 'home' %}">Volver al inicio</a>
-  <script>
-    {% for asset in assets %}
-      {% if asset.price_sell != null and asset.price_buy != null %}
+    <script>
+    {% for keys, values in assets.items %}
+       {% if values.sell != null and values.buy != null %}
         there_are_assets = true;
         break
       {% endif %}
@@ -66,7 +66,7 @@
       document.getElementById("mj").innerHTML = "No hay activos disponibles"
       document.getElementById("tab").innerHTML = ""
     {% endif %}
-  </script>
+  </script>  
   {% else %}
     <center>
     <h2>No hay activos disponibles</h2>
