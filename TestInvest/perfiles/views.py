@@ -8,7 +8,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 
 from .forms import SignUpForm
 from django.contrib import messages
-from .models import CustomUser
+from .models import CustomUser, Asset
 import json
 
 
@@ -49,22 +49,11 @@ class SignInView(LoginView):
 class SignOutView(LogoutView):
     pass
 
-
-class WalletView(TemplateView):
-    template_name = 'perfiles/wallet.html'
-
-
-def show_wallet(request):
-    portfolio_quote = "$1,520,000"
-    liquid_money = "$100,000"
-    with open('perfiles/wallet.json') as wallet_json:
-        wallet = json.load(wallet_json)
-    if wallet != []:
-        wallet = wallet.get("wallet")
-    return render_to_response('perfiles/wallet.html',
-                              {'wallet': wallet,
-                               'portfolio_quote': portfolio_quote,
-                               'liquid_money': liquid_money})
+def show_my_asset(request):
+    user = request.user
+    my_assets = Asset.objects.filter(user = request.user.id)
+    return render_to_response('perfiles/wallet.html', { 'my_assets':  my_assets,
+                              'user': user})
 
 
 def show_assets(request):

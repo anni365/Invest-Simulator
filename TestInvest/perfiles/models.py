@@ -9,18 +9,10 @@ from django.dispatch import receiver
 
 class CustomUser(AbstractUser):
     avatar = models.ImageField(upload_to='perfiles/', default='perfiles/default.jpg')
+    virtual_money = models.PositiveIntegerField(blank=None,default=1000)
 
     def __str__(self):
         return self.email
-
-class Wallet(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    virtual_money = models.PositiveIntegerField(blank=None)
-    virtual_money = 1000
-
-    # Python 3
-    def __str__(self):
-        return self.usuario.username
 
 @receiver(post_save, sender=User)
 def crear_usuario_perfil(sender, instance, created, **kwargs):
