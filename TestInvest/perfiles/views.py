@@ -8,7 +8,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 
 from .forms import SignUpForm
 from django.contrib import messages
-from .models import CustomUser, Asset
+from .models import CustomUser, UserAsset, Transaction
 import json
 
 
@@ -25,7 +25,7 @@ class SignUpView(CreateView):
         return render(self.request, 'perfiles/signup.html', {'form': form})
 
 
-class BienvenidaView(TemplateView):
+class WelcomeView(TemplateView):
     template_name = 'perfiles/home.html'
 
 
@@ -52,7 +52,7 @@ class SignOutView(LogoutView):
 
 def show_my_asset(request):
     user = request.user
-    my_assets = Asset.objects.filter(user=request.user.id)
+    my_assets = UserAsset.objects.filter(user=request.user.id)
     return render_to_response('perfiles/wallet.html', {'my_assets': my_assets,
                               'user': user})
 
