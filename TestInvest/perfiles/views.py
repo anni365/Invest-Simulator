@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from django.shortcuts import render, redirect, render_to_response
+from django.shortcuts import render, redirect, render_to_response, get_object_or_404
 from django.contrib.auth import login, authenticate, update_session_auth_hash
 from django.contrib.auth.views import LoginView, LogoutView
-from django.views.generic import CreateView, TemplateView
+from django.views.generic import CreateView, TemplateView, UpdateView
 from django.contrib.auth.forms import PasswordChangeForm
 
-from .forms import SignUpForm
+from .forms import SignUpForm, UpdateProfileForm
 from django.contrib import messages
 from .models import CustomUser, Asset
 import json
@@ -61,3 +61,15 @@ def show_assets(request):
         assets = json.load(assets_json)
     assets = assets.get("assets")
     return render_to_response('perfiles/price.html', {'assets': assets})
+
+class ProfileView(TemplateView):
+    template_name = 'perfiles/profile.html'
+
+#Editar perfil del usuario
+class UpdateProfileView(UpdateView):
+    model = CustomUser
+    template_name = 'perfiles/update_profile.html'
+    form_class = UpdateProfileForm
+
+    def get_object(self):
+        return get_object_or_404(CustomUser, pk=self.request.user.id)

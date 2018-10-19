@@ -3,7 +3,6 @@ from django.contrib.auth.forms import (
   UserCreationForm, AuthenticationForm, PasswordChangeForm)
 from django.contrib.auth.models import User
 from .models import CustomUser
-from django.contrib.auth.forms import UserChangeForm
 from django.core.files.images import get_image_dimensions
 
 class SignUpForm(UserCreationForm):
@@ -33,3 +32,16 @@ class SignUpForm(UserCreationForm):
             'avatar',
         )
 
+class UpdateProfileForm(forms.ModelForm):
+    first_name = forms.CharField(label="Nombre", max_length=140, required=False)
+    last_name = forms.CharField(label="Apellido", max_length=140,required=False)
+    email = forms.EmailField(required=False)
+
+    class Meta:
+        model = CustomUser
+        fields = (
+            'first_name',
+            'last_name',
+            'email',
+            'avatar',
+        )
