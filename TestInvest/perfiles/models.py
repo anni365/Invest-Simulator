@@ -24,10 +24,19 @@ def crear_usuario_perfil(sender, instance, created, **kwargs):
 def guardar_usuario_perfil(sender, instance, **kwargs):
     instance.perfil.save()
 
-class Asset(models.Model):
-    user = models.ForeignKey(CustomUser, default='', on_delete=models.CASCADE)
+class UserAsset(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     name = models.CharField(max_length=30)
-    cant = models.PositiveIntegerField(blank=None)
+    type_asset = models.CharField(max_length=30)
+    total_amount = models.PositiveIntegerField(blank=None)
     old_unit_value = models.PositiveIntegerField(blank=None)
-    date = models.DateTimeField('date published')
 
+
+class Transaction(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user_asset = models.ForeignKey(UserAsset, on_delete=models.CASCADE)
+    type_transaction = models.CharField(max_length=30)
+    value_buy = models.PositiveIntegerField(blank=None)
+    value_sell = models.PositiveIntegerField(blank=None)
+    amount = models.PositiveIntegerField(blank=None)
+    date = models.DateTimeField(auto_now=True, blank=True)
