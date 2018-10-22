@@ -2,9 +2,11 @@ from django import forms
 from django.contrib.auth.forms import (
   UserCreationForm, AuthenticationForm, PasswordChangeForm)
 from django.contrib.auth.models import User
-from .models import CustomUser
+from .models import CustomUser, UserAsset
 from django.contrib.auth.forms import UserChangeForm
 from django.core.files.images import get_image_dimensions
+from django.forms import ModelForm
+
 
 class SignUpForm(UserCreationForm):
     first_name = forms.CharField(label="Nombre", max_length=140, required=True)
@@ -31,5 +33,17 @@ class SignUpForm(UserCreationForm):
             'password1',
             'password2',
             'avatar',
+        )
+
+
+class BuyForm(ModelForm):
+    name = forms.CharField(disabled=True, required=False, label="Nombre del Activo")
+    total_amount = forms.IntegerField(label="Cantidad Activo", required=False)
+
+    class Meta:
+        model = UserAsset
+        fields = (
+            'name',
+            'total_amount',
         )
 

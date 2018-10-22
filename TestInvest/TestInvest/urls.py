@@ -31,6 +31,7 @@ urlpatterns = [
         name='change_password'),
     url(r'^wallet/$', login_required(views.show_my_asset), name='wallet'),
     url(r'^price/$', login_required(views.show_assets), name='price'),
+    url(r'^buy/$', login_required(views.show_assets), name='buy'),
 ]
 
 if settings.DEBUG:
