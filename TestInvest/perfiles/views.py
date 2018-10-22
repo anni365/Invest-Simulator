@@ -89,7 +89,6 @@ def show_assets(request):
         if request.method == 'POST':
             form = BuyForm(request.POST)
             buy_assets(request, form, assets, virtual_money)
-            print("show virtual_money", virtual_money)
         else:
             form = BuyForm()
         return render(request, 'perfiles/buy.html', {
@@ -119,20 +118,15 @@ def buy_assets(request, form, assets, capital):
                         asset.save()
                         transaction = addTransaction(request, date[0], date[1], total_amount, 
                         asset.id)
-                        print("exist virtual_money", virtual_money)
                         virtual_money = virtual_money - total_amount * date[0]
-                        print("exist virtual_money", virtual_money)
                         request.user.virtual_money = virtual_money
                         request.user.save()
-                        print("exist user virtual_money", user.virtual_money)
             elif names[1] == name:
                 my_asset = addAsset(request, name, total_amount,
                                         names[0], date[0])
                 transaction = addTransaction(request, date[0],
                                         date[1], total_amount, my_asset.id)
-                print("no e virtual_money", virtual_money)
                 virtual_money = virtual_money - total_amount * date[0]
-                print("exist virtual_money", virtual_money)
                 request.user.virtual_money = virtual_money
                 request.user.save()
 
