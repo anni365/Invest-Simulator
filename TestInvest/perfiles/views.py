@@ -6,13 +6,9 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import CreateView, TemplateView
 from django.contrib.auth.forms import PasswordChangeForm
 
-from .forms import SignUpForm
+from .forms import SignUpForm, BuyForm
 from django.contrib import messages
-<<<<<<< HEAD
 from .models import CustomUser, UserAsset
-=======
-from .models import CustomUser, UserAsset, Transaction
->>>>>>> master
 import json
 
 
@@ -54,23 +50,46 @@ class SignOutView(LogoutView):
     pass
 
 
-def show_my_asset(request):
-    user = request.user
-    my_assets = UserAsset.objects.filter(user=request.user.id)
-    return render_to_response('perfiles/wallet.html', {'my_assets': my_assets,
-                              'user': user})
-
-
-def show_assets(request):
+def open_jsons():
     with open('perfiles/asset/assets.json') as assets_json:
         assets_name = json.load(assets_json)
     assets_name = assets_name.get("availableAssets")
     assets_price = []
     assets = {}
+    cap = 0
     if assets_name is not None:
         for asset in assets_name:
             name_as = 'perfiles/asset/'+str(asset.get("name"))+'.json'
             with open(name_as) as assets_price:
-                pri = json.load(assets_price)
-                assets.update({(asset.get("name"), asset.get("type")): pri})
-    return render_to_response('perfiles/price.html', {'assets': assets})
+                price = json.load(assets_price)
+                assets.update({(asset.get("type"), asset.get("name")): price})
+    assets = assets.items()
+    return assets
+
+
+def calculate_capital(assets, my_assets, virtual_money):
+    cap = 0
+    for name, dates in assets:
+        date = list(dates.values())
+        for asset in my_assets:
+            if (asset.name == name[1] and date[1] is not None):
+                cap += asset.total_amount * date[1]
+            cap += virtual_money
+    return cap
+
+def show_assets(request):
+    user = request.user
+    virtual_money = request.user.virtual_money
+    my_assets = UserAsset.objects.filter(user=request.user.id)
+    assets = open_jsons()
+    cap = calculate_capital(assets, my_assets, virtual_money)
+    if request.get_full_path() == '/buy/':
+        form = BuyForm()
+        return render(request, 'perfiles/buy.html', {
+          'assets': assets, 'virtual_money': virtual_money, 'form': form})
+    if request.get_full_path() == '/price/':
+        return render_to_response('perfiles/price.html', {'assets': assets})
+    if request.get_full_path() == '/wallet/':
+        return render_to_response('perfiles/wallet.html', {
+          'assets': assets, 'user': user, 'my_assets': my_assets,
+          'capital': cap})
