@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+{% block title %}Venta de Activo{% endblock %}
+{% block content %}
+
+<head>
+<title>Venta de Activos</title>
+<meta charset="utf-8">
+<style type="text/css">
+body
+{
+ background-color:blue; 
+ }
+
+</style>
+</head>
+ <font color="#030303" face="georgia" size="4"> 
+<center>
+</html>
+<body>
+  <form action="" method="get" name="formu" id="formu" onsubmit="return false;">
+  <br>
+    Tu cantidad: <input type="number" id="num" name="cantidad" value="" min="1"
+                       pattern="^[1-9]\d*$" onClick= "comprobar()">
+  </br>
+  </form>
+
+<button class="open-button" onclick="openForm()">Confirmar</button>
+<button
+    class="enlace" onclick="window.location='{% url 'home' %}'">Cancelar
+</button>
+
+<div class="form-popup" id="myForm">
+  <form action="" class="form-container">
+    <h1>RESUMEN</h1>
+
+    <label for="name"><b>Nombre del Activo</b></label>
+    <input type="text"  name="text" id="x1" disabled>
+
+    <label for="count"><b>Cantidad</b></label>
+    <input type="text"  name="text" id="x2" disabled>
+
+    <label for="cotiz"><b>Cotizacion</b></label>
+    <input type="text"  name="text" id="x3" disabled>
+
+    <label for="dinero_liq"><b>Dinero Liquido</b></label>
+    <input type="text" name="text" id="x4" disabled>
+
+    <p>Estas seguro de realizar esta operacion?</p>
+    <button type="button" class="btn" onclick="Respuesta()">SI</button>
+    <button type="button" class="btn" onclick="closeForm()">NO</button>
+  </form>
+</div>
+
+<script>
+function comprobar() {
+    var cantidad = document.formu.cantidad.value;
+    var loc= document.location.href;
+    var nombre,cotizacion,dinero_liq, devolver;
+    var lista = [];
+    var getDato;
+    if(loc.indexOf('?')>0){
+        var getString1 = loc.split("?")[1];
+        for (i=0;i<3;i++) {
+            getDato = getString1.split("&")[i];
+            lista[i] = getDato.split("=")[1];
+        }
+
+        if ( parseInt(lista[1]) < cantidad) {
+            closeForm();
+            alert("Te pasaste con la cantidad, intente nuevamente.");
+        } else if (cantidad < 0) {
+            closeForm();
+            alert("Numero negativo no esta permitido, intente nuevamente.");
+        } else {
+            devolver = {
+            nombre: lista[0],
+            cantidad: cantidad,
+            cotizacion: lista[2],
+            dinero_liq: 0
+            }
+            return devolver;
+        }
+    }
+}
+
+function Respuesta() {
+    alert("La compra se realizo con exito, Felicidades!!!");
+    closeForm();
+}
+
+function openForm() {
+    document.getElementById("myForm").style.display = "block";
+    var valor = comprobar();
+    if (0 < valor.cantidad) {
+        document.getElementById("x1").value = valor.nombre;
+        document.getElementById("x2").value = valor.cantidad;
+        document.getElementById("x3").value = valor.cotizacion;
+        document.getElementById("x4").value = valor.dinero_liq;
+        setTimeout('closeForm()',5000);
+    }else{
+        closeForm();
+    }
+}
+
+function closeForm() {
+    document.getElementById("myForm").style.display = "none";
+}
+</script>
+</body>
+</html>
+
+{% endblock content %}
+

@@ -1,16 +1,17 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+# -- coding: utf-8 --
 from django.shortcuts import render, redirect, render_to_response
 from django.contrib.auth import login, authenticate, update_session_auth_hash
 from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import CreateView, TemplateView
 from django.contrib.auth.forms import PasswordChangeForm
 
-from .forms import SignUpForm
+from .forms import SignUpForm, BuyForm
 from django.contrib import messages
 from .models import CustomUser, UserAsset, Transaction
 import json
-
+from django.template import RequestContext
+from django.utils import timezone
+from datetime import datetime
 
 class SignUpView(CreateView):
     model = CustomUser
@@ -49,24 +50,95 @@ class SignInView(LoginView):
 class SignOutView(LogoutView):
     pass
 
+def show_my_salle(request):
+    return render_to_response('perfiles/salle.html')
 
+
+#Muestro los asset que dispongo
 def show_my_asset(request):
-    user = request.user
-    my_assets = UserAsset.objects.filter(user=request.user.id)
-    return render_to_response('perfiles/wallet.html', {'my_assets': my_assets,
-                              'user': user})
+    name = request.user.username
+    portfolio_quote = "$1,520,000"
+    liquid_money = "$100,000"
+    with open('perfiles/wallet.json') as wallet_json:
+        wallet = json.load(wallet_json)
+    if wallet != []:
+        wallet = wallet.get("wallet")
+    return render_to_response('perfiles/wallet.html',
+                              {'wallet': wallet,
+                               'portfolio_quote': portfolio_quote,
+                               'liquid_money': liquid_money, 'name': name})
 
 
 def show_assets(request):
+    user = request.user
+    virtual_money = request.user.virtual_money
+    my_assets = UserAsset.objects.filter(user=request.user.id)
     with open('perfiles/asset/assets.json') as assets_json:
         assets_name = json.load(assets_json)
     assets_name = assets_name.get("availableAssets")
     assets_price = []
     assets = {}
+    cap = 0
     if assets_name is not None:
         for asset in assets_name:
             name_as = 'perfiles/asset/'+str(asset.get("name"))+'.json'
             with open(name_as) as assets_price:
                 pri = json.load(assets_price)
-                assets.update({(asset.get("name"), asset.get("type")): pri})
-    return render_to_response('perfiles/price.html', {'assets': assets})
+                assets.update({(asset.get("type"), asset.get("name")): pri})
+    assets = assets.items()
+    for name, dates in assets:
+      date = list(dates.values())
+      for asset in my_assets:
+        if (asset.name == name[1] and date[1] != None ):
+          cap += asset.total_amount * date[1]
+    cap += virtual_money
+    if request.get_full_path() == '/buy/':
+      if request.method == 'POST':
+        form = BuyForm(request.POST)
+        if form.is_valid():
+          name = request.POST.get("name", "0")
+          total_amount = form.cleaned_data.get("total_amount")
+          my_assets =  UserAsset.objects.filter(user=request.user.id, name=name)
+          exist = my_assets.exists()
+          for names, dates in assets:
+            date = list(dates.values())
+            if exist:
+              for asset in my_assets:
+                if names[1] == asset.name:
+                  asset.total_amount = asset.total_amount + total_amount
+                  asset.old_unit_value = date[0] 
+                  asset.save()
+                  transaction = Transaction.objects.create(
+                    user_id= request.user.id,
+                    user_asset_id=asset.id, 
+                    value_buy=date[0], value_sell=date[1], 
+                    amount=total_amount,
+                    date=datetime.now(),
+                    type_transaction="compra")
+                  transaction.save()
+            else:
+              if names[1] == name:
+                my_asset = UserAsset.objects.create(
+                  user_id= request.user.id, name=name,
+                  total_amount=total_amount, type_asset=names[0],
+                  old_unit_value=date[0])
+                my_asset.save()
+                transaction = Transaction.objects.create(
+                  user_id= request.user.id,
+                  user_asset_id=my_asset.id, 
+                  value_buy=date[0], value_sell=date[1], 
+                  amount=total_amount,
+                  date=datetime.now(),
+                  type_transaction="compra")
+                transaction.save()
+      else:
+        form = BuyForm()
+      return render(request, 'perfiles/buy.html', { 'assets': assets, 'virtual_money': virtual_money, 'form': form})
+    if request.get_full_path() == '/price/':
+      return render_to_response('perfiles/price.html', { 'assets': assets })
+    if request.get_full_path() == '/wallet/':
+      return render_to_response('perfiles/wallet.html', { 'assets': assets,
+                                'user': user, 'my_assets': my_assets, "capital": cap })
+
+#def addTransaction(request, value_buy, value_sell, amount, user_asset_id):
+
