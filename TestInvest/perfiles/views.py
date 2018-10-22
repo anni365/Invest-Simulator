@@ -63,7 +63,8 @@ def show_assets(request):
     return render_to_response('perfiles/price.html', {'assets': assets})
 
 def mytransactions(request):
-    my_transactions = Transaction.objects.filter(user = request.user.id).order_by('date')
+    my_transactions = Transaction.objects.filter(user = request.user.id)
+    my_transactions = my_transactions.order_by('-date')
     return render_to_response('perfiles/transaction_history.html',
                               {'my_transactions': my_transactions,
                               'user': request.user})
