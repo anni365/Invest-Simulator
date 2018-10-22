@@ -56,8 +56,13 @@ class SignOutView(LogoutView):
 
 def show_my_asset(request):
     user = request.user
+<<<<<<< HEAD
+    my_assets = UserAsset.objects.filter(user = request.user.id)
+    return render_to_response('perfiles/wallet.html', { 'my_assets':  my_assets,
+=======
     my_assets = UserAsset.objects.filter(user=request.user.id)
     return render_to_response('perfiles/wallet.html', {'my_assets': my_assets,
+>>>>>>> master
                               'user': user})
 
 

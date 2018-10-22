@@ -40,4 +40,3 @@ class Transaction(models.Model):
     value_sell = models.PositiveIntegerField(blank=None)
     amount = models.PositiveIntegerField(blank=None)
     date = models.DateTimeField('date published')
-

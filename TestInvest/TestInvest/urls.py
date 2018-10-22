@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 
-from perfiles.views import SignUpView, BienvenidaView, SignInView, SignOutView
+from perfiles.views import SignUpView, WelcomeView, SignInView, SignOutView
 from TestInvest import settings
 from perfiles import views
 from django.conf.urls.static import static
@@ -21,7 +21,7 @@ def anonymous_required(func):
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$', BienvenidaView.as_view(), name='home'),
+    url(r'^$', WelcomeView.as_view(), name='home'),
     url(r'^signup/$', anonymous_required(SignUpView.as_view()),
         name='sign_up'),
     url(r'^login/$', anonymous_required(SignInView.as_view()),
