@@ -76,7 +76,7 @@ def calculate_capital(assets, my_assets, virtual_money):
         for asset in my_assets:
             if (asset.name == name[1] and date[1] is not None):
                 cap += asset.total_amount * date[1]
-            cap += virtual_money
+    cap += virtual_money
     return cap
 
 def show_assets(request):
