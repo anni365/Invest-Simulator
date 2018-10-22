@@ -65,7 +65,6 @@ def show_assets(request):
 class ProfileView(TemplateView):
     template_name = 'perfiles/profile.html'
 
-#Editar perfil del usuario
 class UpdateProfileView(UpdateView):
     model = CustomUser
     template_name = 'perfiles/update_profile.html'
