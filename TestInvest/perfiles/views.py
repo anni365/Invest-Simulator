@@ -5,7 +5,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import CreateView, TemplateView
 from django.contrib.auth.forms import PasswordChangeForm
 
-from .forms import SignUpForm, BuyForm
+from .forms import SignUpForm, BuyForm, SellForm
 from django.contrib import messages
 from .models import CustomUser, UserAsset, Transaction
 import json
@@ -50,24 +50,86 @@ class SignInView(LoginView):
 class SignOutView(LogoutView):
     pass
 
-def show_my_salle(request):
-    return render_to_response('perfiles/salle.html')
 
+def show_sell(request):
+    print("SHOW MY ASSETS")
+    user = request.user
+    virtual_money = request.user.virtual_money
+    my_assets = UserAsset.objects.filter(user=request.user.id)
+    with open('perfiles/asset/assets.json') as assets_json:
+        assets_name = json.load(assets_json)
+    assets_name = assets_name.get("availableAssets")
+    assets_price = []
+    assets = {}
+    cap = 0
+    if assets_name is not None:
+        for asset in assets_name:
+            name_as = 'perfiles/asset/'+str(asset.get("name"))+'.json'
+            with open(name_as) as assets_price:
+                pri = json.load(assets_price)
+                assets.update({(asset.get("type"), asset.get("name")): pri})
+    assets = assets.items()
+    for name, dates in assets:
+      date = list(dates.values())
+      for asset in my_assets:
+        if (asset.name == name[1] and date[0] != None ):
+          cap += asset.total_amount * date[0]
+    cap += virtual_money
+    form = SellForm(request.POST)
+    if form.is_valid():
+      name = request.POST.get("name", "0")
+      total_amount = form.cleaned_data.get("total_amount")
+      print ("--form--->", form )
+      my_assets =  UserAsset.objects.filter(user=request.user.id, name=name)
+      exist = my_assets.exists()
+      for names, dates in assets:
+        date = list(dates.values())
+        if exist:
+          for asset in my_assets:
+            if names[1] == asset.name:
+              print ("--asset.total_amount--->", asset.total_amount , "----total_amount---->", total_amount )
+              asset.total_amount = asset.total_amount - total_amount
+              asset.save()
+              print("creando transaccion para asset vendido EXISTENTE")
+              transaction = Transaction.objects.create(
+                user_id= request.user.id, user_asset_id=asset.id,
+                value_buy=date[0],  value_sell=date[1], amount=total_amount,
+                date=datetime.now(), type_transaction="venta")
+              transaction.save()
+        else:
+          print("No existe el asset")
+      return render(request, 'perfiles/salle.html', { 
+        'assets': assets, 'my_assets': my_assets, 'virtual_money': virtual_money, 'form': form})
 
-#Muestro los asset que dispongo
-def show_my_asset(request):
-    name = request.user.username
-    portfolio_quote = "$1,520,000"
-    liquid_money = "$100,000"
-    with open('perfiles/wallet.json') as wallet_json:
-        wallet = json.load(wallet_json)
-    if wallet != []:
-        wallet = wallet.get("wallet")
-    return render_to_response('perfiles/wallet.html',
-                              {'wallet': wallet,
-                               'portfolio_quote': portfolio_quote,
-                               'liquid_money': liquid_money, 'name': name})
-
+def show_my_assets(request):
+    print("SHOW MY ASSETS")
+    user = request.user
+    virtual_money = request.user.virtual_money
+    my_assets = UserAsset.objects.filter(user=request.user.id)
+    with open('perfiles/asset/assets.json') as assets_json:
+        assets_name = json.load(assets_json)
+    assets_name = assets_name.get("availableAssets")
+    assets_price = []
+    assets = {}
+    cap = 0
+    if assets_name is not None:
+        for asset in assets_name:
+            name_as = 'perfiles/asset/'+str(asset.get("name"))+'.json'
+            with open(name_as) as assets_price:
+                pri = json.load(assets_price)
+                assets.update({(asset.get("type"), asset.get("name")): pri})
+    assets = assets.items()
+    for name, dates in assets:
+      date = list(dates.values())
+      for asset in my_assets:
+        if (asset.name == name[1] and date[0] != None ):
+          cap += asset.total_amount * date[0]
+    cap += virtual_money
+    if request.get_full_path() == '/price/':
+      return render_to_response('perfiles/price.html', { 'assets': assets })
+    if request.get_full_path() == '/wallet/':
+      return render_to_response('perfiles/wallet.html', { 'assets': assets,
+                                'user': user, 'my_assets': my_assets, "capital": cap })
 
 def show_assets(request):
     user = request.user
@@ -104,6 +166,7 @@ def show_assets(request):
             date = list(dates.values())
             if exist:
               for asset in my_assets:
+                print()
                 if names[1] == asset.name:
                   asset.total_amount = asset.total_amount + total_amount
                   asset.old_unit_value = date[0] 
