@@ -3,22 +3,53 @@
 {% block title %}Bievenido{% endblock %}
 
 {% block content %}
-    <style>
+  <style>
     h1 {color:violet;}
     a1 {color:IndianRed;}
-    </style>
+    h2 {color:#0d7dc6;}
+    .dropbtn {
+        background-color: #e74c3c;
+        color: white;
+        padding: 16px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+    }
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #ffedf1;
+        min-width: 230px;
+    }
+    .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+    .dropdown-content a:hover {background-color: #fbe8e6}
+    .dropdown:hover .dropdown-content {display: block;}
+    .dropdown:hover .dropbtn {background-color: #fa5b54;}
+  </style>
     {% if user.is_authenticated %}
-      <div align="center">
-        <a href="{% url 'sign_out' %}">Cerrar sesión</a> &nbsp
-        <a href="{% url 'change_password' %}">Cambiar contraseña</a>&nbsp
-        <a href="{% url 'wallet' %}">Cartera de inversiones</a>&nbsp
-        <a href="{% url 'price' %}">Ver cotizaciones</a>
-      </div>
       <div align="center">
         <h1 color="blue">Invest Simulator</h1>
       </div>
+      <center>
       <h2>Hola, {{ user.username }}!!</h2>
-      <img src="{{ user.avatar.url }}" width="50px" height="50px" align="left" />
+      <img src="{{ user.avatar.url }}" width="50px" height="50px" align="center"/>
+      </center>
+      <div class="dropdown">
+        <button class="dropbtn">Opciones</button>
+        <div class="dropdown-content">
+        <a href="{% url 'sign_out' %}">Cerrar sesión</a>
+        <a href="{% url 'change_password' %}">Cambiar contraseña</a>
+        <a href="{% url 'wallet' %}">Cartera de inversiones</a>
+        <a href="{% url 'price' %}">Ver Cotizaciones</a>
+        <a href="{% url 'buy' %}">Comprar activo</a>
+        <a href="{% url 'wallet' %}">Vender activo</a>
+        </div>
+      </div>
     {% else %}
       <div align="center">
         <h1><a1>Bienvenido Invest Simulator</a1>

@@ -21,33 +21,21 @@ body
   <form action="" method="get" name="formu" id="formu" onsubmit="return false;">
   <br>
     Tu cantidad: <input type="number" id="num" name="cantidad" value="" min="1"
-                       pattern="^[1-9]\d*$" onClick= "comprobar()">
+                       pattern="^[1-9]\d*$">
   </br>
   </form>
 
-<button class="open-button" onclick="openForm()">Confirmar</button>
+<button class="open-button" onclick="openForm({{virtual_money}}, event)">Confirmar</button>
 <button
     class="enlace" onclick="window.location='{% url 'home' %}'">Cancelar
 </button>
 
 <div class="form-popup" id="myForm">
-  <form action="" class="form-container">
+    <form method="POST" class="form-container" onsubmit="Respuesta()" id="form">{% csrf_token %}
     <h1>RESUMEN</h1>
-
-    <label for="name"><b>Nombre del Activo</b></label>
-    <input type="text"  name="text" id="x1" disabled>
-
-    <label for="count"><b>Cantidad</b></label>
-    <input type="text"  name="text" id="x2" disabled>
-
-    <label for="cotiz"><b>Cotizacion</b></label>
-    <input type="text"  name="text" id="x3" disabled>
-
-    <label for="dinero_liq"><b>Dinero Liquido</b></label>
-    <input type="text" name="text" id="x4" disabled>
-
+      {{ form.as_p }}
     <p>Estas seguro de realizar esta operacion?</p>
-    <button type="button" class="btn" onclick="Respuesta()">SI</button>
+    <input id="accept" type="submit" value="Si">
     <button type="button" class="btn" onclick="closeForm()">NO</button>
   </form>
 </div>
@@ -59,44 +47,54 @@ function comprobar() {
     var nombre,cotizacion,dinero_liq, devolver;
     var lista = [];
     var getDato;
+    var virtual_money = virtual_money;
     if(loc.indexOf('?')>0){
         var getString1 = loc.split("?")[1];
         for (i=0;i<3;i++) {
             getDato = getString1.split("&")[i];
             lista[i] = getDato.split("=")[1];
         }
-
-        if ( parseInt(lista[1]) < cantidad) {
+        if ( lista[1] < cantidad) {
             closeForm();
             alert("Te pasaste con la cantidad, intente nuevamente.");
+            document.getElementById("num").disabled = false;
         } else if (cantidad < 0) {
             closeForm();
             alert("Numero negativo no esta permitido, intente nuevamente.");
+            document.getElementById("num").disabled = false;
         } else {
             devolver = {
             nombre: lista[0],
             cantidad: cantidad,
             cotizacion: lista[2],
-            dinero_liq: 0
             }
             return devolver;
         }
     }
 }
-
 function Respuesta() {
-    alert("La compra se realizo con exito, Felicidades!!!");
+    alert("La venta se realizo con exito, Felicidades!!!");
+    document.getElementById("id_name").disabled = false;
+    document.getElementById("id_total_amount").disabled = false;
+    document.getElementById("id_price_sell").disabled = false;
+    document.getElementById("dinero_liq").disabled = false;
+    document.getElementById("form").submit();
     closeForm();
 }
 
-function openForm() {
-    document.getElementById("myForm").style.display = "block";
+function openForm(v_money, event) {
     var valor = comprobar();
     if (0 < valor.cantidad) {
-        document.getElementById("x1").value = valor.nombre;
-        document.getElementById("x2").value = valor.cantidad;
-        document.getElementById("x3").value = valor.cotizacion;
-        document.getElementById("x4").value = valor.dinero_liq;
+        document.getElementById("myForm").style.display = "block";
+        document.getElementById("num").disabled = true;
+        event.preventDefault();
+        document.getElementById("id_name").value = valor.nombre;
+        document.getElementById("id_total_amount").value = valor.cantidad;
+        document.getElementById("id_total_amount").disabled = true;
+        document.getElementById("id_price_sell").value = valor.cotizacion;
+        document.getElementById("id_price_sell").disabled = true;
+        document.getElementById("id_virtual_money").value = v_money;
+        document.getElementById("id_virtual_money").disabled = true;
         setTimeout('closeForm()',5000);
     }else{
         closeForm();
