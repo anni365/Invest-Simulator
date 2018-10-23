@@ -11,6 +11,9 @@ from .forms import SignUpForm, UpdateProfileForm, BuyForm
 from django.contrib import messages
 from .models import CustomUser, UserAsset, Transaction
 import json
+from django.utils import timezone
+from datetime import datetime
+
 
 
 class SignUpView(CreateView):
@@ -146,7 +149,7 @@ def addTransaction(request, value_buy, value_sell, total_amount,
                   user_asset_id=user_asset_id,
                   value_buy=value_buy, value_sell=value_sell,
                   amount=total_amount,
-                  date=datetime.now(tz=timezone.utc),
+                  date=datetime.now(),
                   type_transaction="compra")
     transaction.save()
     return transaction
@@ -158,3 +161,10 @@ def addAsset(request, name, total_amount, type_asset, old_unit_value):
                 old_unit_value=old_unit_value)
     asset.save()
     return asset
+
+def mytransactions(request):
+    my_transactions = Transaction.objects.filter(user = request.user.id)
+    my_transactions = my_transactions.order_by('-date')
+    return render_to_response('perfiles/transaction_history.html',
+                              {'my_transactions': my_transactions,
+                              'user': request.user})
