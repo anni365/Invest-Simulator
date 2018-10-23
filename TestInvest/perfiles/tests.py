@@ -64,4 +64,4 @@ class TransactionTest(TestCase):
         data = {'name':user_asset.name,
                 'total_amount':user_asset.total_amount,}
         form = BuyForm(data=data)
-        self.assertIs(form.is_valid(), False)
+        self.assertIs(form.is_valid(), True)

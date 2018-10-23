@@ -50,8 +50,8 @@ class UpdateProfileForm(forms.ModelForm):
         )
 
 class BuyForm(ModelForm):
-    name = forms.CharField(disabled=True, required=True, label="Nombre del Activo")
-    total_amount = forms.IntegerField(label="Cantidad Activo", required=True)
+    name = forms.CharField(disabled=True, required=False, label="Nombre del Activo")
+    total_amount = forms.IntegerField(label="Cantidad Activo", required=False)
 
     class Meta:
         model = UserAsset
