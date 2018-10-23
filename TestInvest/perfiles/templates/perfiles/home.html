@@ -8,13 +8,6 @@
   </style>
     {% if user.is_authenticated %}
       <div align="center">
-        <a href="{% url 'sign_out' %}">Cerrar sesión</a> &nbsp
-        <a href="{% url 'change_password' %}">Cambiar contraseña</a>&nbsp
-        <a href="{% url 'wallet' %}">Cartera de inversiones</a>&nbsp
-        <a href="{% url 'price' %}">Ver cotizaciones</a>
-        <a href="{% url 'profile' %}">Mi perfil</a>
-      </div>
-      <div align="center">
         <h1 color="blue">Invest Simulator</h1>
       </div>
       <center>
@@ -24,6 +17,7 @@
       <div class="dropdown">
         <button class="dropbtn">Opciones</button>
         <div class="dropdown-content">
+        <a href="{% url 'profile' %}">Mi perfil</a>
         <a href="{% url 'wallet' %}">Cartera de Inversiones</a>
         <a href="{% url 'price' %}">Ver Cotizaciones</a>
         <a href="{% url 'buy' %}">Comprar Activo</a>
