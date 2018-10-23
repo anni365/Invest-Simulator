@@ -1,6 +1,6 @@
 from django.test import TestCase
-from .models import CustomUser
-from .forms import SignUpForm, UpdateProfileForm
+from .models import CustomUser, Transaction, UserAsset
+from .forms import SignUpForm, UpdateProfileForm, BuyForm
 
 class CustomUserTest(TestCase):
 
@@ -35,3 +35,33 @@ class CustomUserTest(TestCase):
                 'last_name':custom_user.last_name,}
         form = UpdateProfileForm(data=data)
         self.assertTrue(form.is_valid())
+
+
+class TransactionTest(TestCase):
+
+    def setUp(self):
+        Transaction.objects.create(user_id= 1, user_asset_id=2,
+                  value_buy=2.3, value_sell=2.5, amount=3,
+                  date="2018-10-08", type_transaction="compra")
+        UserAsset.objects.create(user_id= 1, name="Dolar", total_amount=3,
+                type_asset="Divisa", old_unit_value=2.3)
+
+    def test_transaction_buy_user(self):
+        transaction = Transaction.objects.get(user_id=1)
+        self.assertEqual(transaction.value_buy, 2.3)
+
+    def test_asset_user(self):
+        asset = UserAsset.objects.get(user_id=1)
+        self.assertEqual(asset.name, "Dolar")
+
+    def test_transaction_asset_amount_user(self):
+        transaction = Transaction.objects.get(user_id=1)
+        asset = UserAsset.objects.get(user_id=1)
+        self.assertEqual(transaction.amount, asset.total_amount)
+
+    def test_valid_form_buy_valid(self):
+        user_asset = UserAsset.objects.get(user_id=1)
+        data = {'name':user_asset.name,
+                'total_amount':user_asset.total_amount,}
+        form = BuyForm(data=data)
+        self.assertIs(form.is_valid(), False)
