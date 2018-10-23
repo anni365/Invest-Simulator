@@ -104,13 +104,12 @@
       background-color: #555;
       color: #fff;
       text-align: center;
-      position: center;
       z-index: 1;
       bottom: 125%;
       left: 50%;
       margin-left: -80px;
       border: 1px solid #aaa;
-      position: absolute;
+      position: relative;
       width: 500px;
   }
   .popup .popuptext::after {
