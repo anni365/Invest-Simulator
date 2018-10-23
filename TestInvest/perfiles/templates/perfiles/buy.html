@@ -38,13 +38,10 @@
   var totalTiempo=5;
   var url="http://localhost:8000";
   function success() {
-      alert("La compra se realizo exito con!!");
+      alert("La compra se realizo con exito!!");
       document.getElementById("id_total_amount").disabled = false;
       document.getElementById("id_name").disabled = false;
       document.getElementById("my_form").submit();
-      if ($("#my_form").submit()) {
-         location.reload();
-      }
   }
   function openForm(value, name) {
     document.getElementById("price").innerHTML = "";
