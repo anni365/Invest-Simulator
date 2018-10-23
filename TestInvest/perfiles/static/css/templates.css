@@ -1,0 +1,116 @@
+  ul {color:red;}
+  a1 {color:#C70039}
+  a  {color:#5F04B4;}
+  p  {color:brown;}
+  body {font-family: Arial, Helvetica, sans-serif;}
+  h1 {color:FireBrick}
+  h2 {color:#C70039}
+  b {color:#d35400 }
+  c {color:#4f1180}
+  button {
+    background-color: #e74c3c;
+    border: none;
+    color: white;
+    padding: 10px 27px;
+  }
+  table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+  }
+  td, th {
+    border: 1px solid #DF3A01;
+    text-align: left;
+    padding: 8px;
+  }
+  tr:nth-child(even) {
+    background-color: SeaShell;
+  }
+  th {
+    color: #8A0829;
+    background-color: Salmon;
+  }
+  input[type=submit] {
+    background-color: #c39bd3;
+    color: white;
+    padding: 16px 20px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom:10px;
+    opacity: 0.8;
+  }
+  .dropbtn {
+      background-color: #e74c3c;
+      color: white;
+      padding: 16px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      position:relative; left:50px
+  }
+  .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #ffedf1;
+      min-width: 230px;
+  }
+  .dropdown-content a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+  }
+  .dropdown-content a:hover {background-color: #fbe8e6}
+  .dropdown:hover .dropdown-content {display: block;}
+  .dropdown:hover .dropbtn {background-color: #fa5b54;}
+  .form-popup {
+    display: none;
+    border: 3px solid #ffedf1;
+    max-width: 500px;
+    padding: 100px;
+    background-color: white;
+  }
+  .form-container {
+    max-width: 500px;
+    padding: 80px;
+    background-color: white;
+  }
+  .form-container input[type=number]{
+    padding: 10px;
+    margin: 5px 1 22px 1;
+    border: none;
+    background: #fdedec;
+  }
+  .form-container input[type=text]{
+    padding: 5px;
+    margin: 5px 0 22px 0;
+    border: none;
+    background: White;
+  }
+  .form-container .btn {
+    background-color: #c39bd3;
+    color: white;
+    padding: 16px 20px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom:10px;
+    opacity: 0.8;
+  }
+  .form-container .cancel {
+    background-color: red;
+  }
+  .form-container .btn:hover, .open-button:hover {
+    opacity: 1;
+  }
+   #confirm {
+    display: none;
+    border: 1px solid #aaa;
+    position: center;
+    width: 500px;
+    left: 50%;
+    padding: 4px 12px 12px;
+   }
+  label {
+    color: #DF3A01;
+  }

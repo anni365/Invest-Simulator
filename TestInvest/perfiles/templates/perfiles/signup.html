@@ -1,18 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}Registro{% endblock %}
 {% block content %}
-    <style>
-    a {color:blue;}
-    h2 {color:#512e5f;}
-    p  {color:brown;}
-    a1  {color:#6c3483;}
-    button {
-    background-color: #e74c3c;
-    border: none;
-    color: white;
-    padding: 10px 27px;
-    }
-    </style>
   <center>
   <a href="{% url 'home' %}">Inicio</a>
   <h2 id="signup">Registrate</h2>
@@ -35,24 +23,20 @@
     function myFunction() {
         document.getElementById("signup").innerHTML = "";
     }
-    </script>
-    <script>
     document.getElementById("myForm").innerHTML = "";
     var totalTiempo=10;
     var url="http://localhost:8000";
-    function updateReloj()
-    {
-        document.getElementById('message').innerHTML = `El registro se
-        realizo correctamente!<br/> Redireccionando a la pagina principal
-        en ${totalTiempo} segundos <br/> o haga click
-        <a href="{% url 'home' %}">aqui</a> para ir directamente`;
-        if(totalTiempo==0)
-        {
-            window.location=url;
-        }else{
-            totalTiempo-=1;
-            setTimeout("updateReloj()",1000);
-        }
+    function updateReloj() {
+      document.getElementById('message').innerHTML = `<b>El registro se
+      realizo correctamente!<br/> Redireccionando a la pagina principal
+      en <c>${totalTiempo}</c> segundos <br/> o haga click
+      <a href="{% url 'home' %}">aqui</a> para ir directamente</b>`;
+      if(totalTiempo==0) {
+          window.location=url;
+      } else {
+        totalTiempo-=1;
+        setTimeout("updateReloj()",1000);
+      }
     }
     window.onload=updateReloj;
     </script>

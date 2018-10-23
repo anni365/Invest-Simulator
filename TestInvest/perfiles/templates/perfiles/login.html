@@ -1,19 +1,6 @@
 {% extends "base.html" %}
-
 {% block title %}Iniciar Sesión{% endblock %}
-
 {% block content %}
-  <style>
-  p  {color:brown;}
-  h2 {color:green}
-  button {
-  background-color: green;
-  border: none;
-  color: white;
-  padding: 10px 27px;
-  }
-  ul {color:red;}
-  </style>
   <center>
   <a href="{% url 'home' %}">Inicio</a>
   <h2>Iniciar Sesión</h2>
@@ -22,5 +9,4 @@
         {{ form.as_p }}
         <button type="submit">Iniciar Sesión</button>
     </form>
-
 {% endblock content %}
