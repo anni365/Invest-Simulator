@@ -12,6 +12,7 @@ from .forms import SignUpForm, BuyForm
 from django.contrib import messages
 from .models import CustomUser, UserAsset, Transaction
 import json
+from importlib import reload
 
 
 class SignUpView(CreateView):
@@ -88,7 +89,7 @@ def show_assets(request):
     if request.get_full_path() == '/buy/':
         if request.method == 'POST':
             form = BuyForm(request.POST)
-            buy_assets(request, form, assets, virtual_money)
+            virtual_money, assets = buy_assets(request, form, assets, virtual_money)
         else:
             form = BuyForm()
         return render(request, 'perfiles/buy.html', {
@@ -129,6 +130,7 @@ def buy_assets(request, form, assets, capital):
                 virtual_money = virtual_money - total_amount * date[0]
                 request.user.virtual_money = virtual_money
                 request.user.save()
+        return virtual_money, assets
 
 def addTransaction(request, value_buy, value_sell, total_amount, 
                         user_asset_id):

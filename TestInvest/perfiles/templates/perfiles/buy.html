@@ -3,13 +3,26 @@
 {% block content %}
   <center>
   <h2 id="not_assets"></h2>
-  <div id="confirm">
-     <div class="message"></div>
-     <button class="yes" onclick="success()">Si</button>&nbsp;&nbsp;
-     <button class="no" onclick="window.location=url">No</button>
+  <div id="price">
+    {% include 'perfiles/price.html' %}
+    <br><b>Dinero Liquido Disponible: ${{virtual_money}}</b>
   </div>
-  <p id="time"></p>
-  <div class="form-popup" id="myForm">
+  <div class="popup">
+    <span class="popuptext" id="myPopup">
+    <head><script>
+      closePop();
+      function closePop() {
+      document.getElementById("myPopup").style.display = "none";
+    }
+    </script></head>
+    <span class="popup">
+      <div id="confirm">
+       <w class="message"></w><br>
+         <button class="yes" onclick="success()">Si</button>&nbsp&nbsp
+         <button class="no" onclick="window.location=url">No</button>
+      </div>
+      <w id="time"></w>
+    </span>
     <form action="{% url 'buy' %}" method="POST" class="form-container"
       onsubmit="confirm(event, {{virtual_money}})" id="my_form">
       <h2>Comprar Activo</h2>
@@ -21,11 +34,9 @@
       <button type="button" id="cancel" class="btn cancel" onclick="closeForm()">
       Cancelar</button>
     </form>
+    </span>
   </div>
-  <div id="price">
-    {% include 'perfiles/price.html' %}
-    <br><b>Dinero Liquido Disponible: ${{virtual_money}}</b>
-  </div>
+    <div id="casca"></div>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
   </script>
   <script>
@@ -35,7 +46,7 @@
   document.getElementById("init").innerHTML = "";
   </script>
   <script>
-  var totalTiempo=10;
+  var totalTiempo=5;
   var url="http://localhost:8000";
   function success() {
       alert("La compra se realizo con exito!!");
@@ -43,10 +54,11 @@
       document.getElementById("id_name").disabled = false;
       document.getElementById("my_form").submit();
   }
-  function openForm(value, name) {
-    document.getElementById("price").innerHTML = "";
+  function openForm(value, name,link) {
     document.getElementById("id_total_amount").value = "";
-    document.getElementById("myForm").style.display = "block";
+    document.getElementById("buy").disabled = true;
+    var popup = document.getElementById("myPopup");
+    popup.classList.toggle("show");
     localStorage.setItem('sell', value.sell);
     localStorage.setItem('buy', value.buy);
     localStorage.setItem('names', name);
@@ -90,7 +102,7 @@
     ¿Esta seguro que desea comprar esta cantidad del activo?`
     if (amount > 0) {
       if (a >= total_amount) {
-        totalTiempo=10;
+        totalTiempo=5;
         buy_confirm.find(".message").text(msg);
         updateReloj();
         buy_confirm.show();
