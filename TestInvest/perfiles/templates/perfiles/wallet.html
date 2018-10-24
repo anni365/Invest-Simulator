@@ -1,70 +1,54 @@
 {% extends "base.html" %}
 {% block title %}Cartera de Inversiones{% endblock %}
 {% block content %}
-  <style>
-  h2 {color:#8A0886}
-  a {color:#blue}
-  button {
-  background-color: #e74c3c;
-  border: none;
-  color: white;
-  padding: 10px 27px;
-  }
-  table {
-      font-family: arial, sans-serif;
-      border-collapse: collapse;
-  }
-
-  td, th {
-      border: 1px solid #dddddd;
-      text-align: left;
-      padding: 8px;
-  }
-  tr:nth-child(even) {
-      background-color: #dddddd;
-  }
-  th {
-      color: #8A0829;
-  }
-  </style>
-  <center>
+<center>
   <h2>Cartera de inversiones</h2>
-  {% if wallet %}
-     <h2> Nombre : {{name}}</h2>
-  <TABLE BORDER>
-     <TR>
-      <TH>Nombre</TH>
-      <TH>Cantidad</TH>
-      <TH>Tipo</TH>
-      <TH>Valor de compra</TH>
-      <TH>Valor de venta</TH> 
-     </TR>
+  <h2> Nombre : {{user.username}}</h2>
+  {% if my_assets %}
+    <TABLE BORDER>
+      <TR>
+        <TH>Nombre</TH>
+        <TH>Cantidad</TH>
+        <TH>Tipo</TH>
+        <TH>Valor de adquisición</TH>
+        <TH>Valor de compra</TH>
+        <TH>Valor de venta</TH>
+      </TR>
       <tbody>
-      {% for wallet in wallet %}
-        {% if wallet.count != 0 and wallet.price_sell != None and wallet.price_buy != None %}
-        <tr>
-          <td>
-            <a href= "{% url 'salle' %}?name={{wallet.name}}&count={{wallet.count }}&cotiz={{ wallet.price_buy }}"> 
-                      {{ wallet.name }}
-          </td>
-          <td>{{ wallet.count }}</td>
-          <td>{{ wallet.type }}</td>
-          <td>{{ wallet.price_buy }}</td>
-          <td>{{ wallet.price_sell }}</td>
-        </tr>
-        {% endif %}
+      {% for asset in my_assets %}
+        {% for keys, values in assets %}
+          {% if keys.1 == asset.name %}
+          <tr> 
+          {% if asset.total_amount != 0 and values.buy != None and values.sell != None  %}
+            <td><a href= "{% url 'home' %}?name={{asset.name}}&count={{asset.total_amount }}&cotiz={{ values.buy}}"> {{ asset.name }}</td>
+          {% else %}
+            <td>{{ asset.name }}</td>
+          {% endif %}
+            <td>{{ asset.total_amount }}</td>
+            <td>{{ asset.type_asset }}</td>
+            <td>${{ asset.old_unit_value }}</td>
+          {% if values.buy != None and values.buy != None %}
+            <td>${{ values.buy }} </td>
+          {% else %}
+            <td>Sin cotizacion </td>
+          {% endif %}
+          {% if values.sell != None %}
+            <td>${{ values.sell }} </td>
+          {% else %}
+            <td>Sin cotizacion </td>
+          {% endif %}
+          </tr>
+          {% endif %}
+        {% endfor %}
       {% endfor %}
       </tbody>
-  </TABLE>
-  <h2>Cotizacion de Cartera : {{portfolio_quote}}</h2> 
-  <a href="{% url 'salle' %}">Vender activos</a></a></div>
-  <a href="{% url 'salle' %}">Comprar activos</a></a></div>
+    </TABLE>
+    <h2>Dinero liquido disponible: {{user.virtual_money}}</h2>
+    <h2>Capital: {{capital}}</h2>
   {% else %}
-  <h1> No dispone de activos!!!</h1>
-  <h2>Cotizacion de Cartera :</h2>
-    {{liquid_money}}
+      <h1> No dispone de activos!!!</h1>
+      <h2>Dinero liquido disponible : {{user.virtual_money}} </h2>
   {% endif %}
   <center>
-  <br><a href="{% url 'home' %}">Volver al inicio</a>
+    <br><a href="{% url 'home' %}">Volver al inicio</a>
 {% endblock content %}
-
