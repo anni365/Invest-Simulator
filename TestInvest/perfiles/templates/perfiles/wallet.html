@@ -20,7 +20,7 @@
           {% if keys.1 == asset.name %}
           <tr> 
           {% if asset.total_amount != 0 and values.buy != None and values.sell != None  %}
-            <td><a href= "{% url 'home' %}?name={{asset.name}}&count={{asset.total_amount }}&cotiz={{ values.buy}}"> {{ asset.name }}</td>
+            <td><a href= "{% url 'salle' %}?name={{asset.name}}&count={{asset.total_amount }}&cotiz={{ values.buy}}"> {{ asset.name }}</td>
           {% else %}
             <td>{{ asset.name }}</td>
           {% endif %}
