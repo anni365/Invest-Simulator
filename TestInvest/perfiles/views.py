@@ -80,6 +80,7 @@ def calculate_capital(assets, my_assets, virtual_money):
     cap += virtual_money
     return cap
 
+
 def show_assets(request):
     user = request.user
     virtual_money = request.user.virtual_money
@@ -89,7 +90,8 @@ def show_assets(request):
     if request.get_full_path() == '/buy/':
         if request.method == 'POST':
             form = BuyForm(request.POST)
-            virtual_money, assets = buy_assets(request, form, assets, virtual_money)
+            virtual_money, assets = buy_assets(
+              request, form, assets, virtual_money)
         else:
             form = BuyForm()
         return render(request, 'perfiles/buy.html', {
@@ -101,52 +103,59 @@ def show_assets(request):
           'assets': assets, 'user': user, 'my_assets': my_assets,
           'capital': cap})
 
+
 def buy_assets(request, form, assets, capital):
     user = CustomUser
     virtual_money = request.user.virtual_money
     if form.is_valid():
-        name = request.POST.get("name", "0")
+        name = form.cleaned_data.get("name")
         total_amount = form.cleaned_data.get("total_amount")
-        my_assets =  UserAsset.objects.filter(user=request.user.id, name=name)
+        my_assets = UserAsset.objects.filter(user=request.user.id, name=name)
         exist = my_assets.exists()
         for names, dates in assets:
             date = list(dates.values())
+            if names[1] == name and (date[0] is None or date[1] is None):
+                messages.add_message(
+                  request, messages.INFO, 'El Activo seleccionado ya no se'
+                  'encuentra  disponible, no se pudo concretar la compra. Para'
+                  'ver la acual lista de activos recargue la pagina')
+                break
             if exist:
                 for asset in my_assets:
-                    if names[1] == asset.name:
+                    if (names[1] == asset.name):
                         asset.total_amount = asset.total_amount + total_amount
                         asset.old_unit_value = date[0]
                         asset.save()
-                        transaction = addTransaction(request, date[0], date[1], total_amount, 
-                        asset.id)
-                        virtual_money = virtual_money - total_amount * date[0]
+                        transaction = addTransaction(
+                          request, date[0], date[1], total_amount, asset.id)
+                        virtual_money = virtual_money - total_amount * date[1]
                         request.user.virtual_money = virtual_money
                         request.user.save()
-            elif names[1] == name:
-                my_asset = addAsset(request, name, total_amount,
-                                        names[0], date[0])
-                transaction = addTransaction(request, date[0],
-                                        date[1], total_amount, my_asset.id)
+            elif (names[1] == name):
+                my_asset = addAsset(
+                  request, name, total_amount, names[0], date[0])
+                transaction = addTransaction(
+                  request, date[0], date[1], total_amount, my_asset.id)
                 virtual_money = virtual_money - total_amount * date[0]
                 request.user.virtual_money = virtual_money
                 request.user.save()
         return virtual_money, assets
 
-def addTransaction(request, value_buy, value_sell, total_amount, 
-                        user_asset_id):
-    transaction = Transaction.objects.create(user_id= request.user.id,
-                  user_asset_id=user_asset_id,
+
+def addTransaction(request, value_buy, value_sell, total_amount,
+                   user_asset_id):
+    transaction = Transaction.objects.create(
+                  user_id=request.user.id, user_asset_id=user_asset_id,
                   value_buy=value_buy, value_sell=value_sell,
-                  amount=total_amount,
-                  date=datetime.now(tz=timezone.utc),
+                  amount=total_amount, date=datetime.now(tz=timezone.utc),
                   type_transaction="compra")
     transaction.save()
     return transaction
 
+
 def addAsset(request, name, total_amount, type_asset, old_unit_value):
-    asset = UserAsset.objects.create(user_id= request.user.id, name=name,
-                total_amount=total_amount,
-                type_asset=type_asset,
-                old_unit_value=old_unit_value)
+    asset = UserAsset.objects.create(
+              user_id=request.user.id, name=name, total_amount=total_amount,
+              type_asset=type_asset, old_unit_value=old_unit_value)
     asset.save()
     return asset

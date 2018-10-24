@@ -3,11 +3,12 @@
 {% block content %}
   <div><br>
   <center>
+  <h2 id="not_assets"></h2><br>
   <a id="init" href="{% url 'home' %}">Volver al inicio</a>
   <h1 id="nameC">Cotizaciones</h1>
   {% if assets %}
-    <table>
-      <thead id="tab">
+    <table id="tab">
+      <thead>
         <tr>
           <th>Nombre</th>
           <th>Valor de Compra</th>
@@ -30,17 +31,20 @@
       </tbody>
     </table>
   <br><a id="buy" href="{% url 'buy' %}">Comprar Activo</a>&nbsp
-  &nbsp<a href="{% url 'home' %}">Vender Activo</a>
+  &nbsp<a href="{% url 'wallet' %}">Vender Activo</a>
   <script>
+    var there_are_assets = false;
     {% for keys, values in assets %}
        {% if values.sell != null and values.buy != null %}
         there_are_assets = true;
-        break
+        break;
       {% endif %}
     {% endfor %}
     {% if there_are_assets == false %}
-      document.getElementById("not_assets").innerHTML = "No hay activos disponibles"
+      document.getElementById("not_assets").innerHTML ="No hay activos disponibles para mostrar"
       document.getElementById("tab").innerHTML = ""
+      document.getElementById("nameC").innerHTML = ""
+      document.getElementById("buy").innerHTML = ""
     {% endif %}
   </script>
   {% else %}

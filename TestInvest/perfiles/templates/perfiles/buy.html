@@ -40,7 +40,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
   </script>
   <script>
-  document.getElementById("nameC").innerHTML = "Compra"; 
+  document.getElementById("nameC").innerHTML = "Comprar"; 
   document.getElementById("buy").innerHTML = '<a href="{% url 'home' %}">' + 
     "Volver al inicio" + "</a>";
   document.getElementById("init").innerHTML = "";
@@ -126,4 +126,9 @@
     document.getElementById("total").innerHTML = "Subtotal $" + total2;
   });
   </script>
+  {% if messages %}
+     {% for message in messages %}
+       <p>{{ message }}</p>
+     {% endfor %}
+  {% endif %}
 {% endblock content %}

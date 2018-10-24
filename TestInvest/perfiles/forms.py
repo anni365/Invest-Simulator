@@ -37,7 +37,7 @@ class SignUpForm(UserCreationForm):
 
 
 class BuyForm(ModelForm):
-    name = forms.CharField(disabled=True, required=False, label="Nombre del Activo")
+    name = forms.CharField(required=False, label="Nombre del Activo")
     total_amount = forms.IntegerField(label="Cantidad Activo", required=False)
 
     class Meta:
