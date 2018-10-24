@@ -12,8 +12,16 @@ class SignUpForm(UserCreationForm):
     first_name = forms.CharField(label="Nombre", max_length=140, required=True)
     last_name = forms.CharField(label="Apellido", max_length=140,
                                 required=True)
-    email = forms.EmailField(required=True)
-    email2 = forms.EmailField(label='Email (confirmacion)', required=True)
+    email = forms.EmailField(required=True, widget=forms.TextInput(attrs={
+                            'placeholder': 'usuario@usuario.com'
+                        })
+                )
+    email2 = forms.EmailField(label='Email (confirmacion)', required=True,
+                              widget=forms.TextInput(
+                                attrs={
+                                    'placeholder': 'usuario@usuario.com'
+                                })
+                              )
 
     def clean_email2(self):
         email = self.cleaned_data.get("email")
@@ -46,4 +54,3 @@ class BuyForm(ModelForm):
             'name',
             'total_amount',
         )
-
