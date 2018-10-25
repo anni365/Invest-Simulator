@@ -31,13 +31,10 @@ urlpatterns = [
         name='change_password'),
     url(r'^wallet/$', login_required(views.show_assets), name='wallet'),
     url(r'^price/$', login_required(views.show_assets), name='price'),
-<<<<<<< HEAD
-=======
     url(r'^profile/$', ProfileView.as_view(), name='profile'),
     url(r'^update_profile/$', UpdateProfileView.as_view(success_url='/profile'),
                     name='update_profile'),
     url(r'^buy/$', login_required(views.show_assets), name='buy'),
->>>>>>> implementation
     url(r'^transactionhistory/$', login_required(views.mytransactions),
                    name='transaction_history'),
 ]
