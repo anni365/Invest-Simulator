@@ -2,38 +2,33 @@
 {% block title %}Activos{% endblock %}
 {% block content %}
   <style>
-  h1 {color:FireBrick}
-  h2 {color:#C70039}
-  button {
-  background-color: #e74c3c;
-  border: none;
-  color: white;
-  padding: 10px 27px;
+  .dropbtn {
+    position:relative;left:-41%;
   }
-  table {
-      font-family: arial, sans-serif;
-      border-collapse: collapse;
-  }
-
-  td, th {
-      border: 1px solid #DF3A01;
-      text-align: left;
-      padding: 8px;
-  }
-  tr:nth-child(even) {
-      background-color: SeaShell;
-  }
-  th {
-      color: #8A0829;
-      background-color: Salmon;
+  h2 {
+    text-align:center;
   }
   </style>
+  <div><br>
   <center>
-  <h1>Cotizaciones</h1>
-  <h2 id="mj"></h2>
+  <h2 id="not_assets"></h2><br>
+  <h1 id="nameC">Cotizaciones</h1>
+  <div class="dropdown">
+    <button class="dropbtn">Menu</button>
+    <div class="dropdown-content">
+      <a href="{% url 'home' %}">Volver al Inicio</a>
+      <a href="{% url 'profile' %}">Mi perfil</a>
+      <a href="{% url 'wallet' %}">Cartera de Inversiones</a>
+      <a href="{% url 'price' %}">Ver Cotizaciones</a>
+      <a href="{% url 'buy' %}">Comprar Activo</a>
+      <a href="{% url 'transaction_history' %}">Mis Transacciones</a>
+      <a href="{% url 'change_password' %}">Cambiar Contraseña</a>
+      <a href="{% url 'sign_out' %}">Cerrar Sesión</a>
+    </div>
+  </div>
   {% if assets %}
-    <table>
-      <thead id="tab">
+    <table id="tab">
+      <thead>
         <tr>
           <th>Nombre</th>
           <th>Valor de Compra</th>
@@ -42,34 +37,37 @@
         </tr>
       </thead>
       <tbody>
-      {% for keys, values in assets.items %}
-       {% if values.sell != None and values.buy != None %}
+      {% for keys, values in assets %}
+        {% if values.sell != None and values.buy != None %}
         <tr>
-          <td>{{ keys.0 }}</td>
+          <td><c onclick="openForm({{ values }}, {{ keys }})">{{ keys.1 }}</c>
+          </td>
           <td>{{ values.sell }}</td>
           <td>{{ values.buy }}</td>
-          <td>{{ keys.1 }}</td>
+          <td>{{ keys.0 }}</td>
         </tr>
         {% endif %}
       {% endfor %}
       </tbody>
     </table>
-  <br><a href="{% url 'home' %}">Volver al inicio</a>
-    <script>
-    {% for keys, values in assets.items %}
+  <script>
+    var there_are_assets = false;
+    {% for keys, values in assets %}
        {% if values.sell != null and values.buy != null %}
         there_are_assets = true;
-        break
+        break;
       {% endif %}
     {% endfor %}
     {% if there_are_assets == false %}
-      document.getElementById("mj").innerHTML = "No hay activos disponibles"
+      document.getElementById("not_assets").innerHTML ="No hay activos disponibles para mostrar"
       document.getElementById("tab").innerHTML = ""
+      document.getElementById("nameC").innerHTML = ""
+      document.getElementById("buy").innerHTML = ""
     {% endif %}
-  </script>  
+  </script>
   {% else %}
     <center>
     <h2>No hay activos disponibles</h2>
-    <br><a href="{% url 'home' %}">Volver al inicio</a>
   {% endif %}
+  </div>
 {% endblock content %}

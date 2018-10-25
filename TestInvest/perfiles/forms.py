@@ -7,12 +7,21 @@ from django.contrib.auth.forms import UserChangeForm
 from django.core.files.images import get_image_dimensions
 from django.forms import ModelForm
 
+
 class SignUpForm(UserCreationForm):
     first_name = forms.CharField(label="Nombre", max_length=140, required=True)
     last_name = forms.CharField(label="Apellido", max_length=140,
                                 required=True)
-    email = forms.EmailField(required=True)
-    email2 = forms.EmailField(label='Email (confirmacion)', required=True)
+    email = forms.EmailField(required=True, widget=forms.TextInput(attrs={
+                            'placeholder': 'usuario@usuario.com'
+                        })
+                )
+    email2 = forms.EmailField(label='Email (confirmacion)', required=True,
+                              widget=forms.TextInput(
+                                attrs={
+                                    'placeholder': 'usuario@usuario.com'
+                                })
+                              )
 
     def clean_email2(self):
         email = self.cleaned_data.get("email")
@@ -35,8 +44,23 @@ class SignUpForm(UserCreationForm):
         )
 
 
+class UpdateProfileForm(forms.ModelForm):
+    first_name = forms.CharField(label="Nombre", max_length=140, required=True)
+    last_name = forms.CharField(label="Apellido", max_length=140,required=True)
+    email = forms.EmailField(required=True)
+
+    class Meta:
+        model = CustomUser
+        fields = (
+            'first_name',
+            'last_name',
+            'email',
+            'avatar',
+        )
+
+
 class BuyForm(ModelForm):
-    name = forms.CharField(disabled=True, required=False, label="Nombre del Activo")
+    name = forms.CharField(required=False, label="Nombre del Activo")
     total_amount = forms.IntegerField(label="Cantidad Activo", required=False)
 
     class Meta:
@@ -46,10 +70,10 @@ class BuyForm(ModelForm):
             'total_amount',
         )
 
+
 class SellForm(forms.Form):
     name = forms.CharField(required=False, label="Nombre del Activo")
     total_amount = forms.IntegerField(label="Cantidad Activo", required=False)
     price_sell = forms.IntegerField(label="Precio de Venta", required=False)
     virtual_money = forms.IntegerField( label="Dinero Liquido", required=False)
-
 

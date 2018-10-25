@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Bievenido{% endblock %}
+
+{% block content %}
+    <style>
+    h1 {color:violet;}
+    a1 {color:IndianRed;}
+    .dropbtn {
+      position:relative;left:5%;top:5px
+    }
+    </style>
+    {% if user.is_authenticated %}
+    <div class="dropdown">
+      <button class="dropbtn">Menu</button>
+      <div class="dropdown-content">
+        <a href="{% url 'home' %}">Volver al Inicio</a>
+        <a href="{% url 'wallet' %}">Cartera de Inversiones</a>
+        <a href="{% url 'price' %}">Ver Cotizaciones</a>
+        <a href="{% url 'buy' %}">Comprar Activo</a>
+        <a href="{% url 'transaction_history' %}">Mis Transacciones</a>
+        <a href="{% url 'change_password' %}">Cambiar Contraseña</a>
+        <a href="{% url 'sign_out' %}">Cerrar Sesión</a>
+      </div>
+    </div>
+      <div align="center">
+        <a href="{% url 'update_profile' %}">Editar perfil</a>
+      </div>
+      <div align="center">
+        <h1 color="blue">Mi perfil</h1>
+      </div>
+      <center>
+      <div>
+        <h4>Nombre de usuario: {{user.username}}</h4>
+        <h4>Nombre completo: {{user.first_name}}&nbsp{{user.last_name}}</h4>
+        <h4>Email: {{user.email}}</h4>
+        <h4>Avatar:</h4>
+        <img src="{{ user.avatar.url }}" width="100px" height="100px" />
+      </div>
+    {% endif %}
+
+{% endblock content %}
