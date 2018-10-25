@@ -43,6 +43,19 @@ class SignUpForm(UserCreationForm):
             'avatar',
         )
 
+class UpdateProfileForm(forms.ModelForm):
+    first_name = forms.CharField(label="Nombre", max_length=140, required=True)
+    last_name = forms.CharField(label="Apellido", max_length=140,required=True)
+    email = forms.EmailField(required=True)
+
+    class Meta:
+        model = CustomUser
+        fields = (
+            'first_name',
+            'last_name',
+            'email',
+            'avatar',
+        )
 
 class BuyForm(ModelForm):
     name = forms.CharField(required=False, label="Nombre del Activo")

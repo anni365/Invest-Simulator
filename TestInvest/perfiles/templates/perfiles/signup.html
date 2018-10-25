@@ -2,6 +2,7 @@
 {% block title %}Registro{% endblock %}
 {% block content %}
   <center>
+  <a href="{% url 'home' %}">Inicio</a>
   <h2 id="signup">Registrate</h2>
   <h2 id="message"></h2>
   <form method="post" enctype="multipart/form-data" id="myForm">
@@ -14,7 +15,7 @@
         <p style="color: red">{{ error }}</p>
         {% endfor %}</p>
     {% endfor %}
-    <button type="submit"">Crear Cuenta</button><br><br>
+    <button type="submit">Crear Cuenta</button><br><br>
   </form>
   {% if form.is_valid %}
     <script>
@@ -28,7 +29,7 @@
     function updateReloj() {
       document.getElementById('message').innerHTML = `<b>El registro se
       realizo correctamente!<br/> Redireccionando a la pagina principal
-      en <c>${totalTiempo}</c> segundos <br/> o haga click 
+      en <c>${totalTiempo}</c> segundos <br/> o haga click
       <a href="{% url 'home' %}">aqui</a> para ir directamente</b>`;
       if(totalTiempo==0) {
           window.location=url;
@@ -41,4 +42,3 @@
     </script>
     {% endif %}
 {% endblock %}
-

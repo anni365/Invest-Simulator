@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from django.shortcuts import render, redirect, render_to_response
+from django.shortcuts import render, render_to_response, get_object_or_404
 from django.contrib.auth import login, authenticate, update_session_auth_hash
 from django.contrib.auth.views import LoginView, LogoutView
-from django.views.generic import CreateView, TemplateView
+from django.views.generic import CreateView, TemplateView, UpdateView
 from django.contrib.auth.forms import PasswordChangeForm
 from django.utils import timezone
 from datetime import datetime
-
-from .forms import SignUpForm, BuyForm
+from .forms import SignUpForm, UpdateProfileForm, BuyForm
 from django.contrib import messages
 from .models import CustomUser, UserAsset, Transaction
 import json
-from importlib import reload
 
 
 class SignUpView(CreateView):
@@ -104,6 +102,19 @@ def show_assets(request):
           'capital': cap})
 
 
+class ProfileView(TemplateView):
+    template_name = 'perfiles/profile.html'
+
+
+class UpdateProfileView(UpdateView):
+    model = CustomUser
+    template_name = 'perfiles/update_profile.html'
+    form_class = UpdateProfileForm
+
+    def get_object(self):
+        return get_object_or_404(CustomUser, pk=self.request.user.id)
+
+
 def buy_assets(request, form, assets, capital):
     user = CustomUser
     virtual_money = request.user.virtual_money
@@ -159,3 +170,11 @@ def addAsset(request, name, total_amount, type_asset, old_unit_value):
               type_asset=type_asset, old_unit_value=old_unit_value)
     asset.save()
     return asset
+
+
+def mytransactions(request):
+    my_transactions = Transaction.objects.filter(user=request.user.id)
+    my_transactions = my_transactions.order_by('-date')
+    return render_to_response(
+      'perfiles/transaction_history.html', {
+        'my_transactions': my_transactions, 'user': request.user})

@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 
-from perfiles.views import SignUpView, WelcomeView, SignInView, SignOutView
+from perfiles.views import SignUpView, WelcomeView, SignInView, SignOutView, UpdateProfileView, ProfileView
 from TestInvest import settings
 from perfiles import views
 from django.conf.urls.static import static
@@ -31,7 +31,12 @@ urlpatterns = [
         name='change_password'),
     url(r'^wallet/$', login_required(views.show_assets), name='wallet'),
     url(r'^price/$', login_required(views.show_assets), name='price'),
+    url(r'^profile/$', ProfileView.as_view(), name='profile'),
+    url(r'^update_profile/$', UpdateProfileView.as_view(success_url='/profile'),
+                    name='update_profile'),
     url(r'^buy/$', login_required(views.show_assets), name='buy'),
+    url(r'^transactionhistory/$', login_required(views.mytransactions),
+                   name='transaction_history'),
 ]
 
 if settings.DEBUG:

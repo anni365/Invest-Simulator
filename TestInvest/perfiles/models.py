@@ -7,6 +7,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.validators import MinValueValidator
 
+from django.utils import timezone
+from datetime import datetime
+
 class CustomUser(AbstractUser):
     avatar = models.ImageField(upload_to='perfiles/', default='perfiles/default.jpg')
     virtual_money = models.FloatField(
@@ -47,4 +50,4 @@ class Transaction(models.Model):
         validators=[MinValueValidator(0.0)], blank=None
         )
     amount = models.PositiveIntegerField(blank=None)
-    date = models.DateTimeField('date published')
+    date = models.DateTimeField(max_length=50)

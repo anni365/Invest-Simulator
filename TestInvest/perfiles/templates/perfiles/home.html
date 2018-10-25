@@ -17,9 +17,11 @@
       <div class="dropdown">
         <button class="dropbtn">Opciones</button>
         <div class="dropdown-content">
+        <a href="{% url 'profile' %}">Mi perfil</a>
         <a href="{% url 'wallet' %}">Cartera de Inversiones</a>
         <a href="{% url 'price' %}">Ver Cotizaciones</a>
         <a href="{% url 'buy' %}">Comprar Activo</a>
+        <a href="{% url 'transaction_history' %}">Mis Transacciones</a>
         <a href="{% url 'change_password' %}">Cambiar Contraseña</a>
         <a href="{% url 'sign_out' %}">Cerrar sesión</a>
         </div>
