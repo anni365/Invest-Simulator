@@ -1,4 +1,5 @@
 # -- coding: utf-8 --
+from __future__ import unicode_literals
 from django.shortcuts import render, redirect, render_to_response
 from django.contrib.auth import login, authenticate, update_session_auth_hash
 from django.contrib.auth.views import LoginView, LogoutView
@@ -50,12 +51,8 @@ class SignInView(LoginView):
 class SignOutView(LogoutView):
     pass
 
-
-def show_sell(request):
-    print("SHOW MY ASSETS")
-    user = request.user
-    virtual_money = request.user.virtual_money
-    my_assets = UserAsset.objects.filter(user=request.user.id)
+def open_jsons():
+    print("OPEN JSONS")
     with open('perfiles/asset/assets.json') as assets_json:
         assets_name = json.load(assets_json)
     assets_name = assets_name.get("availableAssets")
@@ -66,70 +63,80 @@ def show_sell(request):
         for asset in assets_name:
             name_as = 'perfiles/asset/'+str(asset.get("name"))+'.json'
             with open(name_as) as assets_price:
-                pri = json.load(assets_price)
-                assets.update({(asset.get("type"), asset.get("name")): pri})
+                price = json.load(assets_price)
+                assets.update({(asset.get("type"), asset.get("name")): price})
     assets = assets.items()
+    return assets
+
+
+def calculate_capital(assets, my_assets, virtual_money):
+    print("CALCULATE CAPITAL")
+    cap = 0
     for name, dates in assets:
-      date = list(dates.values())
-      for asset in my_assets:
-        if (asset.name == name[1] and date[0] != None ):
-          cap += asset.total_amount * date[0]
-    cap += virtual_money
-    form = SellForm(request.POST)
-    if form.is_valid():
-      name = request.POST.get("name", "0")
-      total_amount = form.cleaned_data.get("total_amount")
-      print ("--form--->", form )
-      my_assets =  UserAsset.objects.filter(user=request.user.id, name=name)
-      exist = my_assets.exists()
-      for names, dates in assets:
         date = list(dates.values())
-        if exist:
-          for asset in my_assets:
-            if names[1] == asset.name:
-              print ("--asset.total_amount--->", asset.total_amount , "----total_amount---->", total_amount )
-              asset.total_amount = asset.total_amount - total_amount
-              asset.save()
-              print("creando transaccion para asset vendido EXISTENTE")
-              transaction = Transaction.objects.create(
-                user_id= request.user.id, user_asset_id=asset.id,
-                value_buy=date[0],  value_sell=date[1], amount=total_amount,
-                date=datetime.now(), type_transaction="venta")
-              transaction.save()
-        else:
-          print("No existe el asset")
-      return render(request, 'perfiles/salle.html', { 
-        'assets': assets, 'my_assets': my_assets, 'virtual_money': virtual_money, 'form': form})
+        for asset in my_assets:
+            if (asset.name == name[1] and date[1] is not None):
+                cap += asset.total_amount * date[1]
+    cap += virtual_money
+    return cap
 
 def show_my_assets(request):
     print("SHOW MY ASSETS")
     user = request.user
     virtual_money = request.user.virtual_money
     my_assets = UserAsset.objects.filter(user=request.user.id)
-    with open('perfiles/asset/assets.json') as assets_json:
-        assets_name = json.load(assets_json)
-    assets_name = assets_name.get("availableAssets")
-    assets_price = []
-    assets = {}
-    cap = 0
-    if assets_name is not None:
-        for asset in assets_name:
-            name_as = 'perfiles/asset/'+str(asset.get("name"))+'.json'
-            with open(name_as) as assets_price:
-                pri = json.load(assets_price)
-                assets.update({(asset.get("type"), asset.get("name")): pri})
-    assets = assets.items()
-    for name, dates in assets:
-      date = list(dates.values())
-      for asset in my_assets:
-        if (asset.name == name[1] and date[0] != None ):
-          cap += asset.total_amount * date[0]
-    cap += virtual_money
+    assets = open_jsons()
+    form = SellForm(request.POST)
+    cap = calculate_capital(assets, my_assets, virtual_money)
     if request.get_full_path() == '/price/':
-      return render_to_response('perfiles/price.html', { 'assets': assets })
+        return render_to_response('perfiles/price.html', { 'assets': assets })
     if request.get_full_path() == '/wallet/':
-      return render_to_response('perfiles/wallet.html', { 'assets': assets,
-                                'user': user, 'my_assets': my_assets, "capital": cap })
+        return render_to_response('perfiles/wallet.html', { 'assets': assets,
+                                  'user': user, 'my_assets': my_assets, 
+                                  'capital': cap })
+
+def sell_assets(request):
+    user = CustomUser
+    virtual_money = request.user.virtual_money
+    assets = open_jsons()
+    form = SellForm(request.POST)
+    if form.is_valid():
+        name = form.cleaned_data.get("name")
+        total_amount = form.cleaned_data.get("total_amount")
+        my_assets =  UserAsset.objects.filter(user=request.user.id, name=name)
+        exist = my_assets.exists()
+        for names, dates in assets:
+            date = list(dates.values())
+            if exist:
+                for asset in my_assets:
+                    if ((names[1] == asset.name) & (asset.total_amount > 0)):
+                        asset.total_amount = asset.total_amount - total_amount
+                        asset.save()
+                        transaction = addTransaction(
+                                      request, date[0], date[1], 
+                                      total_amount, asset.id)
+            else:
+              print("No existe el asset")
+    return render(request, 'perfiles/salle.html', { 
+                  'assets': assets, 'my_assets': my_assets, 
+                  'virtual_money': virtual_money, 'form':form})
+
+
+def addTransaction(request, value_buy, value_sell, total_amount, 
+                   user_asset_id):
+    if request.get_full_path() == '/buy/':
+        type_t = str("compra")
+    else:
+        type_t = str("venta")
+    transaction = Transaction.objects.create(user_id= request.user.id,
+        user_asset_id = user_asset_id,
+        value_buy = value_buy, 
+        value_sell = value_sell,
+        amount = total_amount,
+        date = datetime.now(tz=timezone.utc),
+        type_transaction = type_t)
+    transaction.save()
+    return transaction
 
 def show_assets(request):
     user = request.user
