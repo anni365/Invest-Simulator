@@ -70,11 +70,11 @@ def open_jsons():
 
 def calculate_capital(assets, my_assets, virtual_money):
     cap = 0
-    for name, dates in assets:
-        date = list(dates.values())
+    for name, prices in assets:
+        data = list(prices.values())
         for asset in my_assets:
-            if (asset.name == name[1] and date[1] is not None):
-                cap += asset.total_amount * date[1]
+            if (asset.name == name[1] and data[1] is not None):
+                cap += asset.total_amount * data[1]
     cap += virtual_money
     return cap
 
@@ -116,41 +116,54 @@ class UpdateProfileView(UpdateView):
 
 
 def buy_assets(request, form, assets, capital):
-    user = CustomUser
     virtual_money = request.user.virtual_money
     if form.is_valid():
         name = form.cleaned_data.get("name")
         total_amount = form.cleaned_data.get("total_amount")
-        my_assets = UserAsset.objects.filter(user=request.user.id, name=name)
-        exist = my_assets.exists()
-        for names, dates in assets:
-            date = list(dates.values())
-            if names[1] == name and (date[0] is None or date[1] is None):
+        assets_user = UserAsset.objects.filter(user=request.user.id, name=name)
+        exist_asset = assets_user.exists()
+        for nametype, prices in assets:
+            data = list(prices.values())
+            if nametype[1] == name and (data[0] is None or data[1] is None):
                 messages.add_message(
                   request, messages.INFO, 'El Activo seleccionado ya no se'
                   'encuentra  disponible, no se pudo concretar la compra. Para'
-                  'ver la acual lista de activos recargue la pagina')
+                  'ver la actual lista de activos recargue la pagina')
                 break
-            if exist:
-                for asset in my_assets:
-                    if (names[1] == asset.name):
-                        asset.total_amount = asset.total_amount + total_amount
-                        asset.old_unit_value = date[0]
-                        asset.save()
-                        transaction = addTransaction(
-                          request, date[0], date[1], total_amount, asset.id)
-                        virtual_money = virtual_money - total_amount * date[1]
-                        request.user.virtual_money = virtual_money
-                        request.user.save()
-            elif (names[1] == name):
-                my_asset = addAsset(
-                  request, name, total_amount, names[0], date[0])
-                transaction = addTransaction(
-                  request, date[0], date[1], total_amount, my_asset.id)
-                virtual_money = virtual_money - total_amount * date[0]
-                request.user.virtual_money = virtual_money
-                request.user.save()
+            addOperation(request, exist_asset, assets_user, nametype, name,
+                         total_amount, data, virtual_money)
+            virtual_money = request.user.virtual_money
         return virtual_money, assets
+
+
+def addOperation(request, exist_asset, assets_user, nametype, name_form,
+                 total_amount, data, virtual_money):
+    if exist_asset:
+        for asset in assets_user:
+            if (nametype[1] == asset.name):
+                update_asset(asset, total_amount, data)
+                transaction = addTransaction(
+                  request, data[0], data[1], total_amount, asset.id)
+                update_money_user(request, total_amount, data, virtual_money)
+    elif (nametype[1] == name_form):
+        asset_user = addAsset(request, name_form, total_amount, nametype[0],
+                              data[0])
+        transaction = addTransaction(
+          request, data[0], data[1], total_amount, asset_user.id)
+        update_money_user(request, total_amount, data, virtual_money)
+    return virtual_money
+
+
+def update_asset(asset, total_amount, data):
+    asset.total_amount += total_amount
+    asset.old_unit_value = data[0]
+    asset.save()
+
+
+def update_money_user(request, total_amount, data, virtual_money):
+    virtual_money -= total_amount * data[1]
+    request.user.virtual_money = virtual_money
+    request.user.save()
 
 
 def addTransaction(request, value_buy, value_sell, total_amount,

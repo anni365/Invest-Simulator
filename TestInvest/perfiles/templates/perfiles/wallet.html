@@ -11,8 +11,8 @@
         <TH>Cantidad</TH>
         <TH>Tipo</TH>
         <TH>Valor de adquisición</TH>
-        <TH>Valor de compra<TH>
-        <TH>Valor de venta<TH>
+        <TH>Valor de compra</TH>
+        <TH>Valor de venta</TH>
       </TR>
       <tbody>
       {% for asset in my_assets %}
@@ -24,14 +24,14 @@
             <td>{{ asset.type_asset }}</td>
             <td>${{ asset.old_unit_value }}</td>
           {% if values.buy != None and values.buy != None %}
-            <td>${{ values.buy }} <td>
+            <td>${{ values.buy }} </td>
           {% else %}
-            <td>Sin cotizacion <td>
+            <td>Sin cotizacion </td>
           {% endif %}
           {% if values.sell != None %}
-            <td>${{ values.sell }} <td>
+            <td>${{ values.sell }} </td>
           {% else %}
-            <td>Sin cotizacion <td>
+            <td>Sin cotizacion </td>
           {% endif %}
           </tr>
           {% endif %}
