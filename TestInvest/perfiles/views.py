@@ -51,8 +51,8 @@ class SignInView(LoginView):
 class SignOutView(LogoutView):
     pass
 
+
 def open_jsons():
-    print("OPEN JSONS")
     with open('perfiles/asset/assets.json') as assets_json:
         assets_name = json.load(assets_json)
     assets_name = assets_name.get("availableAssets")
@@ -70,7 +70,6 @@ def open_jsons():
 
 
 def calculate_capital(assets, my_assets, virtual_money):
-    print("CALCULATE CAPITAL")
     cap = 0
     for name, dates in assets:
         date = list(dates.values())
@@ -80,11 +79,12 @@ def calculate_capital(assets, my_assets, virtual_money):
     cap += virtual_money
     return cap
 
+
 def show_my_assets(request):
-    print("SHOW MY ASSETS")
     user = request.user
     virtual_money = request.user.virtual_money
     my_assets = UserAsset.objects.filter(user=request.user.id)
+    my_assets = my_assets.filter(total_amount__gt=0)
     assets = open_jsons()
     form = SellForm(request.POST)
     cap = calculate_capital(assets, my_assets, virtual_money)
@@ -94,6 +94,7 @@ def show_my_assets(request):
         return render_to_response('perfiles/wallet.html', { 'assets': assets,
                                   'user': user, 'my_assets': my_assets, 
                                   'capital': cap })
+
 
 def sell_assets(request):
     user = CustomUser
@@ -115,6 +116,8 @@ def sell_assets(request):
                         transaction = addTransaction(
                                       request, date[0], date[1], 
                                       total_amount, asset.id)
+                        virtual_money = update_money_user(request, total_amount,
+                                                          date, virtual_money)
             else:
               print("No existe el asset")
     return render(request, 'perfiles/salle.html', { 
@@ -137,6 +140,17 @@ def addTransaction(request, value_buy, value_sell, total_amount,
         type_transaction = type_t)
     transaction.save()
     return transaction
+
+
+def update_money_user(request, total_amount, data, virtual_money):
+    if request.get_full_path() == '/buy/':
+        price = data[1]
+    else:
+        price = data[0]
+    virtual_money += total_amount * price
+    request.user.virtual_money = virtual_money
+    request.user.save()
+
 
 def show_assets(request):
     user = request.user
@@ -173,7 +187,6 @@ def show_assets(request):
             date = list(dates.values())
             if exist:
               for asset in my_assets:
-                print()
                 if names[1] == asset.name:
                   asset.total_amount = asset.total_amount + total_amount
                   asset.old_unit_value = date[0] 
