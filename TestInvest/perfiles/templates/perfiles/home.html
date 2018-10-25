@@ -3,23 +3,29 @@
 {% block title %}Bievenido{% endblock %}
 
 {% block content %}
-    <style>
-    h1 {color:violet;}
-    a1 {color:IndianRed;}
-    </style>
+  <style>
+    h2 {color:#0d7dc6;}
+  </style>
     {% if user.is_authenticated %}
-      <div align="center">
-        <a href="{% url 'sign_out' %}">Cerrar sesión</a> &nbsp
-        <a href="{% url 'change_password' %}">Cambiar contraseña</a>&nbsp
-        <a href="{% url 'wallet' %}">Cartera de inversiones</a>&nbsp
-        <a href="{% url 'price' %}">Ver cotizaciones</a>&nbsp
-        <a href="{% url 'transaction_history' %}">Mis Transacciones</a>&nbsp
-      </div>
       <div align="center">
         <h1 color="blue">Invest Simulator</h1>
       </div>
-      <h2>Hola, {{ user.username }}!!</h2>
-      <img src="{{ user.avatar.url }}" width="50px" height="50px" align="left" />
+      <center>
+      <h2>Hola, {{ user.username }}</h2>
+      <img src="{{ user.avatar.url }}" width="50px" height="50px" align="center"/>
+      </center>
+      <div class="dropdown">
+        <button class="dropbtn">Opciones</button>
+        <div class="dropdown-content">
+        <a href="{% url 'profile' %}">Mi perfil</a>
+        <a href="{% url 'wallet' %}">Cartera de Inversiones</a>
+        <a href="{% url 'price' %}">Ver Cotizaciones</a>
+        <a href="{% url 'buy' %}">Comprar Activo</a>
+        <a href="{% url 'transaction_history' %}">Mis Transacciones</a>
+        <a href="{% url 'change_password' %}">Cambiar Contraseña</a>
+        <a href="{% url 'sign_out' %}">Cerrar sesión</a>
+        </div>
+      </div>
     {% else %}
       <div align="center">
         <h1><a1>Bienvenido Invest Simulator</a1>

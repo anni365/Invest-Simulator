@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Compra{% endblock %}
+{% block content %}
+  <center>
+  <h2 id="not_assets"></h2>
+  <div id="price">
+    {% include 'perfiles/price.html' %}
+    <br><b>Dinero Liquido Disponible: ${{virtual_money}}</b>
+  </div>
+  <div class="popup">
+    <span class="popuptext" id="myPopup">
+    <head><script>
+      closePop();
+      function closePop() {
+      document.getElementById("myPopup").style.display = "none";
+    }
+    </script></head>
+    <span class="popup">
+      <div id="confirm">
+       <w class="message"></w><br>
+         <button class="yes" onclick="success()">Si</button>&nbsp&nbsp
+         <button class="no" onclick="window.location=url">No</button>
+      </div>
+      <w id="time"></w>
+    </span>
+    <form action="{% url 'buy' %}" method="POST" class="form-container"
+      onsubmit="confirm(event, {{virtual_money}})" id="my_form">
+      <h2>Comprar Activo</h2>
+      {% csrf_token %}
+      {{ form.as_p }}
+      <b id="total">Subtotal: $0</b><br>
+      <b>Saldo disponible: ${{virtual_money}}</b><br><br>
+      <input id="accept" type="submit" value="Confirmar">
+      <button type="button" id="cancel" class="btn cancel" onclick="closeForm()">
+      Cancelar</button>
+    </form>
+    </span>
+  </div>
+    <div id="casca"></div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+  </script>
+  <script>
+  document.getElementById("nameC").innerHTML = "Comprar"; 
+  document.getElementById("buy").innerHTML = '<a href="{% url 'home' %}">' + 
+    "Volver al inicio" + "</a>";
+  document.getElementById("init").innerHTML = "";
+  </script>
+  <script>
+  var totalTiempo=5;
+  var url="http://localhost:8000";
+  function success() {
+      alert("La compra se realizo con exito!!");
+      document.getElementById("id_total_amount").disabled = false;
+      document.getElementById("id_name").disabled = false;
+      document.getElementById("my_form").submit();
+  }
+  function openForm(value, name,link) {
+    document.getElementById("id_total_amount").value = "";
+    document.getElementById("buy").disabled = true;
+    var popup = document.getElementById("myPopup");
+    popup.classList.toggle("show");
+    localStorage.setItem('sell', value.sell);
+    localStorage.setItem('buy', value.buy);
+    localStorage.setItem('names', name);
+    document.getElementById("id_name").value = localStorage.names;
+  }
+  function closeForm() {
+    window.location="http://localhost:8000/buy";
+  }
+  function enable_form() {
+    document.getElementById("accept").disabled = false;
+    document.getElementById("cancel").disabled = false;
+    document.getElementById("id_total_amount").disabled = false;
+    document.getElementById("id_total_amount").value = "";
+    document.getElementById("total").innerHTML = "Subtotal: $0";
+  }
+  function updateReloj() {
+    document.getElementById('time').innerHTML = `${totalTiempo}`;
+    var close = $("#confirm");
+    if (totalTiempo==0) {
+      close.hide();
+      enable_form();
+      document.getElementById('time').innerHTML = "";
+    } else {
+        totalTiempo-=1;
+        setTimeout("updateReloj()",1000);
+    }
+  }
+  function confirm(event, a) {
+    event.preventDefault();
+    document.getElementById("accept").disabled = true;
+    document.getElementById("cancel").disabled = true;
+    document.getElementById("id_total_amount").disabled = true;
+    var buy_confirm = $("#confirm");
+    var amount = document.getElementById("id_total_amount").value;
+    var total_amount = localStorage.buy * amount;
+    var msg = `Activo adquirido: ${localStorage.names}.
+    A seleccionado: ${amount}.
+    Precio compra: ${localStorage.sell},
+    Precio venta: ${localStorage.buy}.
+    A un total de: ${total_amount}.
+    ¿Esta seguro que desea comprar esta cantidad del activo?`
+    if (amount > 0) {
+      if (a >= total_amount) {
+        totalTiempo=5;
+        buy_confirm.find(".message").text(msg);
+        updateReloj();
+        buy_confirm.show();
+      } else {
+        alert("No dispone saldo suficiente para realizar la compra");
+        enable_form();
+      }
+    } else {
+      alert("Ingrese un numero valido (mayor a cero)");
+      enable_form();
+    }
+  }
+  $("#id_total_amount").change(function () {
+    var amount = $("#id_total_amount").val();
+    var total = amount * localStorage.buy;
+    document.getElementById("total").innerHTML = "Subtotal $" + total;
+  });
+  $("#id_total_amount").keyup(function () {
+    var amount2 =  $(this).val();
+    var total2 = amount2 * localStorage.buy;
+    document.getElementById("total").innerHTML = "Subtotal $" + total2;
+  });
+  </script>
+  {% if messages %}
+     {% for message in messages %}
+       <p>{{ message }}</p>
+     {% endfor %}
+  {% endif %}
+{% endblock content %}
