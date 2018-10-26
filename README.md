@@ -60,7 +60,8 @@ funcionalidades:
   - Registrarse como nuevo usuario completando un formulario con sus datos
   personales.
   - Iniciar sesión utilizando su nombre de usuario y contraseña.
-  - Ver su perfil y editar sus datos excluyendo nombre de usuario y contraseña.
+  - Ver su perfil y editar sus datos incluído el cambio de contraseña. El
+    nombre de usuario es el único que no podrá modificar.
   - Ver su cartera de inversiones, donde tendrá acceso a sus transacciones y
     capital, incluído su dinero virtual.
   - Ver las cotizaciones actuales de los activos disponibles.
@@ -68,4 +69,3 @@ funcionalidades:
     su capital y también su dinero virtual.
   - Comprobar su historial de transacciones con toda la información de cada
     una de ellas.
-  - Cambiar la contraseña para iniciar sesión.
