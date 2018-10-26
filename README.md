@@ -52,3 +52,20 @@ Si al correr alguno de esos comandos se tiene un error de instalación, hacer:
   (pip o) pip3 install Pillow
 
 - Por último, continuar desde el paso 3 comentado arriba.
+
+
+INTRODUCCIÓN A INVEST SIMULATOR
+En esta versión del software, el usuario podrá utilizar las siguientes
+funcionalidades:
+  - Registrarse como nuevo usuario completando un formulario con sus datos
+  personales.
+  - Iniciar sesión utilizando su nombre de usuario y contraseña.
+  - Ver su perfil y editar sus datos excluyendo nombre de usuario y contraseña.
+  - Ver su cartera de inversiones, donde tendrá acceso a sus transacciones y
+    capital, incluído su dinero virtual.
+  - Ver las cotizaciones actuales de los activos disponibles.
+  - Comprar activos que estén disponibles o vender los propios, esto afectará
+    su capital y también su dinero virtual.
+  - Comprobar su historial de transacciones con toda la información de cada
+    una de ellas.
+  - Cambiar la contraseña para iniciar sesión.
