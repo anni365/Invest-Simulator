@@ -75,5 +75,5 @@ class BuyForm(ModelForm):
 class SellForm(forms.Form):
     name = forms.CharField(required=False, label="Nombre del Activo")
     total_amount = forms.IntegerField(label="Cantidad Activo", required=False)
-    price_sell = forms.IntegerField(label="Precio de Venta", required=False)
-    virtual_money = forms.IntegerField(label="Dinero Liquido", required=False)
+    price_sell = forms.CharField(label="Precio de Venta", required=False)
+    virtual_money = forms.CharField(label="Dinero Liquido", required=False)

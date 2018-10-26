@@ -22,7 +22,7 @@ body{ background-color:#EFF8FB; }
   </br>
   </form>
 
-<button class="open-button" onclick="openForm({{virtual_money}}, event)">Confirmar</button>
+<button class="open-button" onclick="openForm({{virtual_money}})">Confirmar</button>
 <button
     class="enlace" onclick="window.location='{% url 'wallet' %}'">Cancelar
 </button>
@@ -80,12 +80,11 @@ function Respuesta(v_money) {
     document.getElementById("form").submit();
     closeForm();
 }
-
-function openForm(v_money, event) {
+function openForm(v_money) {
     var valor = comprobar();
     var ganancia;
     if(0 < valor.cantidad){
-        ganancia =  (valor.cantidad * valor.cotizacion);
+        ganancia =  parseFloat(valor.cantidad)  * parseFloat(valor.cotizacion);
         document.getElementById("myForm").style.display = "block";
         document.getElementById("num").disabled = true;
         document.getElementById("id_name").value = valor.nombre;
@@ -112,5 +111,4 @@ function closeForm() {
 </html>
 <center>
 {% endblock content %}
-
 
