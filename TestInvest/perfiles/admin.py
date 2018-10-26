@@ -6,9 +6,11 @@ from django.contrib.auth.admin import UserAdmin
 from .forms import SignUpForm
 from .models import CustomUser
 
+
 class CustomUserAdmin(UserAdmin):
     add_form = SignUpForm
     model = CustomUser
-    list_display = ['email', 'username',]
+    list_display = ['email', 'username', ]
+
 
 admin.site.register(CustomUser, CustomUserAdmin)

@@ -46,7 +46,8 @@ class SignUpForm(UserCreationForm):
 
 class UpdateProfileForm(forms.ModelForm):
     first_name = forms.CharField(label="Nombre", max_length=140, required=True)
-    last_name = forms.CharField(label="Apellido", max_length=140,required=True)
+    last_name = forms.CharField(label="Apellido", max_length=140,
+                                required=True)
     email = forms.EmailField(required=True)
 
     class Meta:
@@ -75,5 +76,4 @@ class SellForm(forms.Form):
     name = forms.CharField(required=False, label="Nombre del Activo")
     total_amount = forms.IntegerField(label="Cantidad Activo", required=False)
     price_sell = forms.IntegerField(label="Precio de Venta", required=False)
-    virtual_money = forms.IntegerField( label="Dinero Liquido", required=False)
-
+    virtual_money = forms.IntegerField(label="Dinero Liquido", required=False)

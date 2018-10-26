@@ -102,11 +102,11 @@ def show_my_assets(request):
     form = SellForm(request.POST)
     cap = calculate_capital(assets, my_assets, virtual_money)
     if request.get_full_path() == '/price/':
-        return render_to_response('perfiles/price.html', { 'assets': assets })
+        return render_to_response('perfiles/price.html', {'assets': assets})
     if request.get_full_path() == '/wallet/':
-        return render_to_response('perfiles/wallet.html', { 'assets': assets,
-                                  'user': user, 'my_assets': my_assets, 
-                                  'capital': cap })
+        return render_to_response('perfiles/wallet.html', {'assets': assets,
+                                  'user': user, 'my_assets': my_assets,
+                                                           'capital': cap})
 
 
 def sell_assets(request):
@@ -117,7 +117,7 @@ def sell_assets(request):
     if form.is_valid():
         name = form.cleaned_data.get("name")
         total_amount = form.cleaned_data.get("total_amount")
-        my_assets =  UserAsset.objects.filter(user=request.user.id, name=name)
+        my_assets = UserAsset.objects.filter(user=request.user.id, name=name)
         exist = my_assets.exists()
         for names, dates in assets:
             date = list(dates.values())
@@ -127,30 +127,30 @@ def sell_assets(request):
                         asset.total_amount = asset.total_amount - total_amount
                         asset.save()
                         transaction = addTransaction(
-                                      request, date[0], date[1], 
+                                      request, date[0], date[1],
                                       total_amount, asset.id)
-                        virtual_money = update_money_user(request, total_amount,
-                                                          date, virtual_money)
-            else:
-              print("No existe el asset")
-    return render(request, 'perfiles/salle.html', { 
-                  'assets': assets, 'my_assets': my_assets, 
-                  'virtual_money': virtual_money, 'form':form})
+                        virtual_money = update_money_user(request,
+                                                          total_amount,
+                                                          date,
+                                                          virtual_money)
+    return render(request, 'perfiles/salle.html', {
+                  'assets': assets, 'my_assets': my_assets,
+                  'virtual_money': virtual_money, 'form': form})
 
 
-def addTransaction(request, value_buy, value_sell, total_amount, 
+def addTransaction(request, value_buy, value_sell, total_amount,
                    user_asset_id):
     if request.get_full_path() == '/buy/':
         type_t = str("compra")
     else:
         type_t = str("venta")
-    transaction = Transaction.objects.create(user_id= request.user.id,
-        user_asset_id = user_asset_id,
-        value_buy = value_buy, 
-        value_sell = value_sell,
-        amount = total_amount,
-        date = datetime.now(tz=timezone.utc),
-        type_transaction = type_t)
+    transaction = Transaction.objects.create(user_id=request.user.id,
+                                             user_asset_id=user_asset_id,
+                                             value_buy=value_buy,
+                                             value_sell=value_sell,
+                                             amount=total_amount,
+                                             date=datetime.now(),
+                                             type_transaction=type_t)
     transaction.save()
     return transaction
 
@@ -158,9 +158,10 @@ def addTransaction(request, value_buy, value_sell, total_amount,
 def update_money_user(request, total_amount, data, virtual_money):
     if request.get_full_path() == '/buy/':
         price = data[1]
+        virtual_money -= total_amount * price
     else:
         price = data[0]
-    virtual_money += total_amount * price
+        virtual_money += total_amount * price
     request.user.virtual_money = virtual_money
     request.user.save()
 

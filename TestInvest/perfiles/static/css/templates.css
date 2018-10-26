@@ -67,8 +67,8 @@
   .form-popup {
     display: none;
     position: fixed;
-    bottom: 200px;
-    right: 410px;
+    bottom: 18%;
+    right: 30%;
     border: 3px solid #f1f1f1;
     z-index: 9;
   }
@@ -89,44 +89,6 @@
     border: none;
     background: White;
   }
-  .popup {
-      position: relative;
-      display: inline-block;
-      cursor: pointer;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-      margin-left: 0px;
-  }
-  .popup .popuptext {
-      visibility: hidden;
-      background-color: #555;
-      color: #fff;
-      text-align: center;
-      z-index: 1;
-      bottom: 125%;
-      left: 50%;
-      margin-left: -80px;
-      border: 1px solid #aaa;
-      position: relative;
-      width: 500px;
-  }
-  .popup .popuptext::after {
-      content: "";
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      margin-left: -5px;
-      border-width: 5px;
-      border-style: solid;
-      border-color: #555 transparent transparent transparent;
-  }
-  .popup .show {
-      visibility: visible;
-      -webkit-animation: fadeIn 1s;
-      animation: fadeIn 1s;
-  }
     .form-container .btn {
       background-color: #c39bd3;
       color: white;
@@ -143,25 +105,21 @@
     .form-container .btn:hover, .open-button:hover {
       opacity: 1;
     }
-     #confirm {
+    #confirm {
       display: none;
       border: 2px solid #aaa;
-      width: 455px;
+      width: 100%;
       padding: 5px 5px 5px 4px;
       border-color: blueviolet;
       margin-left: 0px;
-      top: 100px;
+      top: 25%;
       position: absolute;
       background-color: aliceblue;
-      text-align: -webkit-center;
+      text-align: center;
     }
-    label {
-      color: #DF3A01;
-    }
-    .disableDiv {
+   label {color: #DF3A01;}
+   .disableDiv {
     pointer-events: none;
     opacity: 0.4;
   }
-  .enableDiv {
-    opacity: 10;
-  }
+  .enableDiv {opacity: 10;}

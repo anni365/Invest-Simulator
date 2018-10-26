@@ -7,11 +7,7 @@
 <title>Venta de Activos</title>
 <meta charset="utf-8">
 <style type="text/css">
-body
-{
- background-color:blue; 
- }
-
+body{ background-color:#EFF8FB; }
 </style>
 </head>
  <font color="#030303" face="georgia" size="3"> 
@@ -77,20 +73,18 @@ function comprobar() {
 
 function Respuesta(v_money) {
     alert("La venta se realizo con exito, Felicidades!!!");
-
     document.getElementById("id_name").disabled = false;
     document.getElementById("id_total_amount").disabled = false;
     document.getElementById("id_price_sell").disabled = false;
     document.getElementById("id_virtual_money").disabled = false;
     document.getElementById("form").submit();
     closeForm();
-
 }
 
 function openForm(v_money, event) {
     var valor = comprobar();
     var ganancia;
-    if (0 < valor.cantidad) {
+    if(0 < valor.cantidad){
         ganancia =  (valor.cantidad * valor.cotizacion);
         document.getElementById("myForm").style.display = "block";
         document.getElementById("num").disabled = true;
@@ -110,10 +104,13 @@ function openForm(v_money, event) {
 
 function closeForm() {
     document.getElementById("myForm").style.display = "none";
+        document.getElementById("num").disabled = false;
+        document.getElementById("num").value = "";
 }
 </script>
 </body>
 </html>
 <center>
 {% endblock content %}
+
 

@@ -10,14 +10,17 @@ from django.core.validators import MinValueValidator
 from django.utils import timezone
 from datetime import datetime
 
+
 class CustomUser(AbstractUser):
-    avatar = models.ImageField(upload_to='perfiles/', default='perfiles/default.jpg')
+    avatar = models.ImageField(upload_to='perfiles/',
+                               default='perfiles/default.jpg')
     virtual_money = models.FloatField(
         validators=[MinValueValidator(0.0)], blank=None, default=1000
         )
 
     def __str__(self):
         return self.email
+
 
 @receiver(post_save, sender=User)
 def crear_usuario_perfil(sender, instance, created, **kwargs):
@@ -28,6 +31,7 @@ def crear_usuario_perfil(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def guardar_usuario_perfil(sender, instance, **kwargs):
     instance.perfil.save()
+
 
 class UserAsset(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
