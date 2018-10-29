@@ -194,3 +194,27 @@ def mytransactions(request):
     return render_to_response(
       'perfiles/transaction_history.html', {
         'my_transactions': my_transactions, 'user': request.user})
+
+def cons_ranking():
+    assets = open_jsons()
+    dict_cap = {}
+    users = CustomUser.objects.all()
+    i = 1
+    ranking = []
+    for user in users:
+        assets_users = UserAsset.objects.filter(user=user.id)
+        capital = CustomUser.calculate_capital(assets, assets_users, user.virtual_money)
+        dict_cap.update({user.username: capital})
+    dict_items = dict_cap.items()
+    list_cap = sorted(dict_items, key=lambda x: x[1], reverse=True)
+    total_user =  CustomUser.objects.count()
+    for i in range(total_user):
+        ranking.append((i+1,) + list_cap[i])
+    return ranking
+
+def ranking(request):
+    list_cap = cons_ranking()
+    users = CustomUser.objects.all()
+    return render_to_response(
+      'perfiles/ranking.html', {'lista_capital':list_cap, 'user': request.user})
+

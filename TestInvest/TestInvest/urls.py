@@ -37,6 +37,7 @@ urlpatterns = [
     url(r'^salle/$', login_required(views.sell_assets), name='salle'),
     url(r'^transactionhistory/$', login_required(views.mytransactions),
                    name='transaction_history'),
+    url(r'^ranking/$', login_required(views.ranking), name='ranking'),
 ]
 
 if settings.DEBUG:
