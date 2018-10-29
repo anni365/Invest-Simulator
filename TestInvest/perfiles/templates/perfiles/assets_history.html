@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Historial de Activo{% endblock %}
+{% block content %}
+  <style>
+  .disableDi{
+    pointer-events: none;
+  }
+  .form .cancel {
+    background-color: #FAAC58;
+    margin-left: 84%
+    }
+  .form input[type=text]{
+    text-align: center;
+    background-color: blanchedalmond;
+    border: none;
+    color: red;
+  }
+  </style>
+  <div class="container" id="back">
+    <div id="prices">
+      {% include 'perfiles/price.html' %}
+    </div>
+  </div>
+  <div class="popup" id="myPopup">
+    <form class="form" action="{% url 'assets_history' %}" method="POST"
+          id="my_form" onsubmit="name_enable(event)">
+      <button class="btn cancel" onclick="ClosePop()"><b>x</b></button><br>
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button class="submit">Ver historial</button>
+    </form>
+  </div>
+  {% if is_history %}
+    {% if history %}
+    <h2 id="mj_graph"></h2>
+    <div style="width:80%; height:75%; position:relative; left:10%;z-index:-1" id="graph">
+    </div>
+    <center>
+    <h2>Historial de {{name_asset}}</h2><br>
+    <table>
+      <thead>
+        <tr><th>Fecha</th><th>Valor de Compra</th><th>Valor de Venta</th></tr>
+      </thead>
+      <tbody>
+       {% for data in history %}
+        <tr><td>{{ data.0 }}</td><td>{{ data.1 }}</td><td>{{ data.2 }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <center><h2>No hay datos historicos</h2>
+      <h2>para el archivo seleccionado</h2>
+    {% endif %}
+   <html>
+     <head>
+      <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+      <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+        document.getElementById('mj_graph').innerHTML= "Grafica de valores";
+        function drawChart() {
+          var djangoData = {{ grap|safe }};
+          var data = google.visualization.arrayToDataTable(djangoData);
+          var chart = new google.visualization.LineChart(document.getElementById('graph'));
+          chart.draw(data);
+        }
+      </script>
+    </head>
+  </html>
+  <script>
+    document.getElementById("no_asset").innerHTML ="";
+    document.getElementById("nameC").innerHTML ="";
+  </script>
+   {% else %}
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+  </script>
+  <script>
+  document.getElementById("nameC").innerHTML = "Activos Disponibles";
+  function openForm(value, name) {
+    $("#prices").addClass("disableDi");
+    document.getElementById("myPopup").style.display = "block";
+    document.getElementById("id_name").value = name;
+    document.getElementById("id_name").disabled = true;
+    setTimeout("enableDiv()",1);
+  }
+  function enableDiv(){
+    $("#back").click(function(){
+     window.location.reload()
+    });
+  }
+  function ClosePop(){
+     window.location.reload()
+  }
+  function name_enable(event) {
+    event.preventDefault();
+    var d = new Date();
+    var y = d.getFullYear();
+    var m = d.getMonth() + 1;
+    var d = d.getDate();
+    var date = y + "-" + m + "-" + d 
+    since = document.getElementById("id_since").value ;
+    until = document.getElementById("id_until").value ;
+    if(until > date || since > until ) {
+      alert("Error fechas ingresadas invalidas");
+      document.getElementById("id_since").value = "" ;
+      document.getElementById("id_until").value = "" ;
+      document.getElementById("id_time_since").value = "" ;
+      document.getElementById("id_time_until").value = "" ;
+    } else {
+      document.getElementById("id_name").disabled = false;
+      setTimeout("send()",1);
+    }
+  }
+   function send() { 
+    document.getElementById("my_form").submit();
+   }
+  </script>
+  {% endif %}
+{% endblock content %}

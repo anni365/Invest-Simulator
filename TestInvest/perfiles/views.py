@@ -5,7 +5,7 @@ from django.contrib.auth import login, authenticate, update_session_auth_hash
 from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import CreateView, TemplateView, UpdateView
 from django.contrib.auth.forms import PasswordChangeForm
-from .forms import SignUpForm, BuyForm, SellForm, UpdateProfileForm
+from .forms import SignUpForm, BuyForm, SellForm, UpdateProfileForm, AssetForm
 from django.contrib import messages
 from .models import CustomUser, UserAsset, Transaction
 import json
@@ -118,11 +118,20 @@ def sell_assets(request):
                         transaction = Transaction.addTransaction(
                                       request, date[0], date[1],
                                       total_amount, asset.id)
-                        virtual_money = CustomUser.update_money_user(request,
-                                        total_amount, date, virtual_money)
+                        virtual_money = CustomUser.update_money_user(
+                          request, total_amount, date, virtual_money)
     return render(request, 'perfiles/salle.html', {
                   'assets': assets, 'my_assets': my_assets,
                   'virtual_money': virtual_money, 'form': form})
+
+
+def quit_null_assets(assets):
+    assets_a = []
+    for keys, values in assets:
+        if values['sell'] is not None and values['buy'] is not None:
+            assets_a.append(((keys[0],  keys[1]), {"sell": values['sell'],
+                            "buy": values['buy']}))
+    return assets_a
 
 
 def show_assets(request):
@@ -130,6 +139,7 @@ def show_assets(request):
     virtual_money = request.user.virtual_money
     my_assets = UserAsset.objects.filter(user=request.user.id)
     assets = open_jsons()
+    assets_a = quit_null_assets(assets)
     cap = CustomUser.calculate_capital(assets, my_assets, virtual_money)
     if request.get_full_path() == '/buy/':
         if request.method == 'POST':
@@ -139,9 +149,9 @@ def show_assets(request):
         else:
             form = BuyForm()
         return render(request, 'perfiles/buy.html', {
-          'assets': assets, 'virtual_money': virtual_money, 'form': form})
+          'assets': assets_a, 'virtual_money': virtual_money, 'form': form})
     if request.get_full_path() == '/price/':
-        return render_to_response('perfiles/price.html', {'assets': assets})
+        return render_to_response('perfiles/price.html', {'assets': assets_a})
     if request.get_full_path() == '/wallet/':
         return render_to_response('perfiles/wallet.html', {
           'assets': assets, 'user': user, 'my_assets': my_assets,
@@ -175,16 +185,17 @@ def addOperation(request, exist_asset, assets_user, nametype, name_form,
         for asset in assets_user:
             if (nametype[1] == asset.name):
                 CustomUser.update_asset(asset, total_amount, data)
-                transaction = Transaction.addTransaction(request, data[0],
-                                            data[1], total_amount, asset.id)
-                CustomUser.update_money_user(request, total_amount, data,
-                                                virtual_money)
+                transaction = Transaction.addTransaction(
+                  request, data[0], data[1], total_amount, asset.id)
+                CustomUser.update_money_user(
+                  request, total_amount, data, virtual_money)
     elif (nametype[1] == name_form):
         asset_user = UserAsset.addAsset(request, name_form, total_amount,
                                         nametype[0], data[0])
-        transaction = Transaction.addTransaction(request, data[0], data[1],
-                                                total_amount, asset_user.id)
-        CustomUser.update_money_user(request, total_amount, data, virtual_money)
+        transaction = Transaction.addTransaction(
+          request, data[0], data[1], total_amount, asset_user.id)
+        CustomUser.update_money_user(
+          request, total_amount, data, virtual_money)
     return virtual_money
 
 
@@ -194,3 +205,22 @@ def mytransactions(request):
     return render_to_response(
       'perfiles/transaction_history.html', {
         'my_transactions': my_transactions, 'user': request.user})
+
+
+def assets_history(request):
+    assets = open_jsons()
+    assets_a = quit_null_assets(assets)
+    form = AssetForm()
+    if request.method == 'POST':
+        form = AssetForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data.get("name")
+            is_history = True
+            history = []
+            grap_history = []
+            return render(request, 'perfiles/assets_history.html',
+                          {'history': history, 'is_history': is_history,
+                           'name_asset': name,
+                           'grap': json.dumps(grap_history)})
+    return render(request, 'perfiles/assets_history.html', {'assets': assets_a,
+                                                            'form': form})

@@ -64,6 +64,15 @@
   .dropdown-content a:hover {background-color: #fbe8e6}
   .dropdown:hover .dropdown-content {display: block;}
   .dropdown:hover .dropbtn {background-color: #fa5b54;}
+  .popup{
+    display: none;
+    background-color: blanchedalmond;
+    position: relative;
+    margin-top: -11%;;
+    margin-right: 40%;
+    margin-left: 42%;
+    text-align: center;
+    }
   .form-popup {
     display: none;
     position: fixed;
