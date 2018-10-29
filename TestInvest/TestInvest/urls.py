@@ -2,7 +2,6 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
-
 from perfiles.views import SignUpView, WelcomeView, SignInView, SignOutView, UpdateProfileView, ProfileView
 from TestInvest import settings
 from perfiles import views

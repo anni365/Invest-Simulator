@@ -82,17 +82,6 @@ def open_jsons():
     return assets
 
 
-def calculate_capital(assets, my_assets, virtual_money):
-    cap = 0
-    for name, dates in assets:
-        date = list(dates.values())
-        for asset in my_assets:
-            if (asset.name == name[1] and date[1] is not None):
-                cap += asset.total_amount * date[1]
-    cap += virtual_money
-    return cap
-
-
 def show_my_assets(request):
     user = request.user
     virtual_money = request.user.virtual_money
@@ -100,7 +89,7 @@ def show_my_assets(request):
     my_assets = my_assets.filter(total_amount__gt=0)
     assets = open_jsons()
     form = SellForm(request.POST)
-    cap = calculate_capital(assets, my_assets, virtual_money)
+    cap = CustomUser.calculate_capital(assets, my_assets, virtual_money)
     if request.get_full_path() == '/price/':
         return render_to_response('perfiles/price.html', {'assets': assets})
     if request.get_full_path() == '/wallet/':
@@ -126,44 +115,14 @@ def sell_assets(request):
                     if ((names[1] == asset.name) & (asset.total_amount > 0)):
                         asset.total_amount = asset.total_amount - total_amount
                         asset.save()
-                        transaction = addTransaction(
+                        transaction = Transaction.addTransaction(
                                       request, date[0], date[1],
                                       total_amount, asset.id)
-                        virtual_money = update_money_user(request,
-                                                          total_amount,
-                                                          date,
-                                                          virtual_money)
+                        virtual_money = CustomUser.update_money_user(request,
+                                        total_amount, date, virtual_money)
     return render(request, 'perfiles/salle.html', {
                   'assets': assets, 'my_assets': my_assets,
                   'virtual_money': virtual_money, 'form': form})
-
-
-def addTransaction(request, value_buy, value_sell, total_amount,
-                   user_asset_id):
-    if request.get_full_path() == '/buy/':
-        type_t = str("compra")
-    else:
-        type_t = str("venta")
-    transaction = Transaction.objects.create(user_id=request.user.id,
-                                             user_asset_id=user_asset_id,
-                                             value_buy=value_buy,
-                                             value_sell=value_sell,
-                                             amount=total_amount,
-                                             date=datetime.now(),
-                                             type_transaction=type_t)
-    transaction.save()
-    return transaction
-
-
-def update_money_user(request, total_amount, data, virtual_money):
-    if request.get_full_path() == '/buy/':
-        price = data[1]
-        virtual_money -= total_amount * price
-    else:
-        price = data[0]
-        virtual_money += total_amount * price
-    request.user.virtual_money = virtual_money
-    request.user.save()
 
 
 def show_assets(request):
@@ -171,7 +130,7 @@ def show_assets(request):
     virtual_money = request.user.virtual_money
     my_assets = UserAsset.objects.filter(user=request.user.id)
     assets = open_jsons()
-    cap = calculate_capital(assets, my_assets, virtual_money)
+    cap = CustomUser.calculate_capital(assets, my_assets, virtual_money)
     if request.get_full_path() == '/buy/':
         if request.method == 'POST':
             form = BuyForm(request.POST)
@@ -215,31 +174,18 @@ def addOperation(request, exist_asset, assets_user, nametype, name_form,
     if exist_asset:
         for asset in assets_user:
             if (nametype[1] == asset.name):
-                update_asset(asset, total_amount, data)
-                transaction = addTransaction(
-                  request, data[0], data[1], total_amount, asset.id)
-                update_money_user(request, total_amount, data, virtual_money)
+                CustomUser.update_asset(asset, total_amount, data)
+                transaction = Transaction.addTransaction(request, data[0],
+                                            data[1], total_amount, asset.id)
+                CustomUser.update_money_user(request, total_amount, data,
+                                                virtual_money)
     elif (nametype[1] == name_form):
-        asset_user = addAsset(request, name_form, total_amount, nametype[0],
-                              data[0])
-        transaction = addTransaction(
-          request, data[0], data[1], total_amount, asset_user.id)
-        update_money_user(request, total_amount, data, virtual_money)
+        asset_user = UserAsset.addAsset(request, name_form, total_amount,
+                                        nametype[0], data[0])
+        transaction = Transaction.addTransaction(request, data[0], data[1],
+                                                total_amount, asset_user.id)
+        CustomUser.update_money_user(request, total_amount, data, virtual_money)
     return virtual_money
-
-
-def update_asset(asset, total_amount, data):
-    asset.total_amount += total_amount
-    asset.old_unit_value = data[0]
-    asset.save()
-
-
-def addAsset(request, name, total_amount, type_asset, old_unit_value):
-    asset = UserAsset.objects.create(
-              user_id=request.user.id, name=name, total_amount=total_amount,
-              type_asset=type_asset, old_unit_value=old_unit_value)
-    asset.save()
-    return asset
 
 
 def mytransactions(request):
