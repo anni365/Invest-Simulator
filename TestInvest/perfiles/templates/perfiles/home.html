@@ -24,6 +24,7 @@
         <a href="{% url 'wallet' %}">Vender Activo</a>
         <a href="{% url 'transaction_history' %}">Mis Transacciones</a>
         <a href="{% url 'change_password' %}">Cambiar Contraseña</a>
+        <a href="{% url 'ranking' %}">Ver Ranking</a>
         <a href="{% url 'sign_out' %}">Cerrar sesión</a>
         </div>
       </div>
@@ -34,5 +35,4 @@
         <a href="{% url 'sign_up' %}">Registrarte</a> <br>o si ya tienes cuenta<br>
         <a href="{% url 'sign_in' %}">Inicia Sesión</a></a></div>
     {% endif %}
-
 {% endblock content %}

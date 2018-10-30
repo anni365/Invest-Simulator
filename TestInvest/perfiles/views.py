@@ -81,6 +81,16 @@ def open_jsons():
     assets = assets.items()
     return assets
 
+def calculate_capital(assets, my_assets, virtual_money):
+    cap = 0
+    for name, dates in assets:
+        date = list(dates.values())
+        for asset in my_assets:
+            if (asset.name == name[1] and date[1] is not None):
+                cap += asset.total_amount * date[1]
+    cap += virtual_money
+    return cap
+
 
 def show_my_assets(request):
     user = request.user
@@ -216,5 +226,5 @@ def ranking(request):
     list_cap = cons_ranking()
     users = CustomUser.objects.all()
     return render_to_response(
-      'perfiles/ranking.html', {'lista_capital':list_cap, 'user': request.user})
+      'perfiles/see_ranking.html', {'lista_capital':list_cap, 'user': request.user})
 

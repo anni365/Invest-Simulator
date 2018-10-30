@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+{% block title %}Ver Ranking{% endblock %}
+{% block content %}
+
+<center>
+<style>
+#div1 {
+    overflow-y: scroll;
+    height: 100px;
+    width: 400px;
+    position: absolute;
+    top: 100px;
+    left: 450px;
+}
+#a {
+    top: 400px;
+    left: 450px;
+}
+
+</style>
+  <html>
+  <h1>Ranking de usuarios</h1>
+  <div id="div1">
+    <table border="1" style="width:100%; height:1%;">
+      <tr>
+      <th>Posicion</th>
+      <th>Nombre</th>
+      <th>Cotizacion</th>
+      </tr>
+      {%for dato in lista_capital%}
+        <tr>
+        <td>{{dato.0}}</td>
+        <td>{{dato.1}}</td>
+        <td>{{dato.2}}</td>
+        </tr>
+      {%endfor%}
+    </table>
+  </div>
+  </html>
+</center>
+<br><a href="{% url 'home' %}">Volver al inicio</a>
+{% endblock content %}
