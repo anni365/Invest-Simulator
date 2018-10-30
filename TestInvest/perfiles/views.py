@@ -214,6 +214,37 @@ def open_json_history(name_asset):
     assets_name = assets_name.get("prices")
     return assets_name
 
+def get_asset_history(asset_history, history, since_date, until_date):
+    history_from_to = []
+    i = 0
+    for key, value in asset_history:
+        day = asset_history[i][key]
+        sell = asset_history[i][value][0]
+        buy = asset_history[i][value][1]
+        history.append([day,float(sell),float(buy)])
+        i += 1
+    for element in history:
+        date = datetime.strptime(element[0], "%Y-%m-%d").date()
+        since = datetime.strptime(since_date, "%Y-%m-%d").date()
+        until = datetime.strptime(until_date, "%Y-%m-%d").date()
+        if date >= since and date <= until:
+            history_from_to.append([element[0], element[1], element[2]])
+    if not history_from_to:
+        for element in history:
+            history_from_to.append([element[0], element[1], element[2]])
+    return history_from_to
+
+def get_graph_history(asset_history):
+    grap_history = [["Fecha", "Venta", "Compra"]]
+    j = 0
+    for key, value in asset_history:
+        day = asset_history[j][key]
+        sell = asset_history[j][value][0]
+        buy = asset_history[j][value][1]
+        grap_history.append([day,float(sell),float(buy)])
+        j += 1
+    return grap_history
+
 
 def assets_history(request):
     assets = open_jsons()
@@ -223,26 +254,16 @@ def assets_history(request):
         form = AssetForm(request.POST)
         if form.is_valid():
             name = form.cleaned_data.get("name")
+            since_date = form.cleaned_data.get("since")
+            until_date = form.cleaned_data.get("until")
             asset_history = open_json_history(name)
             is_history = True
             history = []
-            i = 0
-            for key, value in asset_history:
-                day = asset_history[i][key]
-                sell = asset_history[i][value][0]
-                buy = asset_history[i][value][1]
-                history.append([day,float(sell),float(buy)])
-                i += 1
-            grap_history = [["Fecha", "Venta", "Compra"]]
-            j = 0
-            for key, value in asset_history:
-                day = asset_history[j][key]
-                sell = asset_history[j][value][0]
-                buy = asset_history[j][value][1]
-                grap_history.append([day,float(sell),float(buy)])
-                j += 1
+            history_from_to = []
+            history_from_to = get_asset_history(asset_history, history, since_date, until_date)
+            grap_history = get_graph_history(asset_history)
             return render(request, 'perfiles/assets_history.html',
-                          {'history': history, 'is_history': is_history,
+                          {'history': history_from_to, 'is_history': is_history,
                            'name_asset': name,
                            'grap': json.dumps(grap_history)})
     return render(request, 'perfiles/assets_history.html', {'assets': assets_a,
