@@ -207,6 +207,14 @@ def mytransactions(request):
         'my_transactions': my_transactions, 'user': request.user})
 
 
+def open_json_history(name_asset):
+    name_as = 'perfiles/asset/'+name_asset+'_history.json'
+    with open(name_as) as assets_json:
+        assets_name = json.load(assets_json)
+    assets_name = assets_name.get("prices")
+    return assets_name
+
+
 def assets_history(request):
     assets = open_jsons()
     assets_a = quit_null_assets(assets)
@@ -215,9 +223,24 @@ def assets_history(request):
         form = AssetForm(request.POST)
         if form.is_valid():
             name = form.cleaned_data.get("name")
+            asset_history = open_json_history(name)
             is_history = True
             history = []
-            grap_history = []
+            i = 0
+            for key, value in asset_history:
+                day = asset_history[i][key]
+                sell = asset_history[i][value][0]
+                buy = asset_history[i][value][1]
+                history.append([day,float(sell),float(buy)])
+                i += 1
+            grap_history = [["Fecha", "Venta", "Compra"]]
+            j = 0
+            for key, value in asset_history:
+                day = asset_history[j][key]
+                sell = asset_history[j][value][0]
+                buy = asset_history[j][value][1]
+                grap_history.append([day,float(sell),float(buy)])
+                j += 1
             return render(request, 'perfiles/assets_history.html',
                           {'history': history, 'is_history': is_history,
                            'name_asset': name,
