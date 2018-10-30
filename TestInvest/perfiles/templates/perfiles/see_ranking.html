@@ -7,7 +7,7 @@
 <style>
 #div1 {
     overflow-y: scroll;
-    height: 100px;
+    height: 200px;
     width: 400px;
     position: absolute;
     top: 100px;
@@ -31,7 +31,11 @@
       {%for dato in lista_capital%}
         <tr>
         <td>{{dato.0}}</td>
-        <td>{{dato.1}}</td>
+        {%if dato.1 == user.username%}
+          <td><b style="color:black;">{{ dato.1 }}</b></td>
+        {%else%}
+          <td>{{dato.1}}</td>
+        {%endif%}
         <td>{{dato.2}}</td>
         </tr>
       {%endfor%}

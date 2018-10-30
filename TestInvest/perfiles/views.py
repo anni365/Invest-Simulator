@@ -184,7 +184,7 @@ def addOperation(request, exist_asset, assets_user, nametype, name_form,
     if exist_asset:
         for asset in assets_user:
             if (nametype[1] == asset.name):
-                CustomUser.update_asset(asset, total_amount, data)
+                UserAsset.update_asset(asset, total_amount, data)
                 transaction = Transaction.addTransaction(request, data[0],
                                             data[1], total_amount, asset.id)
                 CustomUser.update_money_user(request, total_amount, data,
@@ -227,4 +227,3 @@ def ranking(request):
     users = CustomUser.objects.all()
     return render_to_response(
       'perfiles/see_ranking.html', {'lista_capital':list_cap, 'user': request.user})
-
