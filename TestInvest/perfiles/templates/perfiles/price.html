@@ -9,6 +9,7 @@
     text-align:center;
   }
   </style>
+  <title>Invest Simulator</title>
   <div><br>
   <center>
   <h2 id="not_assets"></h2><br>
@@ -22,6 +23,7 @@
       <a href="{% url 'price' %}">Ver Cotizaciones</a>
       <a href="{% url 'buy' %}">Comprar Activo</a>
       <a href="{% url 'transaction_history' %}">Mis Transacciones</a>
+      <a href="{% url 'assets_history' %}">Consultar valor histórico de un activo</a>
       <a href="{% url 'change_password' %}">Cambiar Contraseña</a>
       <a href="{% url 'sign_out' %}">Cerrar Sesión</a>
     </div>
@@ -38,7 +40,6 @@
       </thead>
       <tbody>
       {% for keys, values in assets %}
-        {% if values.sell != None and values.buy != None %}
         <tr>
           <td><c onclick="openForm({{ values }}, {{ keys }})">{{ keys.1 }}</c>
           </td>
@@ -46,28 +47,14 @@
           <td>{{ values.buy }}</td>
           <td>{{ keys.0 }}</td>
         </tr>
-        {% endif %}
       {% endfor %}
       </tbody>
     </table>
   <script>
-    var there_are_assets = false;
-    {% for keys, values in assets %}
-       {% if values.sell != null and values.buy != null %}
-        there_are_assets = true;
-        break;
-      {% endif %}
-    {% endfor %}
-    {% if there_are_assets == false %}
-      document.getElementById("not_assets").innerHTML ="No hay activos disponibles para mostrar"
-      document.getElementById("tab").innerHTML = ""
-      document.getElementById("nameC").innerHTML = ""
-      document.getElementById("buy").innerHTML = ""
-    {% endif %}
   </script>
   {% else %}
     <center>
-    <h2>No hay activos disponibles</h2>
+    <h2 id="no_asset">No hay activos disponibles</h2>
   {% endif %}
   </div>
 {% endblock content %}

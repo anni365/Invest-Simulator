@@ -77,3 +77,27 @@ class SellForm(forms.Form):
     total_amount = forms.IntegerField(label="Cantidad Activo", required=False)
     price_sell = forms.CharField(label="Precio de Venta", required=False)
     virtual_money = forms.CharField(label="Dinero Liquido", required=False)
+
+
+class DateInput(forms.DateTimeInput):
+    input_type = 'date'
+
+
+class TimeInput(forms.TimeInput):
+    input_type = 'time'
+
+
+class AssetForm(forms.Form):
+    name = forms.CharField(required=False)
+    since = forms.CharField(widget=DateInput())
+    time_since = forms.CharField(widget=TimeInput())
+    until = forms.CharField(widget=DateInput())
+    time_until = forms.CharField(widget=TimeInput())
+
+    def __init__(self, *args, **kwargs):
+        super(AssetForm, self).__init__(*args, **kwargs)
+        self.fields['name'].label = 'Nombre'
+        self.fields['since'].label = 'Desde'
+        self.fields['time_since'].label = 'Hora'
+        self.fields['until'].label = 'Hasta'
+        self.fields['time_until'].label = 'Hora'
