@@ -14,6 +14,14 @@ body{ background-color:#EFF8FB; }
 <center>
 <html>
 <h1>Venta de activo</h1>
+<h3  id="demo"></h3>
+<script>
+window.onload = function() {
+    var valor = comprobar();
+    var result = document.getElementById("demo").innerHTML = "La cantidad de activos disponibles: " + valor.cant;
+};
+</script>
+
 <body>
   <form action="" method="Post" name="formu" id="formu" onsubmit="return false;">
   <br>
