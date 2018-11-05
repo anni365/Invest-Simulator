@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import (
   UserCreationForm, AuthenticationForm, PasswordChangeForm)
 from django.contrib.auth.models import User
-from .models import CustomUser, UserAsset
+from .models import CustomUser, UserAsset, Alarm
 from django.contrib.auth.forms import UserChangeForm
 from django.core.files.images import get_image_dimensions
 from django.forms import ModelForm
@@ -101,3 +101,36 @@ class AssetForm(forms.Form):
         self.fields['time_since'].label = 'Hora'
         self.fields['until'].label = 'Hasta'
         self.fields['time_until'].label = 'Hora'
+
+
+class AlarmForm(ModelForm):
+    type_alarm = forms.ChoiceField(required=True, choices=(
+      ('high', 'Alta'), ('low', 'Baja')))
+    type_quote = forms.ChoiceField(required=True, choices=(
+      ('buy', 'Compra'), ('sell', 'Venta')))
+    type_umbral = forms.ChoiceField(required=True, choices=(
+      ('less', 'Inferior'), ('top', 'Superior')))
+
+    def __init__(self, *args, **kwargs):
+        super(AlarmForm, self).__init__(*args, **kwargs)
+        self.fields['type_alarm'].label = 'Tipo de Alarma'
+        self.fields['type_quote'].label = 'Tipo de Cotización'
+        self.fields['type_umbral'].label = 'Tipo de Umbral'
+        self.fields['previous_quote'].label = 'Valor actual'
+        self.fields['previous_quote'].widget = forms.TextInput(attrs={
+          'placeholder': 'Elija un Activo Disponible'})
+        self.fields['umbral'].label = 'Precio'
+        self.fields['name_asset'].label = 'Nombre del Activo'
+        self.fields['name_asset'].widget = forms.TextInput(attrs={
+          'placeholder': 'Elija un Activo Disponible'})
+
+    class Meta:
+        model = Alarm
+        fields = (
+            'type_alarm',
+            'type_quote',
+            'type_umbral',
+            'previous_quote',
+            'umbral',
+            'name_asset',
+        )

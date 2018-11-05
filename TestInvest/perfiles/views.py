@@ -6,15 +6,15 @@ from django.contrib.auth import login, authenticate, update_session_auth_hash
 from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import CreateView, TemplateView, UpdateView
 from django.contrib.auth.forms import PasswordChangeForm
-from .forms import SignUpForm, BuyForm, SellForm, UpdateProfileForm, AssetForm
+from .forms import (SignUpForm, BuyForm, SellForm, UpdateProfileForm,
+                    AssetForm, AlarmForm)
 from django.contrib import messages
-from .models import CustomUser, UserAsset, Transaction
+from .models import CustomUser, UserAsset, Transaction, Alarm
 import json
 from django.template import RequestContext
 from django.utils import timezone
 from datetime import datetime
 from django.core.mail import EmailMessage, send_mail
-
 
 class SignUpView(CreateView):
     model = CustomUser
@@ -83,16 +83,6 @@ def open_jsons():
     assets = assets.items()
     return assets
 
-def calculate_capital(assets, my_assets, virtual_money):
-    cap = 0
-    for name, dates in assets:
-        date = list(dates.values())
-        for asset in my_assets:
-            if (asset.name == name[1] and date[1] is not None):
-                cap += asset.total_amount * date[1]
-    cap += virtual_money
-    return cap
-
 
 def show_my_assets(request):
     user = request.user
@@ -119,10 +109,9 @@ def sell_assets(request):
         name = form.cleaned_data.get("name")
         total_amount = form.cleaned_data.get("total_amount")
         my_assets = UserAsset.objects.filter(user=request.user.id, name=name)
-        exist = my_assets.exists()
         for names, dates in assets:
             date = list(dates.values())
-            if exist:
+            if my_assets.exists():
                 for asset in my_assets:
                     if ((names[1] == asset.name) & (asset.total_amount > 0)):
                         asset.total_amount = asset.total_amount - total_amount
@@ -180,32 +169,31 @@ def buy_assets(request, form, assets, capital, mj):
         name = form.cleaned_data.get("name")
         total_amount = form.cleaned_data.get("total_amount")
         assets_user = UserAsset.objects.filter(user=request.user.id, name=name)
-        exist_asset = assets_user.exists()
         for nametype, prices in assets:
             data = list(prices.values())
             if nametype[1] == name and (data[0] is None or data[1] is None):
                 messages.add_message(
                   request, messages.INFO, 'El Activo seleccionado ya no se'
                   'encuentra  disponible, no se pudo concretar la compra. Para'
-                  'ver la actual lista de activos recargue la pagina')
+                  ' ver la actual lista de activos recargue la pagina')
                 break
-            addOperation(request, exist_asset, assets_user, nametype, name,
+            addOperation(request, assets_user, nametype, name,
                          total_amount, data, virtual_money)
             virtual_money = request.user.virtual_money
             mj = True
         return virtual_money, assets, mj
 
 
-def addOperation(request, exist_asset, assets_user, nametype, name_form,
+def addOperation(request, assets_user, nametype, name_form,
                  total_amount, data, virtual_money):
-    if exist_asset:
+    if assets_user.exists():
         for asset in assets_user:
             if (nametype[1] == asset.name):
                 UserAsset.update_asset(asset, total_amount, data)
-                transaction = Transaction.addTransaction(request, data[0],
-                                            data[1], total_amount, asset.id)
-                CustomUser.update_money_user(request, total_amount, data,
-                                                virtual_money)
+                transaction = Transaction.addTransaction(
+                  request, data[0], data[1], total_amount, asset.id)
+                CustomUser.update_money_user(
+                  request, total_amount, data, virtual_money)
     elif (nametype[1] == name_form):
         asset_user = UserAsset.addAsset(request, name_form, total_amount,
                                         nametype[0], data[0])
@@ -223,7 +211,8 @@ def mytransactions(request):
       'perfiles/transaction_history.html', {
         'my_transactions': my_transactions, 'user': request.user})
 
-def cons_ranking():
+
+def ranking(request):
     assets = open_jsons()
     dict_cap = {}
     users = CustomUser.objects.all()
@@ -231,20 +220,17 @@ def cons_ranking():
     ranking = []
     for user in users:
         assets_users = UserAsset.objects.filter(user=user.id)
-        capital = CustomUser.calculate_capital(assets, assets_users, user.virtual_money)
+        capital = CustomUser.calculate_capital(
+          assets, assets_users, user.virtual_money)
         dict_cap.update({user.username: capital})
     dict_items = dict_cap.items()
     list_cap = sorted(dict_items, key=lambda x: x[1], reverse=True)
-    total_user =  CustomUser.objects.count()
+    total_user = CustomUser.objects.count()
     for i in range(total_user):
         ranking.append((i+1,) + list_cap[i])
-    return ranking
-
-def ranking(request):
-    list_cap = cons_ranking()
-    users = CustomUser.objects.all()
     return render_to_response(
-      'perfiles/see_ranking.html', {'lista_capital':list_cap, 'user': request.user})
+      'perfiles/see_ranking.html', {
+        'lista_capital': ranking, 'user': request.user})
 
 
 def open_json_history(name_asset):
@@ -277,18 +263,6 @@ def get_asset_history(asset_history, since_date, until_date):
     return history_from_to
 
 
-def get_graph_history(asset_history):
-    grap_history = [["Fecha", "Venta", "Compra"]]
-    j = 0
-    for key, value in asset_history:
-        day = asset_history[j][key]
-        sell = asset_history[j][value][0]
-        buy = asset_history[j][value][1]
-        grap_history.append([day,float(sell),float(buy)])
-        j += 1
-    return grap_history
-
-
 def assets_history(request):
     assets = open_jsons()
     assets_a = quit_null_assets(assets)
@@ -312,6 +286,7 @@ def assets_history(request):
     return render(request, 'perfiles/assets_history.html', {'assets': assets_a,
                                                             'form': form})
 
+
 def send_email(list_alarms):
     email_from = 'investsimulatorarg@gmail.com'
     for alarm in list_alarms:
@@ -325,5 +300,23 @@ def send_email(list_alarms):
         + " " + str(datetime.now()))
         send_mail(subject, body, email_from, [user.email], fail_silently=False)
 
+
 def config_alarm(request):
-    return render_to_response('perfiles/alarm.html')
+    assets = open_jsons()
+    assets = quit_null_assets(assets)
+    if request.method == 'POST':
+        form = AlarmForm(request.POST)
+        user = request.user.id
+        if form.is_valid():
+            type_alarm = form.cleaned_data.get("type_alarm")
+            type_quote = form.cleaned_data.get("type_quote")
+            type_umbral = form.cleaned_data.get("type_umbral")
+            previous_quote = form.cleaned_data.get("previous_quote")
+            umbral = form.cleaned_data.get("umbral")
+            name_asset = form.cleaned_data.get("name_asset")
+            alarm = Alarm.addAlarm(request, type_alarm, type_quote, type_umbral,
+                                    umbral, previous_quote, name_asset)
+    else:
+        form = AlarmForm()
+    return render(request, 'perfiles/alarm.html', {
+      'assets': assets, 'form': form})

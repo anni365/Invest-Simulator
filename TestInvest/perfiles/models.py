@@ -103,3 +103,26 @@ class Transaction(models.Model):
                                                  type_transaction=type_t)
         transaction.save()
         return transaction
+
+
+class Alarm(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    name_asset = models.CharField(max_length=30)
+    type_alarm = models.CharField(max_length=30)
+    type_quote = models.CharField(max_length=30)
+    type_umbral = models.CharField(max_length=30)
+    previous_quote = models.FloatField(
+        validators=[MinValueValidator(0.0)], blank=None)
+    umbral = models.FloatField(
+        validators=[MinValueValidator(0.0)], blank=None)
+    email_send = models.BooleanField(default=False)
+
+    def addAlarm(request, type_alarm, type_quote, type_umbral,
+                            umbral, previous_quote, name_asset):
+        alarm = Alarm.objects.create(
+                    user_id=request.user.id, name_asset=name_asset,
+                    type_alarm=type_alarm, type_quote=type_quote,
+                    type_umbral=type_umbral, umbral=umbral,
+                    previous_quote=previous_quote)
+        alarm.save()
+        return alarm
