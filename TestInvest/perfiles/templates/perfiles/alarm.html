@@ -1,20 +1,78 @@
-{% extends "base.html" %}
-
-{% block title %}Alarma{% endblock %}
-
 {% block content %}
-
-<center>
 <style>
-
+  #alarmForm {
+    position: absolute;
+    top: 220px;
+    left: 740px;
+  }
+  #id_previous_quote{
+    text-align: center;
+    overflow-y: none;
+    background-color: #FAFAFA ;
+    border: none;
+    color: black;
+  }
+  #id_name_asset{
+    text-align: left;
+    text-decoration: none;
+    background-color: #FFFFFF ;
+    border: none;
+    color: black;
+  }
 </style>
-<html>
-    <h1>Configuraracion de  Alarmas</h1>
-    <h2>Activos Disponibles</h2>
-
-
-</html>
-<center>
-<a href="{% url 'home' %}">Volver al inicio</a>
+  <title>Invest Simulator</title>
+  <body>
+      <center><h3>Configuraración de Alarmas</h3></center>
+      <div class="menu">{% include 'perfiles/price.html' %}</div>
+      {% if assets %}
+        <form action="{% url 'alarm' %}" method="POST" onsubmit=confirm(event) id="alarmForm">
+          <h3 id="alar">Configure su alarma</h3><br><br>
+          {% csrf_token %}
+          {{ form.as_p }}
+          <input id="accept" type="submit" value="Configurar alarma"/>
+        </form>
+      {% endif %}
+  </body>
+  <script>
+    document.getElementById("nameC").innerHTML = "Activos Disponibles";
+    document.getElementById("prices").style.left = "170px";
+    document.getElementById("nameC").style.left = "5%";
+  </script>
+  <script>
+  document.getElementById("id_name_asset").disabled = true;
+  document.getElementById("id_type_alarm").disabled = true;
+  document.getElementById("id_previous_quote").disabled = true;
+  localStorage.setItem('sell', "");
+  localStorage.setItem('buy', "");
+  function openForm(value, name) {
+    var type_qoute = document.getElementById("id_type_quote").value;
+    document.getElementById("id_name_asset").value = name;
+    if (type_qoute == 'sell') {
+      document.getElementById("id_previous_quote").value = value.sell;
+      localStorage.setItem('buy', value.buy);
+      localStorage.setItem('sell', value.sell);
+    }
+    if (type_qoute == 'buy') {
+      document.getElementById("id_previous_quote").value = value.buy;
+      localStorage.setItem('buy', value.buy);
+      localStorage.setItem('sell', value.sell);
+    }
+  }
+  document.getElementById("id_type_quote").onchange =
+  function change() {
+    var type_qoute = document.getElementById("id_type_quote").value;
+    if (type_qoute == 'sell') {
+      document.getElementById("id_previous_quote").value = localStorage.sell;
+    }
+    if (type_qoute == 'buy') {
+      document.getElementById("id_previous_quote").value = localStorage.buy;
+    }
+  }
+  function confirm(event) {
+    document.getElementById("id_name_asset").disabled = false;
+    document.getElementById("id_previous_quote").disabled = false;
+    document.getElementById("id_type_alarm").disabled = false;
+  }
+  </script>
 {% endblock content %}
 
