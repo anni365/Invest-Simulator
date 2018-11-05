@@ -13,6 +13,7 @@ import json
 from django.template import RequestContext
 from django.utils import timezone
 from datetime import datetime
+from django.core.mail import EmailMessage, send_mail
 
 
 class SignUpView(CreateView):
@@ -311,6 +312,18 @@ def assets_history(request):
     return render(request, 'perfiles/assets_history.html', {'assets': assets_a,
                                                             'form': form})
 
+def send_email(list_alarms):
+    email_from = 'investsimulatorarg@gmail.com'
+    for alarm in list_alarms:
+        user = CustomUser.objects.get(pk=alarm[0])
+        subject = ("[Invest Simulator] El activo " + str(alarm[1]) +
+        " ha alcanzado el valor esperado")
+        body =( "El activo" + " " + str(alarm[1]) + " " +
+        "ha alcanzado el valor esperado de" + " " + str(alarm[2]) + ".\n" +
+        str(alarm[1]) +  "\nValor de cotización previo: " + " " +
+        str(alarm[4])+ "\n" + "Valor actual: " + str(alarm[3]) + "\nFecha:"
+        + " " + str(datetime.now()))
+        send_mail(subject, body, email_from, [user.email], fail_silently=False)
+
 def config_alarm(request):
     return render_to_response('perfiles/alarm.html')
-

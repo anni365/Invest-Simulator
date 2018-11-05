@@ -130,3 +130,9 @@ LOGOUT_REDIRECT_URL = '/'
 USER_HOME_URL = '/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'investsimulatorarg@gmail.com'
+EMAIL_HOST_PASSWORD = 'laschicas234'
+EMAIL_PORT = 587
