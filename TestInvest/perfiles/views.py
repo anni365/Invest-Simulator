@@ -301,7 +301,49 @@ def send_email(list_alarms):
         send_mail(subject, body, email_from, [user.email], fail_silently=False)
 
 
+def get_data_of_alarm():
+    list_alarms = []
+    assets = open_jsons()
+    alarms_buy = Alarm.objects.filter(type_quote="buy")
+    alarms_sell = Alarm.objects.filter(type_quote="sell")
+    update_alarm_notif(alarms_buy, list_alarms, assets, 1)
+    update_alarm_notif(alarms_sell, list_alarms, assets, 0)
+    send_email(list_alarms)
+
+
+def update_alarm_notif(alarms, list_alarms, assets_json, price):
+    for alarm in alarms:
+        for nametype, prices in assets_json:
+            data = list(prices.values())
+            if nametype[1] == alarm.name_asset and not (data[0] is None or data[1] is None):
+                check_alarms_json(list_alarms, alarm, data, price, nametype)
+
+
+def check_alarms_json(list_alarms, alarm, data, price, nametype):
+    if alarm.umbral >= data[price] and alarm.type_umbral == "less":
+        if not alarm.email_send:
+            update_list_alarm(list_alarms, alarm, nametype, data, price)
+    elif alarm.type_umbral == "less" and alarm.email_send:
+        update_list_alarm(list_alarms, alarm, nametype, data, price)
+    if alarm.umbral <= data[price] and alarm.type_umbral == "top":
+        if not alarm.email_send:
+            update_list_alarm(list_alarms, alarm, nametype, data, price)
+    elif alarm.type_umbral == "top" and alarm.email_send:
+        update_list_alarm(list_alarms, alarm, nametype, data, price)
+
+
+def update_list_alarm(list_alarms, alarm, nametype, data, price):
+    if alarm.email_send:
+        alarm.email_send = False
+        alarm.save()
+    else:
+        list_alarms.append([alarm.user_id, nametype[1], alarm.umbral, data[price], alarm.previous_quote])
+        alarm.email_send = True
+        alarm.save()
+
+
 def config_alarm(request):
+    get_data_of_alarm()
     assets = open_jsons()
     assets = quit_null_assets(assets)
     if request.method == 'POST':
