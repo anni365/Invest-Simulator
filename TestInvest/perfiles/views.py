@@ -303,3 +303,8 @@ def assets_history(request):
                            'grap': json.dumps(grap_history)})
     return render(request, 'perfiles/assets_history.html', {'assets': assets_a,
                                                             'form': form})
+
+
+def config_alarm(request):
+    return render_to_response('perfiles/alarm.html')
+

@@ -41,6 +41,8 @@ urlpatterns = [
     url(r'^ranking/$', login_required(views.ranking), name='ranking'),
     url(r'^assetshistory/$', login_required(views.assets_history),
         name='assets_history'),
+    url(r'^alarm/$', login_required(views.config_alarm),
+                   name='alarm'),
 ]
 
 if settings.DEBUG:
