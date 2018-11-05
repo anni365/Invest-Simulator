@@ -2,9 +2,6 @@
 {% block title %}Cartera de Inversiones{% endblock %}
 {% block content %}
   <style>
-  .dropbtn {
-    position:relative;left:-41%;
-  }
   h2 {
     text-align:center;
   }
@@ -12,20 +9,6 @@
   <center>
   <h2>Cartera de inversiones</h2>
   <h2> Nombre : {{user.username}}</h2>
-  <div><br>
-  <div class="dropdown">
-    <button class="dropbtn">Menu</button>
-    <div class="dropdown-content">
-      <a href="{% url 'home' %}">Volver al Inicio</a>
-      <a href="{% url 'profile' %}">Mi perfil</a>
-      <a href="{% url 'price' %}">Ver Cotizaciones</a>
-      <a href="{% url 'buy' %}">Comprar Activo</a>
-      <a href="{% url 'wallet' %}">Vender Activo</a>
-      <a href="{% url 'transaction_history' %}">Mis Transacciones</a>
-      <a href="{% url 'change_password' %}">Cambiar Contraseña</a>
-      <a href="{% url 'sign_out' %}">Cerrar Sesión</a>
-    </div>
-  </div>
   {% if my_assets %}
     <TABLE BORDER>
       <TR>
@@ -71,7 +54,5 @@
       <h1> No dispone de activos!!!</h1>
       <h2>Dinero liquido disponible : {{user.virtual_money}} </h2>
   {% endif %}
-  <center>
-    <br><a href="{% url 'home' %}">Volver al inicio</a>
 {% endblock content %}
 

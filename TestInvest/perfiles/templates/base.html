@@ -5,6 +5,25 @@
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="{% static 'css/templates.css' %}">
+    {% if user.is_authenticated %}
+      <div class="dropdown">
+        <button class="dropbtn">Menu</button>
+        <div class="dropdown-content">
+          <a href="{% url 'home' %}">Regresar a Pantalla Principal</a>
+          <a href="{% url 'profile' %}">Mi perfil</a>
+          <a href="{% url 'wallet' %}">Cartera de Inversiones</a>
+          <a href="{% url 'price' %}">Ver Cotizaciones</a>
+          <a href="{% url 'buy' %}">Comprar Activo</a>
+          <a href="{% url 'wallet' %}">Vender Activo</a>
+          <a href="{% url 'transaction_history' %}">Mis Transacciones</a>
+          <a href="{% url 'assets_history' %}">Consultar valor histórico de un activo</a>
+          <a href="{% url 'ranking' %}">Ver Ranking</a>
+          <a href="{% url 'alarm' %}">Configurar Alarmas</a>
+          <a href="{% url 'change_password' %}">Cambiar Contraseña</a>
+          <a href="{% url 'sign_out' %}">Cerrar sesión</a>
+        </div>
+      </div>
+    {% endif %}
   </head>
   <body>
     {% block content %}

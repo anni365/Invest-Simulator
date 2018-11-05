@@ -4,7 +4,7 @@
 
 {% block content %}
   <style>
-    h2 {color:#0d7dc6;}
+    b {color:#0d7dc6;}
   </style>
     {% if user.is_authenticated %}
       <div align="center">
@@ -14,27 +14,12 @@
       <h2>Hola, {{ user.username }}</h2>
       <img src="{{ user.avatar.url }}" width="50px" height="50px" align="center"/>
       </center>
-      <div class="dropdown">
-        <button class="dropbtn">Menu</button>
-        <div class="dropdown-content">
-        <a href="{% url 'profile' %}">Mi perfil</a>
-        <a href="{% url 'wallet' %}">Cartera de Inversiones</a>
-        <a href="{% url 'price' %}">Ver Cotizaciones</a>
-        <a href="{% url 'buy' %}">Comprar Activo</a>
-        <a href="{% url 'wallet' %}">Vender Activo</a>
-        <a href="{% url 'transaction_history' %}">Mis Transacciones</a>
-        <a href="{% url 'assets_history' %}">Consultar valor histórico de un activo</a>
-        <a href="{% url 'change_password' %}">Cambiar Contraseña</a>
-        <a href="{% url 'ranking' %}">Ver Ranking</a>
-        <a href="{% url 'alarm' %}">Configurar Alarma</a>
-        <a href="{% url 'sign_out' %}">Cerrar sesión</a>
-        </div>
-      </div>
     {% else %}
       <div align="center">
-        <h1><a1>Bienvenido Invest Simulator</a1>
+        <h2><b>Bienvenido Invest Simulator</b>
         <br>para poder continuar puedes<br>
         <a href="{% url 'sign_up' %}">Registrarte</a> <br>o si ya tienes cuenta<br>
-        <a href="{% url 'sign_in' %}">Inicia Sesión</a></a></div>
+        <a href="{% url 'sign_in' %}">Inicia Sesión</a></a></h2></div>
     {% endif %}
+
 {% endblock content %}

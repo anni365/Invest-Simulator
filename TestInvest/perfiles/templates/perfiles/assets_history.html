@@ -1,20 +1,24 @@
-{% extends "base.html" %}
-{% block title %}Historial de Activo{% endblock %}
 {% block content %}
   <style>
-  .disableDi{
-    pointer-events: none;
-  }
   .form .cancel {
-    background-color: #FAAC58;
-    margin-left: 84%
+    background-color: #148f77;
+    margin-left: 88.6%
     }
   .form input[type=text]{
     text-align: center;
-    background-color: blanchedalmond;
+    background-color: #eafaf1 ;
     border: none;
-    color: red;
+    color: black;
   }
+    div#back{
+      position:relative;
+      left:-35%;
+    }
+    div#myPopup{
+      position:fixed;
+      left:-9.3%;
+      top:35.4%;
+    }
   </style>
   <div class="container" id="back">
     <div id="prices">
@@ -24,7 +28,8 @@
   <div class="popup" id="myPopup">
     <form class="form" action="{% url 'assets_history' %}" method="POST"
           id="my_form" onsubmit="name_enable(event)">
-      <button class="btn cancel" onclick="ClosePop()"><b>x</b></button><br>
+      <button class="btn cancel" onclick="ClosePop()"><w>x</w></button><br>
+      <b>Elija desde y hasta cuando quedra ver el historial del activo</b><br><br>
       {% csrf_token %}
       {{ form.as_p }}
       <button class="submit">Ver historial</button>
@@ -33,7 +38,7 @@
   {% if is_history %}
     {% if history %}
     <h2 id="mj_graph"></h2>
-    <div style="width:80%; height:75%; position:relative; left:10%;z-index:-1" id="graph">
+    <div style="width:95%; height:95%; position:relative; left:1%;z-index:-1" id="graph">
     </div>
     <center>
     <h2>Historial de {{name_asset}}</h2><br>
@@ -76,20 +81,16 @@
   </script>
   <script>
   document.getElementById("nameC").innerHTML = "Activos Disponibles";
+  document.getElementById("nameC").style.left = "2%";
   function openForm(value, name) {
-    $("#prices").addClass("disableDi");
+    document.getElementById("prices").style['pointer-events'] = 'none';
     document.getElementById("myPopup").style.display = "block";
     document.getElementById("id_name").value = name;
     document.getElementById("id_name").disabled = true;
-    setTimeout("enableDiv()",1);
-  }
-  function enableDiv(){
-    $("#back").click(function(){
-     window.location.reload()
-    });
   }
   function ClosePop(){
-     window.location.reload()
+    document.getElementById("prices").style['pointer-events'] = 'auto';
+    document.getElementById("myPopup").style.display = "none";
   }
   function name_enable(event) {
     event.preventDefault();

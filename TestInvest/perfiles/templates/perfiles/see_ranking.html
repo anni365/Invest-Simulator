@@ -2,23 +2,21 @@
 {% extends "base.html" %}
 {% block title %}Ver Ranking{% endblock %}
 {% block content %}
-
-<center>
 <style>
-#div1 {
+  #div1 {
     overflow-y: scroll;
-    height: 200px;
+    height: 500px;
     width: 400px;
-    position: absolute;
-    top: 100px;
-    left: 450px;
-}
-#a {
+  }
+  #a {
     top: 400px;
     left: 450px;
-}
-
+  }
+  #asd {
+    background-color: #0f7460;
+  }
 </style>
+<center>
   <html>
   <h1>Ranking de usuarios</h1>
   <div id="div1">
@@ -29,19 +27,22 @@
       <th>Cotizacion</th>
       </tr>
       {%for dato in lista_capital%}
-        <tr>
-        <td>{{dato.0}}</td>
         {%if dato.1 == user.username%}
-          <td><b style="color:black;">{{ dato.1 }}</b></td>
+          <tr id="asd">
+            <td>{{dato.0}}</td>
+            <td><b style="color:black;">{{ dato.1 }}</b></td>
+            <td>{{dato.2}}</td>
+          </tr>
         {%else%}
-          <td>{{dato.1}}</td>
+          <tr>
+            <td>{{dato.0}}</td>
+            <td>{{dato.1}}</td>
+            <td>{{dato.2}}</td>
+          </tr>
         {%endif%}
-        <td>{{dato.2}}</td>
-        </tr>
       {%endfor%}
     </table>
   </div>
   </html>
 </center>
-<br><a href="{% url 'home' %}">Volver al inicio</a>
 {% endblock content %}

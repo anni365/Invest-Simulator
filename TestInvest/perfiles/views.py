@@ -1,6 +1,7 @@
 # -- coding: utf-8 --
 from __future__ import unicode_literals
-from django.shortcuts import render, render_to_response, get_object_or_404
+from django.shortcuts import (render, render_to_response, get_object_or_404,
+                              redirect)
 from django.contrib.auth import login, authenticate, update_session_auth_hash
 from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import CreateView, TemplateView, UpdateView
@@ -130,6 +131,7 @@ def sell_assets(request):
                                       total_amount, asset.id)
                         virtual_money = CustomUser.update_money_user(
                           request, total_amount, date, virtual_money)
+                        return redirect('http://localhost:8000/wallet')
     return render(request, 'perfiles/salle.html', {
                   'assets': assets, 'my_assets': my_assets,
                   'virtual_money': virtual_money, 'form': form})
@@ -150,25 +152,28 @@ def show_assets(request):
     my_assets = UserAsset.objects.filter(user=request.user.id)
     assets = open_jsons()
     assets_a = quit_null_assets(assets)
+    mj = False
     cap = CustomUser.calculate_capital(assets, my_assets, virtual_money)
     if request.get_full_path() == '/buy/':
         if request.method == 'POST':
             form = BuyForm(request.POST)
-            virtual_money, assets = buy_assets(
-              request, form, assets, virtual_money)
+            virtual_money, assets, mj = buy_assets(
+              request, form, assets, virtual_money, mj)
         else:
             form = BuyForm()
         return render(request, 'perfiles/buy.html', {
-          'assets': assets_a, 'virtual_money': virtual_money, 'form': form})
+          'assets': assets_a, 'virtual_money': virtual_money, 'form': form,
+          'mj': mj})
     if request.get_full_path() == '/price/':
-        return render_to_response('perfiles/price.html', {'assets': assets_a})
+        return render_to_response(
+        'perfiles/price.html', {'assets': assets_a, 'user':user})
     if request.get_full_path() == '/wallet/':
         return render_to_response('perfiles/wallet.html', {
           'assets': assets, 'user': user, 'my_assets': my_assets,
           'capital': cap})
 
 
-def buy_assets(request, form, assets, capital):
+def buy_assets(request, form, assets, capital, mj):
     virtual_money = request.user.virtual_money
     if form.is_valid():
         name = form.cleaned_data.get("name")
@@ -186,7 +191,8 @@ def buy_assets(request, form, assets, capital):
             addOperation(request, exist_asset, assets_user, nametype, name,
                          total_amount, data, virtual_money)
             virtual_money = request.user.virtual_money
-        return virtual_money, assets
+            mj = True
+        return virtual_money, assets, mj
 
 
 def addOperation(request, exist_asset, assets_user, nametype, name_form,
@@ -248,14 +254,15 @@ def open_json_history(name_asset):
     return assets_name
 
 
-def get_asset_history(asset_history, history, since_date, until_date):
+def get_asset_history(asset_history, since_date, until_date):
+    history = []
     history_from_to = []
     i = 0
     for key, value in asset_history:
         day = asset_history[i][key]
         sell = asset_history[i][value][0]
         buy = asset_history[i][value][1]
-        history.append([day,float(sell),float(buy)])
+        history.append([day, float(sell), float(buy)])
         i += 1
     for element in history:
         date = datetime.strptime(element[0], "%Y-%m-%d").date()
@@ -293,17 +300,16 @@ def assets_history(request):
             until_date = form.cleaned_data.get("until")
             asset_history = open_json_history(name)
             is_history = True
-            history = []
             history_from_to = []
-            history_from_to = get_asset_history(asset_history, history, since_date, until_date)
-            grap_history = get_graph_history(asset_history)
-            return render(request, 'perfiles/assets_history.html',
-                          {'history': history_from_to, 'is_history': is_history,
-                           'name_asset': name,
-                           'grap': json.dumps(grap_history)})
+            history_from_to = get_asset_history(
+              asset_history, since_date, until_date)
+            grap_history = [["Fecha", "Venta", "Compra"]]
+            grap_history += history_from_to
+            return render(request, 'perfiles/assets_history.html', {
+              'history': history_from_to, 'is_history': is_history,
+              'name_asset': name, 'grap': json.dumps(grap_history)})
     return render(request, 'perfiles/assets_history.html', {'assets': assets_a,
                                                             'form': form})
-
 
 def config_alarm(request):
     return render_to_response('perfiles/alarm.html')

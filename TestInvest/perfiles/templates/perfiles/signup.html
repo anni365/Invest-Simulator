@@ -2,7 +2,10 @@
 {% block title %}Registro{% endblock %}
 {% block content %}
   <center>
-  <a href="{% url 'home' %}">Inicio</a>
+    <h3 id="load">Para Iniciar Sesión haga click
+    <a href="{% url 'sign_in' %}"><b>aqui</b></a></h3>
+    <h3 id="init">Para Volver al Inicio haga click 
+    <a href="{% url 'home' %}"><b>aqui</b></a></h3>
   <h2 id="signup">Registrate</h2>
   <h2 id="message"></h2>
   <form method="post" enctype="multipart/form-data" id="myForm">
@@ -27,6 +30,8 @@
     var totalTiempo=10;
     var url="http://localhost:8000";
     function updateReloj() {
+      document.getElementById("load").innerHTML = "";
+      document.getElementById("init").innerHTML = "";
       document.getElementById('message').innerHTML = `<b>El registro se
       realizo correctamente!<br/> Redireccionando a la pagina principal
       en <c>${totalTiempo}</c> segundos <br/> o haga click

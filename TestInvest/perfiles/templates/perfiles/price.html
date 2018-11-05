@@ -2,33 +2,20 @@
 {% block title %}Activos{% endblock %}
 {% block content %}
   <style>
-  .dropbtn {
-    position:relative;left:-41%;
+  h2 {text-align:center;}
+  div#prices {
+    position:relative;
+    left:35%;
   }
-  h2 {
-    text-align:center;
+  h1#nameC {
+    position:relative;
+    left:8%;
   }
   </style>
   <title>Invest Simulator</title>
-  <div><br>
-  <center>
-  <h2 id="not_assets"></h2><br>
-  <h1 id="nameC">Cotizaciones</h1>
-  <div class="dropdown">
-    <button class="dropbtn">Menu</button>
-    <div class="dropdown-content">
-      <a href="{% url 'home' %}">Volver al Inicio</a>
-      <a href="{% url 'profile' %}">Mi perfil</a>
-      <a href="{% url 'wallet' %}">Cartera de Inversiones</a>
-      <a href="{% url 'price' %}">Ver Cotizaciones</a>
-      <a href="{% url 'buy' %}">Comprar Activo</a>
-      <a href="{% url 'transaction_history' %}">Mis Transacciones</a>
-      <a href="{% url 'assets_history' %}">Consultar valor histórico de un activo</a>
-      <a href="{% url 'change_password' %}">Cambiar Contraseña</a>
-      <a href="{% url 'sign_out' %}">Cerrar Sesión</a>
-    </div>
-  </div>
   {% if assets %}
+    <div id="prices">
+    <h1 id="nameC">Cotizaciones</h1><br>
     <table id="tab">
       <thead>
         <tr>
@@ -41,20 +28,17 @@
       <tbody>
       {% for keys, values in assets %}
         <tr>
-          <td><c onclick="openForm({{ values }}, {{ keys }})">{{ keys.1 }}</c>
+          <td><c class="c" onclick="openForm({{ values }}, {{ keys }})">{{ keys.1 }}</c>
           </td>
-          <td>{{ values.sell }}</td>
           <td>{{ values.buy }}</td>
+          <td>{{ values.sell }}</td>
           <td>{{ keys.0 }}</td>
         </tr>
       {% endfor %}
       </tbody>
     </table>
-  <script>
-  </script>
+    </div>
   {% else %}
-    <center>
-    <h2 id="no_asset">No hay activos disponibles</h2>
+    <center><h2 id="no_asset">No hay activos disponibles</h2></center>
   {% endif %}
-  </div>
 {% endblock content %}

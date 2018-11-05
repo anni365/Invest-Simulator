@@ -1,11 +1,37 @@
-{% extends "base.html" %}
-{% block title %}Compra{% endblock %}
 {% block content %}
+<style>
+  div#back{
+    position:relative;
+    left:-1%;
+  }
+  div#myPopup{
+    position:fixed;
+    left:37%;
+    top:19%;
+  }
+  #myPopup2{
+    display:auto;
+    position:fixed;
+    top: 19.5%;
+    border: 2px solid #aaa;
+    border-color: blueviolet;
+    z-index:1;
+    text-align: center;
+    background-color: #58ACFA;
+    color: #F8E0E0;
+  }
+</style>
+  {% if messages %}
+     {% for message in messages %}
+       <center>
+         <h1>{{ message }}</h1>
+       </center>
+     {% endfor %}
+  {% endif %}
   <div id="back">
-    <h2 id="not_assets"></h2>
-    <div id="prices">
+    <div id="price">
+      <center><br><h3>Dinero Liquido Disponible: ${{virtual_money}}</h3></center>
       {% include 'perfiles/price.html' %}
-      <center><br><b>Dinero Liquido Disponible: ${{virtual_money}}</b></center>
     </div>
   </div>
   <div class="form-popup" id="myPopup">
@@ -16,6 +42,7 @@
       {{ form.as_p }}
       <b id="total">Subtotal: $0</b><br>
       <b>Saldo disponible: ${{virtual_money}}</b><br><br>
+      <center>
       <input id="accept" type="submit" value="Confirmar">
       <button type="button" id="cancel" class="btn cancel" onclick="closeForm()">
       Cancelar</button>
@@ -42,10 +69,11 @@
     document.getElementById("my_form").submit();
   }
   function openForm(value, name) {
-    $("#prices").addClass("disableDiv");
+    document.getElementById("myPopup").style.display = "block";
+    document.getElementById("price").style['pointer-events'] = "none";
+    document.getElementById("price").style.opacity = 0.4;
     document.getElementById("id_total_amount").value = "";
     document.getElementById("id_name").disabled = true;
-    document.getElementById("myPopup").style.display = "block";
     localStorage.setItem('sell', value.sell);
     localStorage.setItem('buy', value.buy);
     localStorage.setItem('names', name);
@@ -54,7 +82,7 @@
   }
   function enableDiv() {
     $("#back").click(function() {
-     window.location.reload()
+    window.location="http://localhost:8000/buy";
     });
   }
   function closeForm() {
@@ -79,14 +107,16 @@
         setTimeout("updateReloj()",1000);
     }
   }
-  function confirm(event, a) {
+  function confirm(event, virtual_money) {
     event.preventDefault();
     document.getElementById("accept").disabled = true;
     document.getElementById("cancel").disabled = true;
     document.getElementById("id_total_amount").disabled = true;
     var buy_confirm = $("#confirm");
     var amount = document.getElementById("id_total_amount").value;
-    var total_amount = localStorage.buy * amount;
+    var total_amount = localStorage.sell * amount;
+    localStorage.setItem('amounts', amount);
+    localStorage.setItem('total_amount', total_amount);
     var msg = `Activo adquirido: ${localStorage.names}.
     A seleccionado: ${amount}.
     Precio compra: ${localStorage.sell},
@@ -94,7 +124,7 @@
     A un total de: ${total_amount}.
     ¿Esta seguro que desea comprar esta cantidad del activo?`
     if (amount > 0) {
-      if (a >= total_amount) {
+      if (virtual_money >= total_amount) {
         totalTiempo=5;
         buy_confirm.find(".message").text(msg);
         updateReloj();
@@ -110,18 +140,34 @@
   }
   $("#id_total_amount").change(function () {
     var amount = $("#id_total_amount").val();
-    var total = amount * localStorage.buy;
+    var total = amount * localStorage.sell;
     document.getElementById("total").innerHTML = "Subtotal $" + total;
   });
   $("#id_total_amount").keyup(function () {
     var amount2 =  $(this).val();
-    var total2 = amount2 * localStorage.buy;
+    var total2 = amount2 * localStorage.sell;
     document.getElementById("total").innerHTML = "Subtotal $" + total2;
   });
   </script>
-  {% if messages %}
-     {% for message in messages %}
-       <p>{{ message }}</p>
-     {% endfor %}
+  {% if mj == True %}
+    <div class="popuptext" id="myPopup2">
+      <h3 id="mj"></h3>
+    </div>
+  <head><script>
+    document.getElementById("price").style['pointer-events'] = "none";
+  </script></head>
+  <script>
+  document.getElementById("mj").innerHTML =
+    "Su compra del activo: " + localStorage.names +
+    " por una cantidad de: " + localStorage.amounts +
+    " a un precio total de: $" + localStorage.total_amount +
+    " Fue un exito, su actual saldo en dinero liquido es: $" +
+    '{{virtual_money}}' + "." +
+    '<br><br><center><button onclick="send()">Ver mi cartera</button>' +
+    '&nbsp&nbsp<button onclick="closeForm()">Continuar comprando</button></center>';
+    function send() {
+      window.location="http://localhost:8000/wallet";
+    }
+  </script>
   {% endif %}
 {% endblock content %}

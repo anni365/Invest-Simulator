@@ -11,18 +11,6 @@
     }
     </style>
     {% if user.is_authenticated %}
-    <div class="dropdown">
-      <button class="dropbtn">Menu</button>
-      <div class="dropdown-content">
-        <a href="{% url 'home' %}">Volver al Inicio</a>
-        <a href="{% url 'wallet' %}">Cartera de Inversiones</a>
-        <a href="{% url 'price' %}">Ver Cotizaciones</a>
-        <a href="{% url 'buy' %}">Comprar Activo</a>
-        <a href="{% url 'transaction_history' %}">Mis Transacciones</a>
-        <a href="{% url 'change_password' %}">Cambiar Contraseña</a>
-        <a href="{% url 'sign_out' %}">Cerrar Sesión</a>
-      </div>
-    </div>
       <div align="center">
         <a href="{% url 'update_profile' %}">Editar perfil</a>
       </div>

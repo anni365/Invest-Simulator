@@ -1,37 +1,8 @@
 {% extends "base.html" %}
 {% block title %}Historial de Transacciones{% endblock %}
 {% block content%}
-<style>
-h1 {color:FireBrick}
-h2 {color:#C70039}
-button {
-background-color: #e74c3c;
-border: none;
-color: white;
-padding: 10px 27px;
-}
-table {
-    font-family: arial, sans-serif;
-    border-collapse: collapse;
-}
-
-td, th {
-    border: 1px solid #DF3A01;
-    text-align: left;
-    padding: 8px;
-}
-tr:nth-child(even) {
-    background-color: SeaShell;
-}
-th {
-    color: #8A0829;
-    background-color: Salmon;
-}
-</style>
-
     <center>
     <h2>Historial de Transacciones de {{user.username}}</h2>
-
     {% if my_transactions %}
         <TABLE BORDER>
             <TR>
@@ -58,8 +29,6 @@ th {
     {% else %}
         <h1> No hay transacciones disponibles.</h1>
     {% endif %}
-
     <center>
     <br><a href="{% url 'home' %}">Volver al inicio</a>
-
 {% endblock content %}
