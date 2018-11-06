@@ -308,7 +308,6 @@ def get_data_of_alarm():
     alarms_sell = Alarm.objects.filter(type_quote="sell")
     update_alarm_notif(alarms_buy, list_alarms, assets, 1)
     update_alarm_notif(alarms_sell, list_alarms, assets, 0)
-    print("send_alarm")
     send_email(list_alarms)
 
 
@@ -367,18 +366,11 @@ def config_alarm(request):
       'assets': assets, 'form': form})
 
 
-def open_jsons_forever():
+def consult_alarm_forever():
     while True:
         get_data_of_alarm()
-        asset = open_jsons()
-        print("WHILE", asset)
-        print(threading.current_thread().getName())
         time.sleep(15.0)
-
-hilo1 = threading.Thread(name='get_data_of_alarm',
-                         daemon=True)
-                         
-hilo2 = threading.Thread(name='open_jsons_forever', 
-                         target=open_jsons_forever)
+                             
+hilo1 = threading.Thread(name='consult_alarm_forever', 
+                         target=consult_alarm_forever)
 hilo1.start()
-hilo2.start()
