@@ -358,6 +358,8 @@ def config_alarm(request):
             name_asset = form.cleaned_data.get("name_asset")
             alarm = Alarm.addAlarm(request, type_alarm, type_quote, type_umbral,
                                     umbral, previous_quote, name_asset)
+        return render(request, 'perfiles/alarm.html', {
+          'assets': assets, 'form': AlarmForm()})
     else:
         form = AlarmForm()
     return render(request, 'perfiles/alarm.html', {

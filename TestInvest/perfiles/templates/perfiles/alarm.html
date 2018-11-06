@@ -68,10 +68,36 @@
       document.getElementById("id_previous_quote").value = localStorage.buy;
     }
   }
+  function mensajes() {
+    var type_umbral = document.getElementById("id_type_umbral").value;
+    var value =  document.getElementById("id_previous_quote").value;
+    var umbral = document.getElementById("id_umbral").value;
+      if (type_umbral=="top") {
+        if ( umbral < value) {
+          alert("El umbral introducido ,no tiene sentido por que el Valor Actual es SUPERIOR");
+          document.getElementById("id_umbral").value = "";
+        }else {
+          alert("La configuracion de alarma ha sido exitosa!!! ");
+          alert("Te enviamos un email ,revisa tu correo electronico.!!! ");
+        }
+      } 
+      if (type_umbral=="less") {
+        if ( umbral > value ) { 
+          alert("El umbral introducido ,no tiene sentido por que el Valor Actual es INFERIOR");
+          document.getElementById("id_umbral").value = "";
+        }else {
+          alert("La configuracion de alarma ha sido exitosa!!! ");
+          alert("Te enviamos un email ,revisa tu correo electronico. :)!!! ");
+        }
+      }
+  }
   function confirm(event) {
+    event.preventDefault();
+    mensajes();
     document.getElementById("id_name_asset").disabled = false;
     document.getElementById("id_previous_quote").disabled = false;
     document.getElementById("id_type_alarm").disabled = false;
+    document.getElementById("alarmForm").submit();
   }
   </script>
 {% endblock content %}
