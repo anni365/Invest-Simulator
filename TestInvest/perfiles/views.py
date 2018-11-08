@@ -369,8 +369,11 @@ def config_alarm(request):
 def consult_alarm_forever():
     while True:
         get_data_of_alarm()
-        time.sleep(15.0)
-                             
-hilo1 = threading.Thread(name='consult_alarm_forever', 
-                         target=consult_alarm_forever)
-hilo1.start()
+        time.sleep(15)
+
+def hilo():                             
+    hilo = threading.Thread(target=consult_alarm_forever)
+    hilo.setDaemon(True)
+    hilo.start()
+
+hilo()
