@@ -59,19 +59,21 @@ class UserAsset(models.Model):
     type_asset = models.CharField(max_length=30)
     total_amount = models.PositiveIntegerField(blank=None)
     old_unit_value = models.FloatField(
-        validators=[MinValueValidator(0.0)], blank=None
-        )
+        validators=[MinValueValidator(0.0)], blank=None)
+    visibility = models.BooleanField(default=False)
 
-    def addAsset(request, name, total_amount, type_asset, old_unit_value):
+    def addAsset(request, name, total_amount, type_asset, old_unit_value, visibility):
         asset = UserAsset.objects.create(
                   user_id=request.user.id, name=name, total_amount=total_amount,
-                  type_asset=type_asset, old_unit_value=old_unit_value)
+                  type_asset=type_asset, old_unit_value=old_unit_value,
+                  visibility=visibility)
         asset.save()
         return asset
 
-    def update_asset(asset, total_amount, data):
+    def update_asset(asset, total_amount, data, visibility):
         asset.total_amount += total_amount
         asset.old_unit_value = data[0]
+        asset.visibility = visibility
         asset.save()
 
 

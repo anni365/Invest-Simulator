@@ -168,6 +168,7 @@ def buy_assets(request, form, assets, capital, mj):
     if form.is_valid():
         name = form.cleaned_data.get("name")
         total_amount = form.cleaned_data.get("total_amount")
+        visibility = form.cleaned_data.get("visibility")
         assets_user = UserAsset.objects.filter(user=request.user.id, name=name)
         for nametype, prices in assets:
             data = list(prices.values())
@@ -178,25 +179,25 @@ def buy_assets(request, form, assets, capital, mj):
                   ' ver la actual lista de activos recargue la pagina')
                 break
             addOperation(request, assets_user, nametype, name,
-                         total_amount, data, virtual_money)
+                         total_amount, data, virtual_money, visibility)
             virtual_money = request.user.virtual_money
             mj = True
         return virtual_money, assets, mj
 
 
 def addOperation(request, assets_user, nametype, name_form,
-                 total_amount, data, virtual_money):
+                 total_amount, data, virtual_money, visibility):
     if assets_user.exists():
         for asset in assets_user:
             if (nametype[1] == asset.name):
-                UserAsset.update_asset(asset, total_amount, data)
+                UserAsset.update_asset(asset, total_amount, data, visibility)
                 transaction = Transaction.addTransaction(
                   request, data[0], data[1], total_amount, asset.id)
                 CustomUser.update_money_user(
                   request, total_amount, data, virtual_money)
     elif (nametype[1] == name_form):
         asset_user = UserAsset.addAsset(request, name_form, total_amount,
-                                        nametype[0], data[0])
+                                        nametype[0], data[0], visibility)
         transaction = Transaction.addTransaction(
           request, data[0], data[1], total_amount, asset_user.id)
         CustomUser.update_money_user(
