@@ -66,6 +66,7 @@
     alert("La compra se realizo con exito!!");
     document.getElementById("id_total_amount").disabled = false;
     document.getElementById("id_name").disabled = false;
+    document.getElementById("id_visibility").disable = false;
     document.getElementById("my_form").submit();
   }
   function openForm(value, name) {
@@ -74,6 +75,7 @@
     document.getElementById("price").style.opacity = 0.4;
     document.getElementById("id_total_amount").value = "";
     document.getElementById("id_name").disabled = true;
+    document.getElementById("id_visibility").disabled = false;
     localStorage.setItem('sell', value.sell);
     localStorage.setItem('buy', value.buy);
     localStorage.setItem('names', name);
