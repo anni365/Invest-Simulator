@@ -382,10 +382,10 @@ def view_alarm(request):
             umbral_low = form_low.cleaned_data.get("umbral_low")
             price_low = form_low.cleaned_data.get("price_low")
             low_alarms(request, name_asset_low, umbral_low, price_low)
-            list_alarm = view_alarms(request)
+            list_alarm = list_alarms(request)
             low = True
         return render(request, 'perfiles/view_alarms.html', {
-          'view_alarms': view_alarm, 'form_low': LowAlarmForm(), 'low': low})
+          'view_alarms': list_alarm, 'form_low': LowAlarmForm(), 'low': low})
     else:
         form_low = LowAlarmForm()
     return render(
