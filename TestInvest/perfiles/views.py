@@ -342,6 +342,21 @@ def update_list_alarm(list_alarms, alarm, nametype, data, price):
         alarm.save()
 
 
+def view_alarms(request):
+    alarms = Alarm.objects.filter(user_id=request.user.id, type_alarm="high")
+    list_alarms = []
+    for alarm in alarms:
+        name_asset = alarm.name_asset
+        type_umbral = alarm.type_umbral
+        if type_umbral == "top":
+            type_umbral = "Superior"
+        if type_umbral == "less":
+            type_umbral = "Inferior"
+        umbral = alarm.umbral
+        list_alarms.append((name_asset, type_umbral, umbral))
+    return list_alarms
+
+
 def config_alarm(request):
     get_data_of_alarm()
     assets = open_jsons()
@@ -358,8 +373,9 @@ def config_alarm(request):
             name_asset = form.cleaned_data.get("name_asset")
             alarm = Alarm.addAlarm(request, type_alarm, type_quote, type_umbral,
                                     umbral, previous_quote, name_asset)
-        return render(request, 'perfiles/alarm.html', {
-          'assets': assets, 'form': AlarmForm()})
+            view_alarm = view_alarms(request)
+        return render(request, 'perfiles/view_alarms.html', {
+          'view_alarms': view_alarm})
     else:
         form = AlarmForm()
     return render(request, 'perfiles/alarm.html', {
