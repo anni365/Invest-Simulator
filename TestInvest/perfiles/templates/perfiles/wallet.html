@@ -42,6 +42,11 @@
           {% else %}
             <td>Sin cotizacion </td>
           {% endif %}
+            <td>
+              <form method="POST" class="form-container" id="form">{% csrf_token %}
+                <input type="checkbox" name="visibility" value="true" onclick = "this.form.submit ();">Visible<br>
+              </form>
+            </td>
           </tr>
           {% endif %}
         {% endfor %}

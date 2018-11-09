@@ -94,10 +94,13 @@ def show_my_assets(request):
     cap = CustomUser.calculate_capital(assets, my_assets, virtual_money)
     if request.get_full_path() == '/price/':
         return render_to_response('perfiles/price.html', {'assets': assets})
-    if request.get_full_path() == '/wallet/':
-        return render_to_response('perfiles/wallet.html', {'assets': assets,
-                                  'user': user, 'my_assets': my_assets,
-                                                           'capital': cap})
+    form = BuyForm(request.POST)
+    if form.is_valid():
+        visibility = form.cleaned_data.get("visibility")
+    return render(request, 'perfiles/wallet.html', {'assets': assets,
+                           'user': user, 'my_assets': my_assets,
+                           'capital': cap, 'visibility': visibility,
+                           'form': form})
 
 
 def sell_assets(request):
