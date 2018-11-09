@@ -43,6 +43,8 @@ urlpatterns = [
         name='assets_history'),
     url(r'^alarm/$', login_required(views.config_alarm),
                    name='alarm'),
+   url(r'^visibilityinvestments/$', login_required(views.visibility_investments),
+                   name='visibility_investments'),
 ]
 
 if settings.DEBUG:
