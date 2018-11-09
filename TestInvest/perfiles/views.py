@@ -7,7 +7,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import CreateView, TemplateView, UpdateView
 from django.contrib.auth.forms import PasswordChangeForm
 from .forms import (SignUpForm, BuyForm, SellForm, UpdateProfileForm,
-                    AssetForm, AlarmForm)
+                    AssetForm, AlarmForm, LowAlarmForm)
 from django.contrib import messages
 from .models import CustomUser, UserAsset, Transaction, Alarm
 import json, threading, time
@@ -15,6 +15,7 @@ from django.template import RequestContext
 from django.utils import timezone
 from datetime import datetime
 from django.core.mail import EmailMessage, send_mail
+
 
 class SignUpView(CreateView):
     model = CustomUser
@@ -155,8 +156,8 @@ def show_assets(request):
           'assets': assets_a, 'virtual_money': virtual_money, 'form': form,
           'mj': mj})
     if request.get_full_path() == '/price/':
-        return render_to_response(
-        'perfiles/price.html', {'assets': assets_a, 'user':user})
+        return render_to_response('perfiles/price.html', {'assets': assets_a,
+                                  'user': user})
     if request.get_full_path() == '/wallet/':
         return render_to_response('perfiles/wallet.html', {
           'assets': assets, 'user': user, 'my_assets': my_assets,
@@ -293,7 +294,7 @@ def send_email(list_alarms):
         user = CustomUser.objects.get(pk=alarm[0])
         subject = ("[Invest Simulator] El activo " + str(alarm[1]) +
         " ha alcanzado el valor esperado")
-        body =( "El activo" + " " + str(alarm[1]) + " " +
+        body = ("El activo" + " " + str(alarm[1]) + " " +
         "ha alcanzado el valor esperado de" + " " + str(alarm[2]) + ".\n" +
         str(alarm[1]) +  "\nValor de cotización previo: " + " " +
         str(alarm[4])+ "\n" + "Valor actual: " + str(alarm[3]) + "\nFecha:"
@@ -315,7 +316,8 @@ def update_alarm_notif(alarms, list_alarms, assets_json, price):
     for alarm in alarms:
         for nametype, prices in assets_json:
             data = list(prices.values())
-            if nametype[1] == alarm.name_asset and not (data[0] is None or data[1] is None):
+            if nametype[1] == alarm.name_asset and not (data[0] is None or
+                                                        data[1] is None):
                 check_alarms_json(list_alarms, alarm, data, price, nametype)
 
 
@@ -335,11 +337,11 @@ def check_alarms_json(list_alarms, alarm, data, price, nametype):
 def update_list_alarm(list_alarms, alarm, nametype, data, price):
     if alarm.email_send:
         alarm.email_send = False
-        alarm.save()
     else:
-        list_alarms.append([alarm.user_id, nametype[1], alarm.umbral, data[price], alarm.previous_quote])
+        list_alarms.append([alarm.user_id, nametype[1], alarm.umbral,
+                            data[price], alarm.previous_quote])
         alarm.email_send = True
-        alarm.save()
+    alarm.save()
 
 
 def list_alarms(request):
@@ -350,16 +352,45 @@ def list_alarms(request):
         type_umbral = alarm.type_umbral
         if type_umbral == "top":
             type_umbral = "Superior"
-        if type_umbral == "less":
+        elif type_umbral == "less":
             type_umbral = "Inferior"
         umbral = alarm.umbral
         list_alarms.append((name_asset, type_umbral, umbral))
     return list_alarms
 
 
+def low_alarms(request, name_asset, type_umbral, umbral):
+    alarms = Alarm.objects.filter(user_id=request.user.id, type_alarm="high")
+    if type_umbral == "Superior":
+        type_umbral = "top"
+    elif type_umbral == "Inferior":
+        type_umbral = "less"
+    for alarm in alarms:
+        if name_asset == alarm.name_asset and type_umbral == alarm.type_umbral and umbral == alarm.umbral:
+            alarm.type_alarm = "low"
+            alarm.save()
+
+
 def view_alarm(request):
-    view_alarm = list_alarms(request)
-    return render(request, 'perfiles/view_alarms.html', {'view_alarms': view_alarm})
+    list_alarm = list_alarms(request)
+    low = False
+    if request.method == 'POST':
+        form_low = LowAlarmForm(request.POST)
+        user = request.user.id
+        if form_low.is_valid():
+            name_asset_low = form_low.cleaned_data.get("name_low")
+            umbral_low = form_low.cleaned_data.get("umbral_low")
+            price_low = form_low.cleaned_data.get("price_low")
+            low_alarms(request, name_asset_low, umbral_low, price_low)
+            list_alarm = view_alarms(request)
+            low = True
+        return render(request, 'perfiles/view_alarms.html', {
+          'view_alarms': view_alarm, 'form_low': LowAlarmForm(), 'low': low})
+    else:
+        form_low = LowAlarmForm()
+    return render(
+      request, 'perfiles/view_alarms.html',
+      {'view_alarms': list_alarm, 'form_low': form_low})
 
 
 def config_alarm(request):
@@ -376,11 +407,13 @@ def config_alarm(request):
             previous_quote = form.cleaned_data.get("previous_quote")
             umbral = form.cleaned_data.get("umbral")
             name_asset = form.cleaned_data.get("name_asset")
-            alarm = Alarm.addAlarm(request, type_alarm, type_quote, type_umbral,
-                                    umbral, previous_quote, name_asset)
+            alarm = Alarm.addAlarm(request, type_alarm, type_quote,
+                                   type_umbral, umbral, previous_quote,
+                                   name_asset)
             list_alarm = list_alarms(request)
+            low = False
         return render(request, 'perfiles/view_alarms.html', {
-          'view_alarms': list_alarm})
+          'view_alarms': list_alarm, 'form_low': LowAlarmForm(), 'low': low})
     else:
         form = AlarmForm()
     return render(request, 'perfiles/alarm.html', {
@@ -392,7 +425,8 @@ def consult_alarm_forever():
         get_data_of_alarm()
         time.sleep(15)
 
-def hilo():                             
+
+def hilo():
     hilo = threading.Thread(target=consult_alarm_forever)
     hilo.setDaemon(True)
     hilo.start()

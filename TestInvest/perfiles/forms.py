@@ -134,3 +134,10 @@ class AlarmForm(ModelForm):
             'umbral',
             'name_asset',
         )
+
+
+class LowAlarmForm(forms.Form):
+    name_low = forms.CharField(label="¿Desea dar de baja la alarma sobre el activo")
+    umbral_low = forms.CharField(label="con umbral:")
+    price_low = forms.FloatField(label="al precio:")
+
