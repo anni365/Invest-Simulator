@@ -1,5 +1,6 @@
+{% extends "base.html" %}
 {% block content %}
-  <style>
+<style>
   .form .cancel {
     background-color: #148f77;
     margin-left: 88.6%
@@ -10,24 +11,26 @@
     border: none;
     color: black;
   }
-    div#back{
-      position:relative;
-      left:-35%;
-    }
-    div#myPopup{
-      position:fixed;
-      left:-9.3%;
-      top:35.4%;
-    }
-  </style>
-  <div class="container" id="back">
-    <div id="prices">
-      {% include 'perfiles/price.html' %}
+   div#myPopup{
+    position:absolute;
+    left:-4.3%;
+    top:31%;
+  }
+</style>
+  <div id="back">
+    <div class="container" id="container">
+      <div>
+        {% if assets or is_history %}
+         {% include 'perfiles/tab_price.html' %}
+        {% else %}
+          <center><h3>No hay activos disponibles para consultar historial</h3></center>
+        {% endif %}
+      </div>
     </div>
   </div>
   <div class="popup" id="myPopup">
     <form class="form" action="{% url 'assets_history' %}" method="POST"
-          id="my_form" onsubmit="name_enable(event)">
+          id="assets_history_form" onsubmit="name_enable(event)">
       <button class="btn cancel" onclick="ClosePop()"><w>x</w></button><br>
       <b>Elija desde y hasta cuando quedra ver el historial del activo</b><br><br>
       {% csrf_token %}
@@ -37,7 +40,7 @@
   </div>
   {% if is_history %}
     {% if history %}
-    <h2 id="mj_graph"></h2>
+    <center><h2 id="mj_graph"></h2></center>
     <div style="width:95%; height:95%; position:relative; left:1%;z-index:-1" id="graph">
     </div>
     <center>
@@ -60,6 +63,7 @@
      <head>
       <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
       <script type="text/javascript">
+        document.getElementById("prices").style.display = "none";
         google.charts.load('current', {'packages':['corechart']});
         google.charts.setOnLoadCallback(drawChart);
         document.getElementById('mj_graph').innerHTML= "Grafica de valores";
@@ -81,15 +85,26 @@
   </script>
   <script>
   document.getElementById("nameC").innerHTML = "Activos Disponibles";
-  document.getElementById("nameC").style.left = "2%";
   function openForm(value, name) {
-    document.getElementById("prices").style['pointer-events'] = 'none';
     document.getElementById("myPopup").style.display = "block";
+    document.getElementById("container").style['pointer-events'] = 'none';
+    document.getElementById("container").style.opacity = 0.4;
+    document.getElementById("menu_invest").style['pointer-events'] = 'none';
+    document.getElementById("menu_invest").style.opacity = 0.4;
     document.getElementById("id_name").value = name;
     document.getElementById("id_name").disabled = true;
+    setTimeout("enableDiv()",1);
   }
-  function ClosePop(){
-    document.getElementById("prices").style['pointer-events'] = 'auto';
+  function enableDiv() {
+    $("#back").click(function() {
+    window.location="http://localhost:8000/assetshistory/";
+    });
+  };
+  function ClosePop(){ 
+    document.getElementById("container").style['pointer-events'] = 'auto';
+    document.getElementById("menu_invest").style['pointer-events'] = 'auto';
+    document.getElementById("container").style.opacity = 1;
+    document.getElementById("menu_invest").style.opacity = 1;
     document.getElementById("myPopup").style.display = "none";
   }
   function name_enable(event) {
@@ -113,7 +128,7 @@
     }
   }
    function send() { 
-    document.getElementById("my_form").submit();
+    document.getElementById("assets_history_form").submit();
    }
   </script>
   {% endif %}

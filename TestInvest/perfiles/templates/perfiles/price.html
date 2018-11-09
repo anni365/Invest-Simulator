@@ -1,43 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Activos{% endblock %}
 {% block content %}
-  <style>
-  h2 {text-align:center;}
-  div#prices {
-    position:relative;
-    left:35%;
-  }
-  h1#nameC {
-    position:relative;
-    left:8%;
-  }
-  </style>
   <title>Invest Simulator</title>
   {% if assets %}
-    <div id="prices">
-    <h1 id="nameC">Cotizaciones</h1><br>
-    <table id="tab">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Valor de Compra</th>
-          <th>Valor de Venta</th>
-          <th>Tipo</th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for keys, values in assets %}
-        <tr>
-          <td><c class="c" onclick="openForm({{ values }}, {{ keys }})">{{ keys.1 }}</c>
-          </td>
-          <td>{{ values.buy }}</td>
-          <td>{{ values.sell }}</td>
-          <td>{{ keys.0 }}</td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-    </div>
+     {% include 'perfiles/tab_price.html' %}
   {% else %}
     <center><h2 id="no_asset">No hay activos disponibles</h2></center>
   {% endif %}

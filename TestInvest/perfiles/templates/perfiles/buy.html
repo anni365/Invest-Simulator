@@ -5,9 +5,10 @@
     left:-1%;
   }
   div#myPopup{
-    position:fixed;
-    left:37%;
-    top:19%;
+    position: absolute;
+    left: 34.3%;
+    top: 23.9%;
+    right: 36%;
   }
   #myPopup2{
     display:auto;
@@ -36,7 +37,7 @@
   </div>
   <div class="form-popup" id="myPopup">
     <form action="{% url 'buy' %}" method="POST" class="form-container"
-      onsubmit="confirm(event, {{virtual_money}})" id="my_form">
+      onsubmit="confirm(event, {{virtual_money}})" id="buy_form">
       <h2>Comprar Activo</h2>
       {% csrf_token %}
       {{ form.as_p }}
@@ -66,7 +67,7 @@
     alert("La compra se realizo con exito!!");
     document.getElementById("id_total_amount").disabled = false;
     document.getElementById("id_name").disabled = false;
-    document.getElementById("my_form").submit();
+    document.getElementById("buy_form").submit();
   }
   function openForm(value, name) {
     document.getElementById("myPopup").style.display = "block";

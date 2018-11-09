@@ -60,7 +60,6 @@
       background-color: #E0F8E0;
       min-width: 160px;
       z-index: 1;
-
   }
   .dropdown-content a {
       color: black;
@@ -93,6 +92,7 @@
     max-width: 100%;
     padding: 4px;
     background-color: white;
+    padding: 14px 15px 44px;
   }
   .form-container input[type=number]{
     padding: 10px;
@@ -131,7 +131,7 @@
     width: 100%;
     padding: 5px 5px 5px 4px;
     border-color: blueviolet;
-    margin-left: 0px;
+    left: 0px;
     top: 25%;
     position: absolute;
     background-color: aliceblue;
@@ -143,3 +143,16 @@
     opacity: 0.4;
   }
   .enableDiv {opacity: 10;}
+  #alarm_dropdown {
+    position: absolute;
+    top: 0px;
+    left: 1100px;
+  }
+  #my_form [type*="e"] {
+    text-align: center;
+    background-color: #FFFFFF ;
+    border: none;
+    color: black;
+    -moz-appearance:textfield;
+  }
+
