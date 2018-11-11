@@ -63,7 +63,7 @@ class UpdateProfileForm(forms.ModelForm):
 class BuyForm(ModelForm):
     name = forms.CharField(required=False, label="Nombre del Activo")
     total_amount = forms.IntegerField(label="Cantidad Activo", required=False)
-    visibility = forms.BooleanField(required=False)
+    visibility = forms.ChoiceField(choices=VISIBILITY, label="Visible")
 
     class Meta:
         model = UserAsset

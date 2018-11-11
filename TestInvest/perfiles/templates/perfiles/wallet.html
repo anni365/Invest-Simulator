@@ -44,7 +44,12 @@
           {% endif %}
             <td>
               <form method="POST" class="form-container" id="form">{% csrf_token %}
-                <input type="checkbox" name="visibility" value="true" onclick = "this.form.submit ();">Visible<br>
+                {% if asset.visibility %}
+                <input type="checkbox" name="visibility" value="false" checked onclick ="this.form.submit ();">&nbspVisible<br>
+                {% else %}
+                <input type="checkbox" name="visibility" value="true" onclick ="this.form.submit ();">&nbspVisible<br>
+                {% endif %}
+                <input type="text" name="name" value="{{keys.1}}" hidden>
               </form>
             </td>
           </tr>
