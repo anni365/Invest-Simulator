@@ -45,6 +45,8 @@ urlpatterns = [
                    name='alarm'),
     url(r'^view_alarm/$', login_required(views.view_alarm),
                    name='view_alarm'),
+   url(r'^visibilityinvestments/$', login_required(views.visibility_investments),
+                   name='visibility_investments'),
 ]
 
 if settings.DEBUG:
