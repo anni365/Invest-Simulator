@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="{% static 'css/templates.css' %}">
     {% if user.is_authenticated %}
-      <div class="dropdown">
+      <div class="dropdown" id="menu_invest">
         <button class="dropbtn">Menu</button>
         <div class="dropdown-content">
           <a href="{% url 'home' %}">Regresar a Pantalla Principal</a>

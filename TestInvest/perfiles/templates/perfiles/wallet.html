@@ -8,16 +8,17 @@
   div#myForm{
     display: none;
     border: 2px solid #aaa;
-    width: 100%;
+    width: 25%;
     padding: 5px 5px 5px 4px;
     border-color: blueviolet;
-    left: 0px;
-    top: 30%;
+    left: 38%;
+    top: 19%;
     position: absolute;
     background-color: aliceblue;
     text-align: center;
   }
   </style>
+  <div id="table">
   <center>
   <h2>Cartera de inversiones</h2>
   <h2> Nombre : {{user.username}}</h2>
@@ -62,11 +63,9 @@
                 {% endfor %}
               </form>
               {% if asset.visibility %}
-                Activada
-                <button type="button" onclick="mj_f(event, '{{asset.name}}')">Desactivar</button>
+                <input type="checkbox" checked onclick="mj_f(event, '{{asset.name}}')">&nbspVisible<br>
               {% else %}
-                Desactivada
-                <button type="button" onclick="mj_t(event, '{{asset.name}}')">Activar</button>
+                <input type="checkbox" onclick="mj_t(event, '{{asset.name}}')">&nbspVisible<br>
               {% endif %}
 
             </td>
@@ -78,6 +77,7 @@
     </TABLE>
     <h2>Dinero liquido disponible: {{user.virtual_money}}</h2>
     <h2>Capital: {{capital}}</h2>
+  </div>
   {% else %}
       <h1> No dispone de activos!!!</h1>
       <h2>Dinero liquido disponible : {{user.virtual_money}} </h2>
@@ -93,17 +93,24 @@
   function mj_t(event, name) {
     event.preventDefault();
     document.getElementById("myForm").style.display = "block";
+    document.getElementById("table").style['pointer-events'] = "none";
+    document.getElementById("table").style.opacity = 0.4;
+    document.getElementById("menu_invest").style['pointer-events'] = "none";
+    document.getElementById("menu_invest").style.opacity = 0.4;
     document.getElementById("id_name").value = name;
     document.getElementById("id_visibility").value = 'True';
-    document.getElementById("vis").innerHTML = "La inversión será visible";
+    document.getElementById("vis").innerHTML = "La inversión en " + name + " será visible";
   };
   function mj_f(event, name) {
     event.preventDefault();
     document.getElementById("myForm").style.display = "block";
+    document.getElementById("table").style['pointer-events'] = "none";
+    document.getElementById("table").style.opacity = 0.4;
+    document.getElementById("menu_invest").style['pointer-events'] = "none";
+    document.getElementById("menu_invest").style.opacity = 0.4;
     document.getElementById("id_name").value = name;
     document.getElementById("id_visibility").value = 'False';
-    document.getElementById("vis").innerHTML = "La inversión no será visible";
+    document.getElementById("vis").innerHTML = "La inversión en " + name + " no será visible";
   };
 </script>
 {% endblock content %}
-
