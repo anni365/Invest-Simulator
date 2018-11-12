@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Alarmas{% endblock %}
+{% block content %}
+<style>
+  #myPopup_alarm{
+    display: none;
+    background-color: #eafaf1;
+    position: absolute;
+    top: 350px;;
+    margin-right: 40%;
+    margin-left: 42%;
+    text-align: center;
+    z-index: 1;
+    border: 3px solid #f1f1f1;
+  }
+  w {color:#0d5c4c;}
+</style>
+<div id="back">
+    <center>{% include 'perfiles/menu_alarm.html' %}</center>
+  {% if view_alarms %}
+    <center> <h3>Mis Alarmas</h3><br>
+    <table id="view_al">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Umbral</th>
+          <th>Precio</th>
+          <th>Configurar</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for data in view_alarms %}
+        <tr>
+          <td>{{ data.0 }}</td>
+          <td>{{ data.1 }}</td>
+          <td>{{ data.2 }}</td>
+          <td> <c class="c" onclick="low_form('{{data.0}}','{{data.1}}','{{data.2}}', '{{data.3}}')">Dar de Baja
+          </c>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </center>
+  {% else %}
+    <center><h3>No tienes Alarmas Activas</h3></center>
+  {% endif %}
+</div>
+  <div class="popup" id="myPopup_alarm">
+    <form class="form-container" action="{% url 'view_alarm' %}" method="POST"
+      id="my_form" onsubmit="low_confirm(event)">
+      {% csrf_token %}
+      {{ form_low }}<w><b>?</b></w>
+      <input id="accept" type="submit" value="Aceptar" onclick="send_low()"/>
+      <button class="cancel" onclick="view_alarm()">Cancelar</button>
+    </form>
+  </div>
+{% endblock content %}

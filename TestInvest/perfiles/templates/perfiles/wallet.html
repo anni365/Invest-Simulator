@@ -5,7 +5,20 @@
   h2 {
     text-align:center;
   }
+  div#myForm{
+    display: none;
+    border: 2px solid #aaa;
+    width: 25%;
+    padding: 5px 5px 5px 4px;
+    border-color: blueviolet;
+    left: 38%;
+    top: 19%;
+    position: absolute;
+    background-color: aliceblue;
+    text-align: center;
+  }
   </style>
+  <div id="table">
   <center>
   <h2>Cartera de inversiones</h2>
   <h2> Nombre : {{user.username}}</h2>
@@ -18,6 +31,7 @@
         <TH>Valor de adquisición</TH>
         <TH>Valor de compra</TH>
         <TH>Valor de venta</TH>
+        <TH>Visibilidad</TH>
       </TR>
       <tbody>
       {% for asset in my_assets %}
@@ -42,6 +56,19 @@
           {% else %}
             <td>Sin cotizacion </td>
           {% endif %}
+            <td>
+              <form method="POST" class="form-container" id="form">{% csrf_token %}
+                {% for hidden in form.hidden_fields %}
+                  {{ hidden }}
+                {% endfor %}
+              </form>
+              {% if asset.visibility %}
+                <input type="checkbox" checked onclick="mj_f(event, '{{asset.name}}')">&nbspVisible<br>
+              {% else %}
+                <input type="checkbox" onclick="mj_t(event, '{{asset.name}}')">&nbspVisible<br>
+              {% endif %}
+
+            </td>
           </tr>
           {% endif %}
         {% endfor %}
@@ -50,9 +77,40 @@
     </TABLE>
     <h2>Dinero liquido disponible: {{user.virtual_money}}</h2>
     <h2>Capital: {{capital}}</h2>
+  </div>
   {% else %}
       <h1> No dispone de activos!!!</h1>
       <h2>Dinero liquido disponible : {{user.virtual_money}} </h2>
   {% endif %}
+    <div class="popuptext" id="myForm">
+      <h4 id="vis"></h4>
+      <input id="accept" type="button" value="aceptar" onclick="enviar()">
+    </div>
+<script>
+  function enviar() {
+    document.getElementById("form").submit();
+  };
+  function mj_t(event, name) {
+    event.preventDefault();
+    document.getElementById("myForm").style.display = "block";
+    document.getElementById("table").style['pointer-events'] = "none";
+    document.getElementById("table").style.opacity = 0.4;
+    document.getElementById("menu_invest").style['pointer-events'] = "none";
+    document.getElementById("menu_invest").style.opacity = 0.4;
+    document.getElementById("id_name").value = name;
+    document.getElementById("id_visibility").value = 'True';
+    document.getElementById("vis").innerHTML = "La inversión en " + name + " será visible";
+  };
+  function mj_f(event, name) {
+    event.preventDefault();
+    document.getElementById("myForm").style.display = "block";
+    document.getElementById("table").style['pointer-events'] = "none";
+    document.getElementById("table").style.opacity = 0.4;
+    document.getElementById("menu_invest").style['pointer-events'] = "none";
+    document.getElementById("menu_invest").style.opacity = 0.4;
+    document.getElementById("id_name").value = name;
+    document.getElementById("id_visibility").value = 'False';
+    document.getElementById("vis").innerHTML = "La inversión en " + name + " no será visible";
+  };
+</script>
 {% endblock content %}
-

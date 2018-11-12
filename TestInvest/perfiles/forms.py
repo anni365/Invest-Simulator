@@ -61,14 +61,17 @@ class UpdateProfileForm(forms.ModelForm):
 
 
 class BuyForm(ModelForm):
+    VISIBILITY = ((False, 'No'), (True, 'Si'))
     name = forms.CharField(required=False, label="Nombre del Activo")
     total_amount = forms.IntegerField(label="Cantidad Activo", required=False)
+    visibility = forms.ChoiceField(choices=VISIBILITY, label="Visible")
 
     class Meta:
         model = UserAsset
         fields = (
             'name',
             'total_amount',
+            'visibility',
         )
 
 
@@ -133,4 +136,22 @@ class AlarmForm(ModelForm):
             'previous_quote',
             'umbral',
             'name_asset',
+        )
+
+
+class Visibility(ModelForm):
+    VISIBILITY = ((False, 'No'), (True, 'Si'))
+    name = forms.CharField(required=False, label="Nombre del Activo")
+    visibility = forms.ChoiceField(required=False, choices=VISIBILITY, label="Visible")
+
+    def __init__(self, *args, **kwargs):
+        super(Visibility, self).__init__(*args, **kwargs)
+        self.fields['name'].widget = forms.HiddenInput()
+        self.fields['visibility'].widget = forms.HiddenInput()
+
+    class Meta:
+        model = UserAsset
+        fields = (
+            'name',
+            'visibility'
         )

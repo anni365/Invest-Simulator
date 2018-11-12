@@ -7,7 +7,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import CreateView, TemplateView, UpdateView
 from django.contrib.auth.forms import PasswordChangeForm
 from .forms import (SignUpForm, BuyForm, SellForm, UpdateProfileForm,
-                    AssetForm, AlarmForm)
+                    AssetForm, AlarmForm, Visibility)
 from django.contrib import messages
 from .models import CustomUser, UserAsset, Transaction, Alarm
 import json, threading, time
@@ -90,15 +90,23 @@ def show_my_assets(request):
     my_assets = UserAsset.objects.filter(user=request.user.id)
     my_assets = my_assets.filter(total_amount__gt=0)
     assets = open_jsons()
-    form = SellForm(request.POST)
     cap = CustomUser.calculate_capital(assets, my_assets, virtual_money)
-    if request.get_full_path() == '/price/':
-        return render_to_response('perfiles/price.html', {'assets': assets})
-    if request.get_full_path() == '/wallet/':
-        return render_to_response('perfiles/wallet.html', {'assets': assets,
-                                  'user': user, 'my_assets': my_assets,
-                                                           'capital': cap})
-
+    form = Visibility(request.POST)
+    if form.is_valid():
+        name = form.cleaned_data.get("name")
+        visibility = form.cleaned_data.get("visibility")
+        for asset in my_assets:
+            if (name == asset.name):
+                asset.visibility = visibility
+                asset.save()
+                my_assets = UserAsset.objects.filter(user=request.user.id)
+                my_assets = my_assets.filter(total_amount__gt=0)
+                return render(request, 'perfiles/wallet.html', {'assets': assets,
+                                       'user': user, 'my_assets': my_assets,
+                                       'capital': cap, 'form':form})
+    return render(request, 'perfiles/wallet.html', {'assets': assets,
+                           'user': user, 'my_assets': my_assets,
+                           'capital': cap, 'form':form})
 
 def sell_assets(request):
     user = CustomUser
@@ -168,6 +176,7 @@ def buy_assets(request, form, assets, capital, mj):
     if form.is_valid():
         name = form.cleaned_data.get("name")
         total_amount = form.cleaned_data.get("total_amount")
+        visibility = form.cleaned_data.get("visibility")
         assets_user = UserAsset.objects.filter(user=request.user.id, name=name)
         for nametype, prices in assets:
             data = list(prices.values())
@@ -178,25 +187,25 @@ def buy_assets(request, form, assets, capital, mj):
                   ' ver la actual lista de activos recargue la pagina')
                 break
             addOperation(request, assets_user, nametype, name,
-                         total_amount, data, virtual_money)
+                         total_amount, data, virtual_money, visibility)
             virtual_money = request.user.virtual_money
             mj = True
         return virtual_money, assets, mj
 
 
 def addOperation(request, assets_user, nametype, name_form,
-                 total_amount, data, virtual_money):
+                 total_amount, data, virtual_money, visibility):
     if assets_user.exists():
         for asset in assets_user:
             if (nametype[1] == asset.name):
-                UserAsset.update_asset(asset, total_amount, data)
+                UserAsset.update_asset(asset, total_amount, data, visibility)
                 transaction = Transaction.addTransaction(
                   request, data[0], data[1], total_amount, asset.id)
                 CustomUser.update_money_user(
                   request, total_amount, data, virtual_money)
     elif (nametype[1] == name_form):
         asset_user = UserAsset.addAsset(request, name_form, total_amount,
-                                        nametype[0], data[0])
+                                        nametype[0], data[0], visibility)
         transaction = Transaction.addTransaction(
           request, data[0], data[1], total_amount, asset_user.id)
         CustomUser.update_money_user(
@@ -212,7 +221,7 @@ def mytransactions(request):
         'my_transactions': my_transactions, 'user': request.user})
 
 
-def ranking(request):
+def cons_ranking():
     assets = open_jsons()
     dict_cap = {}
     users = CustomUser.objects.all()
@@ -220,17 +229,21 @@ def ranking(request):
     ranking = []
     for user in users:
         assets_users = UserAsset.objects.filter(user=user.id)
-        capital = CustomUser.calculate_capital(
-          assets, assets_users, user.virtual_money)
+        capital = CustomUser.calculate_capital(assets, assets_users,
+                                               user.virtual_money)
         dict_cap.update({user.username: capital})
     dict_items = dict_cap.items()
     list_cap = sorted(dict_items, key=lambda x: x[1], reverse=True)
-    total_user = CustomUser.objects.count()
+    total_user =  CustomUser.objects.count()
     for i in range(total_user):
         ranking.append((i+1,) + list_cap[i])
-    return render_to_response(
-      'perfiles/see_ranking.html', {
-        'lista_capital': ranking, 'user': request.user})
+    return ranking
+
+def ranking(request):
+    list_cap = cons_ranking()
+    users = CustomUser.objects.all()
+    return render_to_response('perfiles/see_ranking.html',
+                              {'lista_capital':list_cap, 'user': request.user})
 
 
 def open_json_history(name_asset):
@@ -377,3 +390,23 @@ def hilo():
     hilo.start()
 
 hilo()
+
+
+def visibility_investments(request):
+    ranking = cons_ranking()
+    all_assets = open_jsons()
+    assets_a = quit_null_assets(all_assets)
+    investments_v = UserAsset.objects.filter(visibility=True)
+    #data = [["UserId", "AssetName", "Fecha", "VPrevio"]]
+    datas = []
+    for invest in investments_v:
+        assets = UserAsset.objects.filter(user_id=invest.user_id, name=invest.name)
+        for asset in assets:
+            ult_trans = Transaction.objects.filter(user_id=invest.user_id,
+                                                   type_transaction='compra',
+                                                   user_asset_id=asset.id).last()
+            datas.append([invest.user_id, asset.name, ult_trans.date, ult_trans.value_sell])
+    return render_to_response(
+                              'perfiles/visibility_investments.html', {'user': request.user,
+                              'investments_v': investments_v, 'ranking': ranking,
+                              'datas': datas, 'assets': assets_a})
