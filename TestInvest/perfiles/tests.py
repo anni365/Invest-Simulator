@@ -33,9 +33,9 @@ class CustomUserTest(TestCase):
         self.assertFalse(response.context['user'].is_active)
 
     """
-    Verificación del capital inicial del usuario creado y logueado.
+    Verificación del capital inicial del usuario logueado.
     """
-    def test_calculate_initial_capital_user(self):
+    def test_initial_user_capital(self):
         custom_user = CustomUser.objects.get(pk=1)
         self.assertTrue(custom_user.is_active)
         assets = UserAsset.objects.all()
@@ -47,7 +47,7 @@ class CustomUserTest(TestCase):
     Verificación del dinero actual del usuario logueado después de hacer una
     compra de un activo.
     """
-    def test_calculate_current_money_after_buy(self):
+    def test_current_money_after_buy(self):
         custom_user = CustomUser.objects.get(pk=1)
         self.assertTrue(custom_user.is_active)
         price = [23, 25]
@@ -60,7 +60,7 @@ class CustomUserTest(TestCase):
     Verificación del dinero actual del usuario logueado después de hacer una
     venta de un activo.
     """
-    def test_calculate_current_money_after_sell(self):
+    def test_current_money_after_sell(self):
         custom_user = CustomUser.objects.get(pk=1)
         self.assertTrue(custom_user.is_active)
         price = [23, 25]
@@ -102,7 +102,7 @@ class TransactionTest(TestCase):
     Se verifica que una nueva transacción de venta pueda guardarse
     correctamente para el usuario logueado.
     """
-    def test_add_one_buy_transaction_to_user(self):
+    def test_add_one_sell_transaction_to_user(self):
         custom_user = CustomUser.objects.get(pk=1)
         self.assertTrue(custom_user.is_active)
         price = [23, 25]
@@ -112,6 +112,45 @@ class TransactionTest(TestCase):
         user_transactions = Transaction.objects.filter(user=custom_user)
         self.assertEqual(len(user_transactions), 1)
         self.assertEqual(user_transactions[0].type_transaction, "venta")
+
+    """
+    El usuario logueado quiere hacer una transacción de una compra de activos
+    cuyo valor supera su dinero virtual.
+    Se verifica que la transacción no se efectúa y dicho dinero sea el mismo.
+    """
+    def test_no_money_for_transaction(self):
+        custom_user = CustomUser.objects.get(pk=1)
+        current_money = custom_user.virtual_money
+        self.assertTrue(custom_user.is_active)
+        price = [23, 25]
+        request = self.factory.get('/buy/')
+        request.user = custom_user
+        user_t_before = Transaction.objects.filter(user=custom_user)
+        Transaction.addTransaction(request, price[0], price[1], 100, 1)
+        user_t_after = Transaction.objects.filter(user=custom_user)
+        self.assertEqual(len(user_t_before), len(user_t_after))
+        self.assertEqual(custom_user.virtual_money, current_money)
+
+    """
+    El usuario logueado quiere vender una cantidad de activos que es superior
+    a la que actualmente tiene.
+    Se verifica que la cantidad actual de ese activo no cambia debido a que
+    la transacción no se realiza.
+    """
+    def test_sell_more_assets_than_current_amount(self):
+        custom_user = CustomUser.objects.get(pk=1)
+        self.assertTrue(custom_user.is_active)
+        price = [23, 25]
+        request = self.factory.get('/sell/')
+        request.user = custom_user
+        #Agrego activos al usuario.
+        UserAsset.addAsset(request, "Apple", 3, "Share", price[1], False)
+        user_assets_before = UserAsset.objects.filter(user=custom_user)
+        current_a_before = user_assets_before[0].total_amount
+        Transaction.addTransaction(request, price[0], price[1], 10, 1)
+        user_assets_after = UserAsset.objects.filter(user=custom_user)
+        current_a_after = user_assets_after[0].total_amount
+        self.assertEqual(current_a_before, current_a_after)
 
 class UserAssetTest(TestCase):
 
@@ -136,7 +175,7 @@ class UserAssetTest(TestCase):
         price = [23, 25]
         request = self.factory.get('/buy/')
         request.user = custom_user
-        UserAsset.addAsset(request, "Apple", 3, "Share", price[1])
+        UserAsset.addAsset(request, "Apple", 3, "Share", price[1], False)
         user_assets = UserAsset.objects.filter(user=custom_user)
         self.assertEqual(len(user_assets), 1)
 
@@ -150,9 +189,9 @@ class UserAssetTest(TestCase):
         price = [23, 25]
         request = self.factory.get('/buy/')
         request.user = custom_user
-        UserAsset.addAsset(request, "Apple", 3, "Share", price[1])
+        UserAsset.addAsset(request, "Apple", 3, "Share", price[1], True)
         user_assets = UserAsset.objects.filter(user=custom_user)
-        UserAsset.update_asset(user_assets[0], 7, price)
+        UserAsset.update_asset(user_assets[0], 7, price, True)
         self.assertEqual(user_assets[0].total_amount, 10)
 
 class AlarmTest(TestCase):
@@ -178,6 +217,6 @@ class AlarmTest(TestCase):
         self.assertTrue(custom_user.is_active)
         request = self.factory.get('/alarm/')
         request.user = custom_user
-        Alarm.addAlarm(request, "Alta", "Compra", "Superior", 25, 23, "Apple")
+        Alarm.addAlarm(request, "Compra", "Superior", 25, 23, "Apple")
         user_alarms = Alarm.objects.filter(user=custom_user)
         self.assertEqual(len(user_alarms), 1)
