@@ -61,7 +61,8 @@
     document.getElementById("menu_invest").style['pointer-events'] = "auto";
     document.getElementById("menu_invest").style.opacity = 1;
   };
-  function low_form(asset, umbral ,price) {
+  function low_form(asset, umbral ,price, id) {
+    localStorage.setItem('id', id);
     document.getElementById("myPopup_alarm").style.display = "block";
     document.getElementById("back").style['pointer-events'] = "none";
     document.getElementById("back").style.opacity = 0.4;
@@ -84,6 +85,7 @@
     event.preventDefault();
   };
   function send_low() {
+    document.getElementById("id_name_low").value = localStorage.id
     document.getElementById("id_name_low").disabled = false;
     document.getElementById("id_umbral_low").disabled = false;
     document.getElementById("id_price_low").disabled = false;

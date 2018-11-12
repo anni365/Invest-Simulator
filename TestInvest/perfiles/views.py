@@ -377,7 +377,6 @@ def view_alarm(request):
         user = request.user.id
         if form_low.is_valid():
             id_low = form_low.cleaned_data.get("name_low")
-            id_low = "24"
             low_alarms(request, id_low)
             list_alarm = list_alarms(request)
         return render(request, 'perfiles/view_alarms.html', {
