@@ -10,7 +10,9 @@ from .forms import (SignUpForm, BuyForm, SellForm, UpdateProfileForm,
                     AssetForm, AlarmForm, LowAlarmForm)
 from django.contrib import messages
 from .models import CustomUser, UserAsset, Transaction, Alarm
-import json, threading, time
+import json
+import threading
+import time
 from django.template import RequestContext
 from django.utils import timezone
 from datetime import datetime
@@ -293,12 +295,12 @@ def send_email(list_alarms):
     for alarm in list_alarms:
         user = CustomUser.objects.get(pk=alarm[0])
         subject = ("[Invest Simulator] El activo " + str(alarm[1]) +
-        " ha alcanzado el valor esperado")
-        body = ("El activo" + " " + str(alarm[1]) + " " +
-        "ha alcanzado el valor esperado de" + " " + str(alarm[2]) + ".\n" +
-        str(alarm[1]) +  "\nValor de cotización previo: " + " " +
-        str(alarm[4])+ "\n" + "Valor actual: " + str(alarm[3]) + "\nFecha:"
-        + " " + str(datetime.now()))
+                   " ha alcanzado el valor esperado")
+        body = ("El activo " + str(alarm[1]) +
+                " ha alcanzado el valor esperado de " + str(alarm[2]) + ".\n"
+                + str(alarm[1]) + "\nValor de cotización previo: " +
+                str(alarm[4]) + "\n" + "Valor actual: " + str(alarm[3]) +
+                "\nFecha: " + str(datetime.now()))
         send_mail(subject, body, email_from, [user.email], fail_silently=False)
 
 
@@ -350,42 +352,36 @@ def list_alarms(request):
     for alarm in alarms:
         name_asset = alarm.name_asset
         type_umbral = alarm.type_umbral
+        umbral = alarm.umbral
+        id_alarm = alarm.id
         if type_umbral == "top":
             type_umbral = "Superior"
         elif type_umbral == "less":
             type_umbral = "Inferior"
-        umbral = alarm.umbral
-        list_alarms.append((name_asset, type_umbral, umbral))
+        list_alarms.append((name_asset, type_umbral, umbral, id_alarm))
     return list_alarms
 
 
-def low_alarms(request, name_asset, type_umbral, umbral):
+def low_alarms(request, id_alarm):
     alarms = Alarm.objects.filter(user_id=request.user.id, type_alarm="high")
-    if type_umbral == "Superior":
-        type_umbral = "top"
-    elif type_umbral == "Inferior":
-        type_umbral = "less"
     for alarm in alarms:
-        if name_asset == alarm.name_asset and type_umbral == alarm.type_umbral and umbral == alarm.umbral:
+        if int(id_alarm) == alarm.id:
             alarm.type_alarm = "low"
             alarm.save()
 
 
 def view_alarm(request):
     list_alarm = list_alarms(request)
-    low = False
     if request.method == 'POST':
         form_low = LowAlarmForm(request.POST)
         user = request.user.id
         if form_low.is_valid():
-            name_asset_low = form_low.cleaned_data.get("name_low")
-            umbral_low = form_low.cleaned_data.get("umbral_low")
-            price_low = form_low.cleaned_data.get("price_low")
-            low_alarms(request, name_asset_low, umbral_low, price_low)
+            id_low = form_low.cleaned_data.get("name_low")
+            id_low = "24"
+            low_alarms(request, id_low)
             list_alarm = list_alarms(request)
-            low = True
         return render(request, 'perfiles/view_alarms.html', {
-          'view_alarms': list_alarm, 'form_low': LowAlarmForm(), 'low': low})
+          'view_alarms': list_alarm, 'form_low': LowAlarmForm()})
     else:
         form_low = LowAlarmForm()
     return render(
@@ -411,9 +407,8 @@ def config_alarm(request):
                                    type_umbral, umbral, previous_quote,
                                    name_asset)
             list_alarm = list_alarms(request)
-            low = False
         return render(request, 'perfiles/view_alarms.html', {
-          'view_alarms': list_alarm, 'form_low': LowAlarmForm(), 'low': low})
+          'view_alarms': list_alarm, 'form_low': LowAlarmForm()})
     else:
         form = AlarmForm()
     return render(request, 'perfiles/alarm.html', {
@@ -430,5 +425,6 @@ def hilo():
     hilo = threading.Thread(target=consult_alarm_forever)
     hilo.setDaemon(True)
     hilo.start()
+
 
 hilo()
