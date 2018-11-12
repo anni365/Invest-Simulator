@@ -23,6 +23,7 @@
       <thead>
         <tr>
           <th>Nombre</th>
+          <th>Tipo de Cotizacion</th>
           <th>Umbral</th>
           <th>Precio</th>
           <th>Configurar</th>
@@ -32,6 +33,7 @@
       {% for data in view_alarms %}
         <tr>
           <td>{{ data.0 }}</td>
+          <td>{{ data.4 }}</td>
           <td>{{ data.1 }}</td>
           <td>{{ data.2 }}</td>
           <td> <c class="c" onclick="low_form('{{data.0}}','{{data.1}}','{{data.2}}', '{{data.3}}')">Dar de Baja

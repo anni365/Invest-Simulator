@@ -372,11 +372,17 @@ def list_alarms(request):
         type_umbral = alarm.type_umbral
         umbral = alarm.umbral
         id_alarm = alarm.id
+        type_quote = alarm.type_quote
         if type_umbral == "top":
             type_umbral = "Superior"
         elif type_umbral == "less":
             type_umbral = "Inferior"
-        list_alarms.append((name_asset, type_umbral, umbral, id_alarm))
+        if type_quote == "buy":
+            type_quote = "Compra"
+        elif type_quote == "sell":
+            type_quote = "Venta"
+        list_alarms.append((name_asset, type_umbral, umbral, id_alarm,
+                            type_quote))
     return list_alarms
 
 
