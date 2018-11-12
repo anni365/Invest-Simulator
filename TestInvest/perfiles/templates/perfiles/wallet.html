@@ -57,7 +57,7 @@
             <td>Sin cotizacion </td>
           {% endif %}
             <td>
-              <form method="POST" class="form-container" id="form">{% csrf_token %}
+              <form method="POST" class="form-container" id="form" hidden>{% csrf_token %}
                 {% for hidden in form.hidden_fields %}
                   {{ hidden }}
                 {% endfor %}

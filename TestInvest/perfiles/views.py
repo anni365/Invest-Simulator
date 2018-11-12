@@ -320,8 +320,8 @@ def send_email(list_alarms):
 def get_data_of_alarm():
     list_alarms = []
     assets = open_jsons()
-    alarms_buy = Alarm.objects.filter(type_quote="buy")
-    alarms_sell = Alarm.objects.filter(type_quote="sell")
+    alarms_buy = Alarm.objects.filter(type_quote="buy", type_alarm="high")
+    alarms_sell = Alarm.objects.filter(type_quote="sell", type_alarm="high")
     update_alarm_notif(alarms_buy, list_alarms, assets, 1)
     update_alarm_notif(alarms_sell, list_alarms, assets, 0)
     send_email(list_alarms)
