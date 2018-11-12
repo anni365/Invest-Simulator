@@ -107,8 +107,6 @@ class AssetForm(forms.Form):
 
 
 class AlarmForm(ModelForm):
-    type_alarm = forms.ChoiceField(required=True, choices=(
-      ('high', 'Alta'), ('low', 'Baja')))
     type_quote = forms.ChoiceField(required=True, choices=(
       ('buy', 'Compra'), ('sell', 'Venta')))
     type_umbral = forms.ChoiceField(required=True, choices=(
@@ -116,7 +114,6 @@ class AlarmForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(AlarmForm, self).__init__(*args, **kwargs)
-        self.fields['type_alarm'].label = 'Tipo de Alarma'
         self.fields['type_quote'].label = 'Tipo de Cotización'
         self.fields['type_umbral'].label = 'Tipo de Umbral'
         self.fields['previous_quote'].label = 'Valor actual'
@@ -130,7 +127,6 @@ class AlarmForm(ModelForm):
     class Meta:
         model = Alarm
         fields = (
-            'type_alarm',
             'type_quote',
             'type_umbral',
             'previous_quote',
@@ -140,7 +136,8 @@ class AlarmForm(ModelForm):
 
 
 class LowAlarmForm(forms.Form):
-    name_low = forms.CharField(label="¿Desea dar de baja la alarma sobre el activo")
+    name_low = forms.CharField(
+                    label="¿Desea dar de baja la alarma sobre el activo")
     umbral_low = forms.CharField(label="con umbral:")
     price_low = forms.FloatField(label="al precio:")
 
@@ -148,7 +145,8 @@ class LowAlarmForm(forms.Form):
 class Visibility(ModelForm):
     VISIBILITY = ((False, 'No'), (True, 'Si'))
     name = forms.CharField(required=False, label="Nombre del Activo")
-    visibility = forms.ChoiceField(required=False, choices=VISIBILITY, label="Visible")
+    visibility = forms.ChoiceField(required=False, choices=VISIBILITY,
+                                   label="Visible")
 
     def __init__(self, *args, **kwargs):
         super(Visibility, self).__init__(*args, **kwargs)

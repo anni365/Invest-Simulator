@@ -17,7 +17,6 @@
     alert("Posteriormente, cuando el valor del activo llegue al valor estimado, te lo notificaremos al correo electronico con el que te registraste!!! ");
     document.getElementById("id_name_asset").disabled = false;
     document.getElementById("id_previous_quote").disabled = false;
-    document.getElementById("id_type_alarm").disabled = false;
     document.getElementById("alarmForm").submit();
     };
   function mensajes() {

@@ -62,9 +62,11 @@ class UserAsset(models.Model):
         validators=[MinValueValidator(0.0)], blank=None)
     visibility = models.BooleanField(default=False)
 
-    def addAsset(request, name, total_amount, type_asset, old_unit_value, visibility):
+    def addAsset(request, name, total_amount, type_asset, old_unit_value,
+                 visibility):
         asset = UserAsset.objects.create(
-                  user_id=request.user.id, name=name, total_amount=total_amount,
+                  user_id=request.user.id, name=name,
+                  total_amount=total_amount,
                   type_asset=type_asset, old_unit_value=old_unit_value,
                   visibility=visibility)
         asset.save()
@@ -119,11 +121,11 @@ class Alarm(models.Model):
         validators=[MinValueValidator(0.0)], blank=None)
     email_send = models.BooleanField(default=False)
 
-    def addAlarm(request, type_alarm, type_quote, type_umbral,
-                            umbral, previous_quote, name_asset):
+    def addAlarm(request, type_quote, type_umbral,
+                 umbral, previous_quote, name_asset):
         alarm = Alarm.objects.create(
                     user_id=request.user.id, name_asset=name_asset,
-                    type_alarm=type_alarm, type_quote=type_quote,
+                    type_alarm="high", type_quote=type_quote,
                     type_umbral=type_umbral, umbral=umbral,
                     previous_quote=previous_quote)
         alarm.save()

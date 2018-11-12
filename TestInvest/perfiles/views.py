@@ -104,12 +104,15 @@ def show_my_assets(request):
                 asset.save()
                 my_assets = UserAsset.objects.filter(user=request.user.id)
                 my_assets = my_assets.filter(total_amount__gt=0)
-                return render(request, 'perfiles/wallet.html', {'assets': assets,
-                                       'user': user, 'my_assets': my_assets,
-                                       'capital': cap, 'form':form})
-    return render(request, 'perfiles/wallet.html', {'assets': assets,
-                           'user': user, 'my_assets': my_assets,
-                           'capital': cap, 'form':form})
+                return render(request, 'perfiles/wallet.html',
+                                       {'assets': assets, 'user': user,
+                                        'my_assets': my_assets,
+                                        'capital': cap, 'form': form})
+    return render(request, 'perfiles/wallet.html',
+                           {'assets': assets, 'user': user,
+                            'my_assets': my_assets, 'capital': cap,
+                            'form': form})
+
 
 def sell_assets(request):
     user = CustomUser
@@ -237,16 +240,18 @@ def cons_ranking():
         dict_cap.update({user.username: capital})
     dict_items = dict_cap.items()
     list_cap = sorted(dict_items, key=lambda x: x[1], reverse=True)
-    total_user =  CustomUser.objects.count()
+    total_user = CustomUser.objects.count()
     for i in range(total_user):
         ranking.append((i+1,) + list_cap[i])
     return ranking
+
 
 def ranking(request):
     list_cap = cons_ranking()
     users = CustomUser.objects.all()
     return render_to_response('perfiles/see_ranking.html',
-                              {'lista_capital':list_cap, 'user': request.user})
+                              {'lista_capital': list_cap,
+                               'user': request.user})
 
 
 def open_json_history(name_asset):
@@ -320,6 +325,7 @@ def send_email(list_alarms):
 def get_data_of_alarm():
     list_alarms = []
     assets = open_jsons()
+    assets = quit_null_assets(assets)
     alarms_buy = Alarm.objects.filter(type_quote="buy", type_alarm="high")
     alarms_sell = Alarm.objects.filter(type_quote="sell", type_alarm="high")
     update_alarm_notif(alarms_buy, list_alarms, assets, 1)
@@ -331,8 +337,7 @@ def update_alarm_notif(alarms, list_alarms, assets_json, price):
     for alarm in alarms:
         for nametype, prices in assets_json:
             data = list(prices.values())
-            if nametype[1] == alarm.name_asset and not (data[0] is None or
-                                                        data[1] is None):
+            if nametype[1] == alarm.name_asset:
                 check_alarms_json(list_alarms, alarm, data, price, nametype)
 
 
@@ -415,7 +420,7 @@ def config_alarm(request):
             previous_quote = form.cleaned_data.get("previous_quote")
             umbral = form.cleaned_data.get("umbral")
             name_asset = form.cleaned_data.get("name_asset")
-            alarm = Alarm.addAlarm(request, type_alarm, type_quote,
+            alarm = Alarm.addAlarm(request, type_quote,
                                    type_umbral, umbral, previous_quote,
                                    name_asset)
             list_alarm = list_alarms(request)
@@ -447,16 +452,19 @@ def visibility_investments(request):
     all_assets = open_jsons()
     assets_a = quit_null_assets(all_assets)
     investments_v = UserAsset.objects.filter(visibility=True)
-    #data = [["UserId", "AssetName", "Fecha", "VPrevio"]]
     datas = []
     for invest in investments_v:
-        assets = UserAsset.objects.filter(user_id=invest.user_id, name=invest.name)
+        assets = UserAsset.objects.filter(user_id=invest.user_id,
+                                          name=invest.name)
         for asset in assets:
             ult_trans = Transaction.objects.filter(user_id=invest.user_id,
                                                    type_transaction='compra',
-                                                   user_asset_id=asset.id).last()
-            datas.append([invest.user_id, asset.name, ult_trans.date, ult_trans.value_sell])
-    return render_to_response(
-                              'perfiles/visibility_investments.html', {'user': request.user,
-                              'investments_v': investments_v, 'ranking': ranking,
-                              'datas': datas, 'assets': assets_a})
+                                                   user_asset_id=asset.id)
+            ult_trans = ult_trans.last()
+            datas.append([invest.user_id, asset.name, ult_trans.date,
+                          ult_trans.value_sell])
+    return render_to_response('perfiles/visibility_investments.html',
+                              {'user': request.user,
+                               'investments_v': investments_v,
+                               'ranking': ranking,
+                               'datas': datas, 'assets': assets_a})
