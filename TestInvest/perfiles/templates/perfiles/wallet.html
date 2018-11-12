@@ -62,13 +62,11 @@
                 {% endfor %}
               </form>
               {% if asset.visibility %}
-                Si
-                ¿Quiere que no sea visibile?
-                <button type="button" onclick="mj_f(event, '{{asset.name}}')">Si</button>
+                Activada
+                <button type="button" onclick="mj_f(event, '{{asset.name}}')">Desactivar</button>
               {% else %}
-                No
-                ¿Quiere que sea visibile?
-                <button type="button" onclick="mj_t(event, '{{asset.name}}')">Si</button>
+                Desactivada
+                <button type="button" onclick="mj_t(event, '{{asset.name}}')">Activar</button>
               {% endif %}
 
             </td>

@@ -7,7 +7,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import CreateView, TemplateView, UpdateView
 from django.contrib.auth.forms import PasswordChangeForm
 from .forms import (SignUpForm, BuyForm, SellForm, UpdateProfileForm,
-                    AssetForm, AlarmForm)
+                    AssetForm, AlarmForm, Visibility)
 from django.contrib import messages
 from .models import CustomUser, UserAsset, Transaction, Alarm
 import json, threading, time
@@ -90,18 +90,23 @@ def show_my_assets(request):
     my_assets = UserAsset.objects.filter(user=request.user.id)
     my_assets = my_assets.filter(total_amount__gt=0)
     assets = open_jsons()
-    form = SellForm(request.POST)
     cap = CustomUser.calculate_capital(assets, my_assets, virtual_money)
-    if request.get_full_path() == '/price/':
-        return render_to_response('perfiles/price.html', {'assets': assets})
-    form = BuyForm(request.POST)
+    form = Visibility(request.POST)
     if form.is_valid():
+        name = form.cleaned_data.get("name")
         visibility = form.cleaned_data.get("visibility")
+        for asset in my_assets:
+            if (name == asset.name):
+                asset.visibility = visibility
+                asset.save()
+                my_assets = UserAsset.objects.filter(user=request.user.id)
+                my_assets = my_assets.filter(total_amount__gt=0)
+                return render(request, 'perfiles/wallet.html', {'assets': assets,
+                                       'user': user, 'my_assets': my_assets,
+                                       'capital': cap, 'form':form})
     return render(request, 'perfiles/wallet.html', {'assets': assets,
                            'user': user, 'my_assets': my_assets,
-                           'capital': cap, 'visibility': visibility,
-                           'form': form})
-
+                           'capital': cap, 'form':form})
 
 def sell_assets(request):
     user = CustomUser
