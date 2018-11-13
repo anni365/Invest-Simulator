@@ -17,6 +17,7 @@ from django.template import RequestContext
 from django.utils import timezone
 from datetime import datetime
 from django.core.mail import EmailMessage, send_mail
+from django.contrib.auth.decorators import login_required
 
 
 class SignUpView(CreateView):
@@ -32,11 +33,15 @@ class SignUpView(CreateView):
         return render(self.request, 'perfiles/signup.html', {'form': form})
 
 
-class WelcomeView(TemplateView):
-    template_name = 'perfiles/home.html'
 
+def welcomeView(request):
+    if request.user.is_authenticated:
+        return render(request, 'perfiles/home.html', {'pos_ranking': rank_virtualm(request)})
+    else:
+        return render(request, 'perfiles/home.html')
 
 def change_password(request):
+    pos_ranking = rank_virtualm(request)
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
@@ -45,7 +50,7 @@ def change_password(request):
     else:
         form = PasswordChangeForm(request.user)
     return render(request, 'perfiles/change_password.html', {
-        'form': form
+        'form': form, 'pos_ranking': pos_ranking
     })
 
 
@@ -59,6 +64,10 @@ class SignOutView(LogoutView):
 
 class ProfileView(TemplateView):
     template_name = 'perfiles/profile.html'
+
+def profileView(request):
+    pos_ranking = rank_virtualm(request)
+    return render(request, 'perfiles/profile.html', {'pos_ranking': pos_ranking})
 
 
 class UpdateProfileView(UpdateView):
@@ -88,6 +97,7 @@ def open_jsons():
 
 
 def show_my_assets(request):
+    pos_ranking = rank_virtualm(request)
     user = request.user
     virtual_money = request.user.virtual_money
     my_assets = UserAsset.objects.filter(user=request.user.id)
@@ -107,14 +117,15 @@ def show_my_assets(request):
                 return render(request, 'perfiles/wallet.html',
                                        {'assets': assets, 'user': user,
                                         'my_assets': my_assets,
-                                        'capital': cap, 'form': form})
+                                        'capital': cap, 'form': form, 'pos_ranking': pos_ranking})
     return render(request, 'perfiles/wallet.html',
                            {'assets': assets, 'user': user,
                             'my_assets': my_assets, 'capital': cap,
-                            'form': form})
+                            'form': form, 'pos_ranking': pos_ranking})
 
 
 def sell_assets(request):
+    pos_ranking = rank_virtualm(request)
     user = CustomUser
     virtual_money = request.user.virtual_money
     assets = open_jsons()
@@ -138,7 +149,7 @@ def sell_assets(request):
                         return redirect('http://localhost:8000/wallet')
     return render(request, 'perfiles/salle.html', {
                   'assets': assets, 'my_assets': my_assets,
-                  'virtual_money': virtual_money, 'form': form})
+                  'virtual_money': virtual_money, 'form': form, 'pos_ranking': pos_ranking})
 
 
 def quit_null_assets(assets):
@@ -151,6 +162,7 @@ def quit_null_assets(assets):
 
 
 def show_assets(request):
+    pos_ranking = rank_virtualm(request)
     user = request.user
     virtual_money = request.user.virtual_money
     my_assets = UserAsset.objects.filter(user=request.user.id)
@@ -167,14 +179,14 @@ def show_assets(request):
             form = BuyForm()
         return render(request, 'perfiles/buy.html', {
           'assets': assets_a, 'virtual_money': virtual_money, 'form': form,
-          'mj': mj})
+          'mj': mj, 'pos_ranking': pos_ranking})
     if request.get_full_path() == '/price/':
         return render_to_response('perfiles/price.html', {'assets': assets_a,
-                                  'user': user})
+                                  'user': user, 'pos_ranking': pos_ranking})
     if request.get_full_path() == '/wallet/':
         return render_to_response('perfiles/wallet.html', {
           'assets': assets, 'user': user, 'my_assets': my_assets,
-          'capital': cap})
+          'capital': cap, 'pos_ranking': pos_ranking})
 
 
 def buy_assets(request, form, assets, capital, mj):
@@ -220,11 +232,12 @@ def addOperation(request, assets_user, nametype, name_form,
 
 
 def mytransactions(request):
+    pos_ranking = rank_virtualm(request)
     my_transactions = Transaction.objects.filter(user=request.user.id)
     my_transactions = my_transactions.order_by('-date')
     return render_to_response(
       'perfiles/transaction_history.html', {
-        'my_transactions': my_transactions, 'user': request.user})
+        'my_transactions': my_transactions, 'user': request.user, 'pos_ranking': pos_ranking})
 
 
 def cons_ranking():
@@ -247,11 +260,12 @@ def cons_ranking():
 
 
 def ranking(request):
+    pos_ranking = rank_virtualm(request)
     list_cap = cons_ranking()
     users = CustomUser.objects.all()
     return render_to_response('perfiles/see_ranking.html',
                               {'lista_capital': list_cap,
-                               'user': request.user})
+                               'user': request.user, 'pos_ranking': pos_ranking})
 
 
 def open_json_history(name_asset):
@@ -285,6 +299,7 @@ def get_asset_history(asset_history, since_date, until_date):
 
 
 def assets_history(request):
+    pos_ranking = rank_virtualm(request)
     assets = open_jsons()
     assets_a = quit_null_assets(assets)
     form = AssetForm()
@@ -303,9 +318,9 @@ def assets_history(request):
             grap_history += history_from_to
             return render(request, 'perfiles/assets_history.html', {
               'history': history_from_to, 'is_history': is_history,
-              'name_asset': name, 'grap': json.dumps(grap_history)})
+              'name_asset': name, 'grap': json.dumps(grap_history), 'pos_ranking': pos_ranking})
     return render(request, 'perfiles/assets_history.html', {'assets': assets_a,
-                                                            'form': form})
+                                                            'form': form, 'pos_ranking': pos_ranking})
 
 
 def send_email(list_alarms):
@@ -395,6 +410,7 @@ def low_alarms(request, id_alarm):
 
 
 def view_alarm(request):
+    pos_ranking = rank_virtualm(request)
     list_alarm = list_alarms(request)
     if request.method == 'POST':
         form_low = LowAlarmForm(request.POST)
@@ -404,15 +420,16 @@ def view_alarm(request):
             low_alarms(request, id_low)
             list_alarm = list_alarms(request)
         return render(request, 'perfiles/view_alarms.html', {
-          'view_alarms': list_alarm, 'form_low': LowAlarmForm()})
+          'view_alarms': list_alarm, 'form_low': LowAlarmForm(), 'pos_ranking': pos_ranking})
     else:
         form_low = LowAlarmForm()
     return render(
       request, 'perfiles/view_alarms.html',
-      {'view_alarms': list_alarm, 'form_low': form_low})
+      {'view_alarms': list_alarm, 'form_low': form_low, 'pos_ranking': pos_ranking})
 
 
 def config_alarm(request):
+    pos_ranking = rank_virtualm(request)
     get_data_of_alarm()
     assets = open_jsons()
     assets = quit_null_assets(assets)
@@ -431,11 +448,11 @@ def config_alarm(request):
                                    name_asset)
             list_alarm = list_alarms(request)
         return render(request, 'perfiles/view_alarms.html', {
-          'view_alarms': list_alarm, 'form_low': LowAlarmForm()})
+          'view_alarms': list_alarm, 'form_low': LowAlarmForm(), 'pos_ranking': pos_ranking})
     else:
         form = AlarmForm()
     return render(request, 'perfiles/alarm.html', {
-      'assets': assets, 'form': form})
+      'assets': assets, 'form': form, 'pos_ranking': pos_ranking})
 
 
 def consult_alarm_forever():
@@ -454,6 +471,7 @@ hilo()
 
 
 def visibility_investments(request):
+    pos_ranking = rank_virtualm(request)
     ranking = cons_ranking()
     all_assets = open_jsons()
     assets_a = quit_null_assets(all_assets)
@@ -472,5 +490,16 @@ def visibility_investments(request):
     return render_to_response('perfiles/visibility_investments.html',
                               {'user': request.user,
                                'investments_v': investments_v,
-                               'ranking': ranking,
+                               'ranking': ranking, 'pos_ranking' : pos_ranking, 
                                'datas': datas, 'assets': assets_a})
+
+
+def rank_virtualm(request):
+    ranking = cons_ranking()
+    pos_rank = 0
+    for rank in ranking:
+        if request.user.username == rank[1]:
+            request.user.pos_ranking = rank[0]
+            request.user.save()
+    return request.user.pos_ranking
+
