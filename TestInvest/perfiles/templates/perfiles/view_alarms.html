@@ -49,8 +49,7 @@
   {% endif %}
 </div>
   <div class="popup" id="myPopup_alarm">
-    <form class="form-container" action="{% url 'view_alarm' %}" method="POST"
-      id="my_form" onsubmit="low_confirm(event)">
+    <form class="form-container" action="{% url 'view_alarm' %}" method="POST" id="my_form">
       {% csrf_token %}
       {{ form_low }}<w><b>?</b></w>
       <input id="accept" type="submit" value="Aceptar" onclick="send_low()"/>

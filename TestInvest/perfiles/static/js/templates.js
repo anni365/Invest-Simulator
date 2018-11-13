@@ -80,9 +80,6 @@
     window.location="http://localhost:8000/view_alarm";
     });
   }
-  function low_confirm(event) {
-    event.preventDefault();
-  };
   function send_low() {
     document.getElementById("id_name_low").value = localStorage.id
     document.getElementById("id_name_low").disabled = false;
