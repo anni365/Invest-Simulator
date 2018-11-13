@@ -1,5 +1,6 @@
 from django.test import TestCase, RequestFactory
 from .models import CustomUser, Transaction, UserAsset, Alarm
+from .views import cons_ranking
 
 class CustomUserTest(TestCase):
 
@@ -193,6 +194,45 @@ class UserAssetTest(TestCase):
         user_assets = UserAsset.objects.filter(user=custom_user)
         UserAsset.update_asset(user_assets[0], 7, price, True)
         self.assertEqual(user_assets[0].total_amount, 10)
+
+    """
+    Se verifica que no se pueda agregar un activo con un precio negativo.
+    Se comparan las cantidades antes de intentar agregar ese activo y después.
+    """
+    def test_add_asset_to_user_with_negative_price(self):
+        custom_user = CustomUser.objects.get(pk=1)
+        self.assertTrue(custom_user.is_active)
+        price = [-23, -25]
+        request = self.factory.get('/buy/')
+        request.user = custom_user
+        UserAsset.addAsset(request, "Apple", 2, "Share", 25, False)
+        user_a_before = UserAsset.objects.filter(user=custom_user)
+        UserAsset.addAsset(request, "Apple", 5, "Share", price[1], False)
+        user_a_after = UserAsset.objects.filter(user=custom_user)
+        self.assertEqual(user_a_before[0].total_amount, user_a_after[0].total_amount)
+
+    """
+    Se comprueba que el único usuario registrado esté en primer lugar en el
+    ranking.
+    """
+    def test_first_position_for_user_ranking(self):
+        custom_user = CustomUser.objects.get(pk=1)
+        self.assertTrue(custom_user.is_active)
+        ranking = cons_ranking()
+        self.assertEqual(ranking[0][0], 1)
+
+    """
+    Se comprueba que el usuario logueado está en el puesto 2 del ranking
+    debido a que su capital es menor al del usuario recién registrado.
+    """
+    def test_second_position_for_user_ranking(self):
+        custom_user = CustomUser.objects.get(pk=1)
+        CustomUser.objects.create(username="usuario2", email="usuario2@example.com",
+            first_name="Nombre2", last_name="Apellido2", password="user2458")
+        self.assertTrue(custom_user.is_active)
+        custom_user.virtual_money = 800
+        ranking = cons_ranking()
+        self.assertEqual(ranking[1][0], 2)
 
 class AlarmTest(TestCase):
 
