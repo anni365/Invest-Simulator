@@ -226,11 +226,14 @@ class UserAssetTest(TestCase):
     debido a que su capital es menor al del usuario recién registrado.
     """
     def test_second_position_for_user_ranking(self):
-        custom_user = CustomUser.objects.get(pk=1)
         CustomUser.objects.create(username="usuario2", email="usuario2@example.com",
             first_name="Nombre2", last_name="Apellido2", password="user2458")
-        self.assertTrue(custom_user.is_active)
-        custom_user.virtual_money = 800
+        price = [23, 25]
+        request = self.factory.get('/buy/')
+        custom_user = CustomUser.objects.get(pk=2)
+        request.user = custom_user
+        #Agrego activos al usuario2, éste tendrá un capital mayor al usuario1.
+        UserAsset.addAsset(request, "Apple", 5, "Share", price[1], False)
         ranking = cons_ranking()
         self.assertEqual(ranking[1][0], 2)
 
