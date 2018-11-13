@@ -457,7 +457,7 @@ def visibility_investments(request):
     ranking = cons_ranking()
     all_assets = open_jsons()
     assets_a = quit_null_assets(all_assets)
-    investments_v = UserAsset.objects.filter(visibility=True)
+    investments_v = UserAsset.objects.filter(visibility=True, total_amount__gt=0)
     datas = []
     for invest in investments_v:
         assets = UserAsset.objects.filter(user_id=invest.user_id,

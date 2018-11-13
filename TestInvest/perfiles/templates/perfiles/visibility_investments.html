@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Inversiones Ajenas.{% endblock %}
+{% block title %}Inversiones Visibles.{% endblock %}
 {% block content%}
 
     <center>
@@ -14,8 +14,8 @@
                 <TH>Nombre Activo</TH>
                 <TH>Fecha de compra</TH>
                 <TH>Valor previo</TH>
-                <TH>Valor de venta actual</TH>
                 <TH>Valor de compra actual</TH>
+                <TH>Valor de venta actual</TH>
             </TR>
             {% for investment in investments_v %}
                 <tbody>
@@ -35,8 +35,8 @@
                     {% endfor %}
                     {% for key, values in assets %}
                         {% if key.1 == investment.name %}
-                            <td>${{ values.sell }}</td>
                             <td>${{ values.buy }}</td>
+                            <td>${{ values.sell }}</td>
                         {% endif %}
                     {% endfor %}
                 </tr>
