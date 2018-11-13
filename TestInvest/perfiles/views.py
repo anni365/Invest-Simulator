@@ -134,18 +134,17 @@ def sell_assets(request):
         name = form.cleaned_data.get("name")
         total_amount = form.cleaned_data.get("total_amount")
         my_assets = UserAsset.objects.filter(user=request.user.id, name=name)
-        for names, dates in assets:
-            date = list(dates.values())
+        for names, datas in assets:
             if my_assets.exists():
                 for asset in my_assets:
                     if ((names[1] == asset.name) & (asset.total_amount > 0)):
                         asset.total_amount = asset.total_amount - total_amount
                         asset.save()
                         transaction = Transaction.addTransaction(
-                                      request, date[0], date[1],
+                                      request, datas['sell'], datas['buy'],
                                       total_amount, asset.id)
                         virtual_money = CustomUser.update_money_user(
-                          request, total_amount, date, virtual_money)
+                          request, total_amount, datas['buy'], virtual_money)
                         return redirect('http://localhost:8000/wallet')
     return render(request, 'perfiles/salle.html', {
                   'assets': assets, 'my_assets': my_assets,
@@ -197,37 +196,38 @@ def buy_assets(request, form, assets, capital, mj):
         visibility = form.cleaned_data.get("visibility")
         assets_user = UserAsset.objects.filter(user=request.user.id, name=name)
         for nametype, prices in assets:
-            data = list(prices.values())
-            if nametype[1] == name and (data[0] is None or data[1] is None):
+            if nametype[1] == name and (prices['sell'] is None or prices['buy'] is None):
                 messages.add_message(
                   request, messages.INFO, 'El Activo seleccionado ya no se'
                   'encuentra  disponible, no se pudo concretar la compra. Para'
                   ' ver la actual lista de activos recargue la pagina')
                 break
+            sell = prices['sell']
+            buy = prices['buy']
             addOperation(request, assets_user, nametype, name,
-                         total_amount, data, virtual_money, visibility)
+                         total_amount, sell, buy, virtual_money, visibility)
             virtual_money = request.user.virtual_money
             mj = True
         return virtual_money, assets, mj
 
 
 def addOperation(request, assets_user, nametype, name_form,
-                 total_amount, data, virtual_money, visibility):
+                 total_amount, sell, buy, virtual_money, visibility):
     if assets_user.exists():
         for asset in assets_user:
             if (nametype[1] == asset.name):
-                UserAsset.update_asset(asset, total_amount, data, visibility)
+                UserAsset.update_asset(asset, total_amount, sell, visibility)
                 transaction = Transaction.addTransaction(
-                  request, data[0], data[1], total_amount, asset.id)
+                  request, sell, buy, total_amount, asset.id)
                 CustomUser.update_money_user(
-                  request, total_amount, data, virtual_money)
+                  request, total_amount, sell, virtual_money)
     elif (nametype[1] == name_form):
         asset_user = UserAsset.addAsset(request, name_form, total_amount,
-                                        nametype[0], data[0], visibility)
+                                        nametype[0], buy, visibility)
         transaction = Transaction.addTransaction(
-          request, data[0], data[1], total_amount, asset_user.id)
+          request, sell, buy, total_amount, asset_user.id)
         CustomUser.update_money_user(
-          request, total_amount, data, virtual_money)
+          request, total_amount, buy, virtual_money)
     return virtual_money
 
 

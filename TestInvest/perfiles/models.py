@@ -23,20 +23,19 @@ class CustomUser(AbstractUser):
 
     def calculate_capital(assets, my_assets, virtual_money):
         cap = 0
-        for name, dates in assets:
-            date = list(dates.values())
+        for name, data in assets:
             for asset in my_assets:
-                if (asset.name == name[1] and date[1] is not None):
-                    cap += asset.total_amount * date[1]
+                if (asset.name == name[1] and data['sell'] is not None):
+                    cap += asset.total_amount * data['sell']
         cap += virtual_money
         return cap
 
     def update_money_user(request, total_amount, data, virtual_money):
         if request.get_full_path() == '/buy/':
-            price = data[0]
+            price = data
             virtual_money -= total_amount * price
         else:
-            price = data[1]
+            price = data
             virtual_money += total_amount * price
         request.user.virtual_money = virtual_money
         request.user.save()
@@ -74,7 +73,7 @@ class UserAsset(models.Model):
 
     def update_asset(asset, total_amount, data, visibility):
         asset.total_amount += total_amount
-        asset.old_unit_value = data[0]
+        asset.old_unit_value = data
         asset.visibility = visibility
         asset.save()
 
