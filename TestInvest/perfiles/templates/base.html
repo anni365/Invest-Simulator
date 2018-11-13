@@ -1,5 +1,30 @@
 {% load static  %}
 <!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.navbar {
+  overflow: hidden;
+  background-color:  #a3e4d7 ;
+  position: relative;
+  top:0;
+  left: 36%;
+  width: 28%;
+}
+
+.navbar c {
+  float: left;
+  display: block;
+  color: black;
+  text-align: center;
+  padding: 0px 10px;
+  text-decoration: none;
+  font-size: 20px;
+}
+</style>
 <html lang="es" id="base">
   <head>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
@@ -8,6 +33,10 @@
     <script src="{% static 'js/templates.js' %}"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     {% if user.is_authenticated %}
+      <div class="navbar">
+        <c> Mi posición en el ranking:</c>
+        <c>Mi dinero liquido: </c>
+      </div>
       <div class="dropdown" id="menu_invest">
         <button class="dropbtn">Menu</button>
         <div class="dropdown-content">
