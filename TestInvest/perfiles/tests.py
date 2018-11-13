@@ -55,7 +55,7 @@ class CustomUserTest(TestCase):
         request = self.factory.get('/buy/')
         request.user = custom_user
         CustomUser.update_money_user(request, 5, price, custom_user.virtual_money)
-        self.assertEqual(custom_user.virtual_money, 875)
+        self.assertEqual(custom_user.virtual_money, 885)
 
     """
     Verificación del dinero actual del usuario logueado después de hacer una
@@ -68,7 +68,7 @@ class CustomUserTest(TestCase):
         request = self.factory.get('/sell/')
         request.user = custom_user
         CustomUser.update_money_user(request, 3, price, custom_user.virtual_money)
-        self.assertEqual(custom_user.virtual_money, 1069)
+        self.assertEqual(custom_user.virtual_money, 1075)
 
 class TransactionTest(TestCase):
 
