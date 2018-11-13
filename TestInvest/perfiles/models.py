@@ -33,10 +33,10 @@ class CustomUser(AbstractUser):
 
     def update_money_user(request, total_amount, data, virtual_money):
         if request.get_full_path() == '/buy/':
-            price = data[0]
+            price = data[1]
             virtual_money -= total_amount * price
         else:
-            price = data[1]
+            price = data[0]
             virtual_money += total_amount * price
         request.user.virtual_money = virtual_money
         request.user.save()
