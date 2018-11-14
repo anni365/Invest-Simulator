@@ -35,6 +35,10 @@ class SignUpView(CreateView):
 
 
 def welcomeView(request):
+    """ welcomeView: Envia a la pagina de inicio, con el puesto en el ranking
+        y el dinero liquido del usuario logueado, o para que inicie sesion o
+        se registre.
+    """
     if request.user.is_authenticated:
         return render(request, 'perfiles/home.html', {'pos_ranking': rank_virtualm(request)})
     else:
@@ -66,6 +70,9 @@ class ProfileView(TemplateView):
     template_name = 'perfiles/profile.html'
 
 def profileView(request):
+    """ profileView: Muestra en la pagina de perfil el puesto en el ranking y
+        el dinero liquido del usuario logueado
+    """
     pos_ranking = rank_virtualm(request)
     return render(request, 'perfiles/profile.html', {'pos_ranking': pos_ranking})
 
@@ -189,6 +196,8 @@ def show_assets(request):
 
 
 def buy_assets(request, form, assets, capital, mj):
+    """ buy_assets: Compra activos disponibles.
+    """
     virtual_money = request.user.virtual_money
     if form.is_valid():
         name = form.cleaned_data.get("name")
@@ -213,6 +222,8 @@ def buy_assets(request, form, assets, capital, mj):
 
 def addOperation(request, assets_user, nametype, name_form,
                  total_amount, sell, buy, virtual_money, visibility):
+    """ addOperation: Agrega una operacion de compra a la base de datos.
+    """
     if assets_user.exists():
         for asset in assets_user:
             if (nametype[1] == asset.name):
@@ -241,6 +252,10 @@ def mytransactions(request):
 
 
 def cons_ranking():
+    """ cons_ranking: Brinda la lista de puestos en el ranking de los usuarios
+    con su capital.
+    [[posicion, nombre usuario, capital]]
+    """
     assets = open_jsons()
     dict_cap = {}
     users = CustomUser.objects.all()
@@ -260,6 +275,8 @@ def cons_ranking():
 
 
 def ranking(request):
+    """ ranking: Renderiza la lista.
+    """
     pos_ranking = rank_virtualm(request)
     list_cap = cons_ranking()
     users = CustomUser.objects.all()
@@ -338,6 +355,9 @@ def send_email(list_alarms):
 
 
 def get_data_of_alarm():
+    """ get_data_of_alarm: Chequea si una alarma debe ser disparada o no,
+        segun los precios de la API.
+    """
     list_alarms = []
     assets = open_jsons()
     assets = quit_null_assets(assets)
@@ -349,14 +369,19 @@ def get_data_of_alarm():
 
 
 def update_alarm_notif(alarms, list_alarms, assets_json, price):
+    """ update_alarm_notif: Chequea que el nombre del activo en la alarma
+        coincida con el que brinda en la API.
+    """
     for alarm in alarms:
         for nametype, data in assets_json:
-            #data = list(prices.values())
             if nametype[1] == alarm.name_asset:
                 check_alarms_json(list_alarms, alarm, data, price, nametype)
 
 
 def check_alarms_json(list_alarms, alarm, data, price, nametype):
+    """ check_alarms_json: Compara el precio de la alarma con el precio de
+        los activos en la API.
+    """
     if alarm.umbral >= data[price] and alarm.type_umbral == "less":
         if not alarm.email_send:
             update_list_alarm(list_alarms, alarm, nametype, data, price)
@@ -370,6 +395,10 @@ def check_alarms_json(list_alarms, alarm, data, price, nametype):
 
 
 def update_list_alarm(list_alarms, alarm, nametype, data, price):
+    """ update_list_alarm: Indica si una alarma fue enviada al mail del
+        usuario, o se debe enviar.
+        [id usuario, nombre activo, umbral, precio actual, precio de creacion]
+    """
     if alarm.email_send:
         alarm.email_send = False
     else:
@@ -380,6 +409,9 @@ def update_list_alarm(list_alarms, alarm, nametype, data, price):
 
 
 def list_alarms(request):
+    """ list_alarms: Lista la alarmas creadas por el usuario.
+        [nombre activo, tipo umbral, umbral, id alarma, tipo cotizacion]
+    """
     alarms = Alarm.objects.filter(user_id=request.user.id, type_alarm="high")
     list_alarms = []
     for alarm in alarms:
@@ -402,6 +434,8 @@ def list_alarms(request):
 
 
 def low_alarms(request, id_alarm):
+    """ low_alarms: Da de baja la alarma deseada del usuario.
+    """
     alarms = Alarm.objects.filter(user_id=request.user.id, type_alarm="high")
     for alarm in alarms:
         if int(id_alarm) == alarm.id:
@@ -410,6 +444,9 @@ def low_alarms(request, id_alarm):
 
 
 def view_alarm(request):
+    """ view_alarm: Llena el formulario para dar de baja la alarma deseada del
+        usuario.
+    """
     pos_ranking = rank_virtualm(request)
     list_alarm = list_alarms(request)
     if request.method == 'POST':
@@ -495,6 +532,8 @@ def visibility_investments(request):
 
 
 def rank_virtualm(request):
+    """ rank_virtualm: Muestra la posicion en el ranking del usuario logueado.
+    """
     ranking = cons_ranking()
     pos_rank = 0
     for rank in ranking:

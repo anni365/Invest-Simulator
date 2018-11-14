@@ -61,6 +61,10 @@ class UpdateProfileForm(forms.ModelForm):
 
 
 class BuyForm(ModelForm):
+    """ Formulario necesario para comprar un activo.
+        Es necesario llenarlo con nombre del activo, total a comprar y su
+        visibilidad para los otros usuarios.
+    """
     VISIBILITY = ((False, 'No'), (True, 'Si'))
     name = forms.CharField(required=False, label="Nombre del Activo")
     total_amount = forms.IntegerField(label="Cantidad Activo", required=False)
@@ -136,6 +140,10 @@ class AlarmForm(ModelForm):
 
 
 class LowAlarmForm(forms.Form):
+    """ Formulario necesario para dar de baja una alarma.
+        Es necesario llenarlo con nombre del activo, el tipo de umbral y el
+        precio del umbral.
+    """
     name_low = forms.CharField(
                     label="¿Desea dar de baja la alarma sobre el activo")
     umbral_low = forms.CharField(label="con umbral:")
