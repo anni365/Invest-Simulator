@@ -2,6 +2,14 @@ from django.test import TestCase, RequestFactory
 from .models import CustomUser, Transaction, UserAsset, Alarm
 from .views import cons_ranking
 
+"""
+ACLARACIÓN:
+En algunos tests a veces se simula ingresar a /buy/ o /sell/. Muchas veces
+hacemos esto para obtener el request que necesitan los métodos para poder
+pasarlo por parámetro y testearlos.
+No necesariamente estamos haciendo una compra o venta de activos.
+"""
+
 class CustomUserTest(TestCase):
 
     def setUp(self):
@@ -54,8 +62,8 @@ class CustomUserTest(TestCase):
         price = [23, 25]
         request = self.factory.get('/buy/')
         request.user = custom_user
-        CustomUser.update_money_user(request, 5, price, custom_user.virtual_money)
-        self.assertEqual(custom_user.virtual_money, 885)
+        CustomUser.update_money_user(request, 5, price[1], custom_user.virtual_money)
+        self.assertEqual(custom_user.virtual_money, 875)
 
     """
     Verificación del dinero actual del usuario logueado después de hacer una
@@ -67,8 +75,8 @@ class CustomUserTest(TestCase):
         price = [23, 25]
         request = self.factory.get('/sell/')
         request.user = custom_user
-        CustomUser.update_money_user(request, 3, price, custom_user.virtual_money)
-        self.assertEqual(custom_user.virtual_money, 1075)
+        CustomUser.update_money_user(request, 3, price[0], custom_user.virtual_money)
+        self.assertEqual(custom_user.virtual_money, 1069)
 
 class TransactionTest(TestCase):
 
@@ -193,7 +201,7 @@ class UserAssetTest(TestCase):
         request.user = custom_user
         UserAsset.addAsset(request, "Apple", 3, "Share", price[1], True)
         user_assets = UserAsset.objects.filter(user=custom_user)
-        UserAsset.update_asset(user_assets[0], 7, price, True)
+        UserAsset.update_asset(user_assets[0], 7, price[1], True)
         self.assertEqual(user_assets[0].total_amount, 10)
 
     """
