@@ -343,15 +343,15 @@ def get_data_of_alarm():
     assets = quit_null_assets(assets)
     alarms_buy = Alarm.objects.filter(type_quote="buy", type_alarm="high")
     alarms_sell = Alarm.objects.filter(type_quote="sell", type_alarm="high")
-    update_alarm_notif(alarms_buy, list_alarms, assets, 1)
-    update_alarm_notif(alarms_sell, list_alarms, assets, 0)
+    update_alarm_notif(alarms_buy, list_alarms, assets, 'buy')
+    update_alarm_notif(alarms_sell, list_alarms, assets, 'sell')
     send_email(list_alarms)
 
 
 def update_alarm_notif(alarms, list_alarms, assets_json, price):
     for alarm in alarms:
-        for nametype, prices in assets_json:
-            data = list(prices.values())
+        for nametype, data in assets_json:
+            #data = list(prices.values())
             if nametype[1] == alarm.name_asset:
                 check_alarms_json(list_alarms, alarm, data, price, nametype)
 
