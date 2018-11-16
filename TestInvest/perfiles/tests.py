@@ -1,6 +1,6 @@
 from django.test import TestCase, RequestFactory
 from .models import CustomUser, Transaction, UserAsset, Alarm
-from .views import cons_ranking
+from .views import cons_ranking, low_alarms
 
 """
 ACLARACIÓN:
@@ -73,10 +73,15 @@ class CustomUserTest(TestCase):
         custom_user = CustomUser.objects.get(pk=1)
         self.assertTrue(custom_user.is_active)
         price = [23, 25]
+        #El usuario1 compra 5 acciones.
+        request = self.factory.get('/buy/')
+        request.user = custom_user
+        CustomUser.update_money_user(request, 5, price[1], custom_user.virtual_money)
+        #El usuario1 vende 3 acciones compradas.
         request = self.factory.get('/sell/')
         request.user = custom_user
         CustomUser.update_money_user(request, 3, price[0], custom_user.virtual_money)
-        self.assertEqual(custom_user.virtual_money, 1069)
+        self.assertEqual(custom_user.virtual_money, 944)
 
 class TransactionTest(TestCase):
 
@@ -95,6 +100,7 @@ class TransactionTest(TestCase):
     """
     Se verifica que una nueva transacción de compra pueda guardarse
     correctamente para el usuario logueado.
+    Solo agrega una transacción de compra.
     """
     def test_add_one_buy_transaction_to_user(self):
         custom_user = CustomUser.objects.get(pk=1)
@@ -110,6 +116,7 @@ class TransactionTest(TestCase):
     """
     Se verifica que una nueva transacción de venta pueda guardarse
     correctamente para el usuario logueado.
+    Solo se agrega una transacción de venta.
     """
     def test_add_one_sell_transaction_to_user(self):
         custom_user = CustomUser.objects.get(pk=1)
@@ -201,7 +208,7 @@ class UserAssetTest(TestCase):
         request.user = custom_user
         UserAsset.addAsset(request, "Apple", 3, "Share", price[1], True)
         user_assets = UserAsset.objects.filter(user=custom_user)
-        UserAsset.update_asset(user_assets[0], 7, price[1], True)
+        UserAsset.update_asset(request, user_assets[0], 7, price[1], True)
         self.assertEqual(user_assets[0].total_amount, 10)
 
     """
@@ -272,3 +279,163 @@ class AlarmTest(TestCase):
         Alarm.addAlarm(request, "Compra", "Superior", 25, 23, "Apple")
         user_alarms = Alarm.objects.filter(user=custom_user)
         self.assertEqual(len(user_alarms), 1)
+
+class IntegrationTest(TestCase):
+
+    def setUp(self):
+        #Se registran tres usuarios.
+        self.credentials = {
+            "username":"usuario1",
+            "email":"usuario1@example.com",
+            "first_name":"Nombre1",
+            "last_name":"Apellido1",
+            "password":"user2458"
+        }
+        CustomUser.objects.create_user(**self.credentials)
+        data_new_user = {
+            "username":"usuario2",
+            "email":"usuario2@example.com",
+            "first_name":"Nombre2",
+            "last_name":"Apellido2",
+            "password":"user2458"
+        }
+        CustomUser.objects.create_user(**data_new_user)
+        data_new_user_3 = {
+            "username":"usuario3",
+            "email":"usuario3@example.com",
+            "first_name":"Nombre3",
+            "last_name":"Apellido3",
+            "password":"user2458"
+        }
+        CustomUser.objects.create_user(**data_new_user_3)
+        self.factory = RequestFactory()
+
+    """
+    Se hace una prueba de ranking entre dos usuarios registrados en el sistema.
+    Primero uno de ellos compra activos y se chequea que esté en primer lugar
+    ya que aumenta su capital.
+    Luego, el nuevo usuario realiza una compra de mayor cantidad de acciones y
+    se comprueba que le ganó al usuario anterior y por lo tanto está en
+    primer lugar.
+    """
+    def test_ranking_between_two_users(self):
+        data_new_user = {
+            "username":"usuario2",
+            "password":"user2458"
+        }
+        #usuario1 inicia sesión.
+        self.client.post('/login/', self.credentials, follow=True)
+        user_logged = CustomUser.objects.get(pk=1)
+        self.assertTrue(user_logged.is_active)
+        #usuario1 compra 5 acciones.
+        request = self.factory.get('/buy/')
+        request.user = user_logged
+        price = [23, 25]
+        UserAsset.addAsset(request, "Microsoft", 5, "Share", price[1], False)
+        ranking = cons_ranking()
+        #usuario1 está primero en el ranking porque gana con su capital.
+        self.assertEqual(ranking[0][1], "usuario1")
+        #usuario2 inicia sesión.
+        self.client.post('/login/', data_new_user, follow=True)
+        user_logged = CustomUser.objects.get(pk=2)
+        self.assertTrue(user_logged.is_active)
+        request = self.factory.get('/buy/')
+        request.user = user_logged
+        #usuario2 compra 10 acciones.
+        UserAsset.addAsset(request, "Microsoft", 10, "Share", price[1], False)
+        ranking = cons_ranking()
+        #usuario1 ahora pasó a estar segundo en el ranking.
+        self.assertEqual(ranking[0][1], "usuario2")
+
+    """
+    Se comprueban funcionalidades aleatorias.
+    El usuario1 está logueado, realiza una compra de activos, se calcula
+    su dinero virtual.
+    El usuario1 configura dos alarmas. Luego realiza la venta de 2 activos
+    comprados anteriormente y se calcula su dinero virtual.
+    El usuario1 dehabilita una alarma.
+    """
+    def test_random_1(self):
+        #usuario1 inicia sesión.
+        self.client.post('/login/', self.credentials, follow=True)
+        user_logged = CustomUser.objects.get(pk=1)
+        self.assertTrue(user_logged.is_active)
+        #usuario1 compra 6 acciones.
+        request = self.factory.get('/buy/')
+        request.user = user_logged
+        price = [23, 25]
+        UserAsset.addAsset(request, "Microsoft", 6, "Share", price[1], False)
+        #Actualizamos el dinero virtual del usuario1.
+        CustomUser.update_money_user(request, 6, price[1], user_logged.virtual_money)
+        self.assertEqual(user_logged.virtual_money, 850)
+        #usuario1 configura dos alarmas.
+        request = self.factory.get('/alarm/')
+        request.user = user_logged
+        Alarm.addAlarm(request, "Compra", "Superior", 25, 23, "Apple")
+        Alarm.addAlarm(request, "Venta", "Inferior", 14, 10, "Microsoft")
+        #Chequeamos que se guardan ambas alarmas.
+        user_alarms = Alarm.objects.filter(user=user_logged)
+        self.assertEqual(len(user_alarms), 2)
+        #usuario1 vende 2 activos.
+        request = self.factory.get('/sell/')
+        request.user = user_logged
+        CustomUser.update_money_user(request, 2, price[0], user_logged.virtual_money)
+        self.assertEqual(user_logged.virtual_money, 896)
+        #usuario1 da de baja una alarma.
+        request = self.factory.get('/alarm/')
+        request.user = user_logged
+        low_alarms(request, 1)
+        #Se comprueba que la alarma fue deshabilitada.
+        user_alarms = Alarm.objects.filter(user=user_logged, type_alarm="low")
+        self.assertEqual(len(user_alarms), 1)
+
+    """
+    Se chequean funcionalidades aleatorias distintas al test random 1.
+    Se utilizan 3 usuarios para ir viendo como van cambiando de posiciones
+    según las compras y ventas que realiza cada uno.
+    """
+    def test_random_2(self):
+        data_new_user = {
+            "username":"usuario2",
+            "password":"user2458"
+        }
+        data_new_user = {
+            "username":"usuario3",
+            "password":"user2458"
+        }
+        #usuario1 inicia sesión.
+        self.client.post('/login/', self.credentials, follow=True)
+        user_logged = CustomUser.objects.get(pk=1)
+        self.assertTrue(user_logged.is_active)
+        #usuario1 compra 10 acciones.
+        request = self.factory.get('/buy/')
+        request.user = user_logged
+        price = [23, 25]
+        UserAsset.addAsset(request, "Microsoft", 10, "Share", price[1], False)
+        #Actualizamos el dinero virtual del usuario1.
+        CustomUser.update_money_user(request, 10, price[1], user_logged.virtual_money)
+        self.assertEqual(user_logged.virtual_money, 750)
+        #usuario2 inicia sesión.
+        self.client.post('/login/', data_new_user, follow=True)
+        user_logged = CustomUser.objects.get(pk=2)
+        self.assertTrue(user_logged.is_active)
+        request = self.factory.get('/buy/')
+        request.user = user_logged
+        #usuario2 compra 10 acciones.
+        UserAsset.addAsset(request, "Apple", 20, "Share", price[1], False)
+        #Actualizamos su moneda virtual.
+        CustomUser.update_money_user(request, 20, price[1], user_logged.virtual_money)
+        self.assertEqual(user_logged.virtual_money, 500)
+        #usuario1 está en segundo puesto.
+        ranking = cons_ranking()
+        self.assertEqual(ranking[1][1], "usuario1")
+        #El usuario3 tiene que estar en primer lugar.
+        self.assertEqual(ranking[0][1], "usuario3")
+        #usuario2 vende todos sus activos.
+        request = self.factory.get('/sell/')
+        request.user = user_logged
+        CustomUser.update_money_user(request, 20, price[0], user_logged.virtual_money)
+        self.assertEqual(user_logged.virtual_money, 960)
+        #usuario2 pasa a estar en segundo lugar dejando último al usuario1.
+        ranking = cons_ranking()
+        self.assertEqual(ranking[1][1], "usuario2")
