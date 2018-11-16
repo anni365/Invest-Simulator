@@ -1,37 +1,26 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
-<style>
-  .form .cancel {
-    background-color: #148f77;
-    margin-left: 88.6%
-    }
-  .form input[type=text]{
-    text-align: center;
-    background-color: #eafaf1 ;
-    border: none;
-    color: black;
-  }
-   div#myPopup{
-    position:absolute;
-    left:-4.3%;
-    top:31%;
-  }
-</style>
-  <div id="back">
-    <div class="container" id="container">
-      <div>
-        {% if assets or is_history %}
-         {% include 'perfiles/tab_price.html' %}
-        {% else %}
-          <center><h3>No hay activos disponibles para consultar historial</h3></center>
-        {% endif %}
+<link rel="stylesheet" href="{% static 'css/assetshistory.css' %}">
+<script src="{% static 'js/assetshistory.js' %}"></script>
+  <div id="back0">
+    <div id="back">
+      <div id="container" class="container">
+        <div>
+          {% if assets or is_history %}
+           {% include 'perfiles/tab_price.html' %}
+           <script>document.getElementById("nameC").innerHTML = "Activos Disponibles";</script>
+          {% else %}
+           <h1 id="mj_not_assets">No hay activos disponibles para consultar historial</h1>
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
   <div class="popup" id="myPopup">
     <form class="form" action="{% url 'assets_history' %}" method="POST"
           id="assets_history_form" onsubmit="name_enable(event)">
-      <button class="btn cancel" onclick="ClosePop()"><w>x</w></button><br>
+      <input type="button" class="btn cancel" onclick="closePop()" value="x"/>
       <b>Elija desde y hasta cuando quedra ver el historial del activo</b><br><br>
       {% csrf_token %}
       {{ form.as_p }}
@@ -68,68 +57,26 @@
         google.charts.setOnLoadCallback(drawChart);
         document.getElementById('mj_graph').innerHTML= "Grafica de valores";
         function drawChart() {
+          //drawChart: Toma las fechas y valores dados por el back y dibuja el grafico.
           var djangoData = {{ grap|safe }};
           var data = google.visualization.arrayToDataTable(djangoData);
           var chart = new google.visualization.LineChart(document.getElementById('graph'));
           chart.draw(data);
-        }
+        };
       </script>
     </head>
   </html>
   <script>
-    document.getElementById("no_asset").innerHTML ="";
-    document.getElementById("nameC").innerHTML ="";
+    document.getElementById("nameC").innerHTML = "";
   </script>
    {% else %}
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
-  </script>
+  {% endif %}
   <script>
-  document.getElementById("nameC").innerHTML = "Activos Disponibles";
-  function openForm(value, name) {
-    document.getElementById("myPopup").style.display = "block";
-    document.getElementById("container").style['pointer-events'] = 'none';
-    document.getElementById("container").style.opacity = 0.4;
-    document.getElementById("menu_invest").style['pointer-events'] = 'none';
-    document.getElementById("menu_invest").style.opacity = 0.4;
-    document.getElementById("id_name").value = name;
+  function put_values_on_the_form() {
+    //put_values_on_the_form: Completa el formulario de acuerdo a lo elejido por el usuario y habilita la funcion enableDiv.
+    document.getElementById("id_name").value = localStorage.name;
     document.getElementById("id_name").disabled = true;
     setTimeout("enableDiv()",1);
-  }
-  function enableDiv() {
-    $("#back").click(function() {
-    window.location="http://localhost:8000/assetshistory/";
-    });
   };
-  function ClosePop(){ 
-    document.getElementById("container").style['pointer-events'] = 'auto';
-    document.getElementById("menu_invest").style['pointer-events'] = 'auto';
-    document.getElementById("container").style.opacity = 1;
-    document.getElementById("menu_invest").style.opacity = 1;
-    document.getElementById("myPopup").style.display = "none";
-  }
-  function name_enable(event) {
-    event.preventDefault();
-    var d = new Date();
-    var y = d.getFullYear();
-    var m = d.getMonth() + 1;
-    var d = d.getDate();
-    var date = y + "-" + m + "-" + d 
-    since = document.getElementById("id_since").value ;
-    until = document.getElementById("id_until").value ;
-    if(until > date || since > until ) {
-      alert("Error fechas ingresadas invalidas");
-      document.getElementById("id_since").value = "" ;
-      document.getElementById("id_until").value = "" ;
-      document.getElementById("id_time_since").value = "" ;
-      document.getElementById("id_time_until").value = "" ;
-    } else {
-      document.getElementById("id_name").disabled = false;
-      setTimeout("send()",1);
-    }
-  }
-   function send() { 
-    document.getElementById("assets_history_form").submit();
-   }
   </script>
-  {% endif %}
 {% endblock content %}

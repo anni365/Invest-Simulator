@@ -438,7 +438,7 @@ def low_alarms(request, id_alarm):
     """
     alarms = Alarm.objects.filter(user_id=request.user.id, type_alarm="high")
     for alarm in alarms:
-        if int(id_alarm) == alarm.id:
+        if id_alarm == alarm.id:
             alarm.type_alarm = "low"
             alarm.save()
 
@@ -453,7 +453,7 @@ def view_alarm(request):
         form_low = LowAlarmForm(request.POST)
         user = request.user.id
         if form_low.is_valid():
-            id_low = form_low.cleaned_data.get("name_low")
+            id_low = form_low.cleaned_data.get("id")
             low_alarms(request, id_low)
             list_alarm = list_alarms(request)
         return render(request, 'perfiles/view_alarms.html', {

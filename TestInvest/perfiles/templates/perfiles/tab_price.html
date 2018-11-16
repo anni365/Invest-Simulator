@@ -1,6 +1,5 @@
-<center>
 <div id="prices">
-<h2 id="nameC">Cotizaciones</h2><br>
+<center><h2 id="nameC">Cotizaciones</h2><br></center>
 <table id="tab">
   <thead>
     <tr>
@@ -13,8 +12,8 @@
   <tbody>
   {% for keys, values in assets %}
     <tr>
-      <td><c class="c" onclick="openForm({{ values }}, {{ keys }})">{{ keys.1 }}</c>
-      </td>
+      <td><c class="c" onclick="openForm({{ values }}, {{ keys }})">
+          {{ keys.1 }}</c></td>
       <td>{{ values.buy }}</td>
       <td>{{ values.sell }}</td>
       <td>{{ keys.0 }}</td>
@@ -23,4 +22,3 @@
   </tbody>
 </table>
 </div>
-</center>

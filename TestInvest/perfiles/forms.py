@@ -83,7 +83,8 @@ class SellForm(forms.Form):
     name = forms.CharField(required=False, label="Nombre del Activo")
     total_amount = forms.IntegerField(label="Cantidad Activo", required=False)
     price_sell = forms.CharField(label="Precio de Venta", required=False)
-    virtual_money = forms.CharField(label="Dinero Liquido", required=False)
+    virtual_money = forms.CharField(
+      label="Dinero Liquido obtenido", required=False)
 
 
 class DateInput(forms.DateTimeInput):
@@ -147,8 +148,12 @@ class LowAlarmForm(forms.Form):
     name_low = forms.CharField(
                     label="¿Desea dar de baja la alarma sobre el activo")
     umbral_low = forms.CharField(label="con umbral:")
-    price_low = forms.FloatField(label="al precio:")
+    price_low = forms.FloatField(label="al precio $")
+    id = forms.IntegerField()
 
+    def __init__(self, *args, **kwargs):
+        super(LowAlarmForm, self).__init__(*args, **kwargs)
+        self.fields['id'].widget = forms.HiddenInput()
 
 class Visibility(ModelForm):
     VISIBILITY = ((False, 'No'), (True, 'Si'))

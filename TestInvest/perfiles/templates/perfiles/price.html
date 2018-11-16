@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Activos{% endblock %}
 {% block content %}
+<style>
+ #prices {
+    top:10%;
+    left:35%;
+  }
+  .c {color:black; cursor: auto;}
+</style>
   <title>Invest Simulator</title>
   {% if assets %}
      {% include 'perfiles/tab_price.html' %}

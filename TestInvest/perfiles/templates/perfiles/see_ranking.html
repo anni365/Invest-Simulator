@@ -12,9 +12,7 @@
     top: 400px;
     left: 450px;
   }
-  #asd {
-    background-color: #0f7460;
-  }
+  #my_data {background-color: #0f7460;}
 </style>
 <center>
   <html>
@@ -28,7 +26,7 @@
       </tr>
       {%for dato in lista_capital%}
         {%if dato.1 == user.username%}
-          <tr id="asd">
+          <tr id="my_data">
             <td>{{dato.0}}</td>
             <td><b style="color:black;">{{ dato.1 }}</b></td>
             <td>{{dato.2}}</td>

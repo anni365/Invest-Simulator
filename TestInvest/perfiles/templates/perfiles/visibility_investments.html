@@ -1,11 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Inversiones Visibles.{% endblock %}
 {% block content%}
-
     <center>
     <h2>Inversiones Visibles</h2>
     <h2>{{user.username}}</h2>
-
     {% if investments_v %}
         <TABLE BORDER>
             <TR>
@@ -46,8 +44,6 @@
     {% else %}
         <h1> No hay inversiones visibles.</h1>
     {% endif %}
-
     <center>
     <br><a href="{% url 'home' %}">Volver al inicio</a>
-
 {% endblock content %}

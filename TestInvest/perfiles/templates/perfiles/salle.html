@@ -1,122 +1,46 @@
-<!DOCTYPE html>
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Venta de Activo{% endblock %}
 {% block content %}
-
-<head>
 <title>Venta de Activos</title>
 <meta charset="utf-8">
 <style type="text/css">
-body{ background-color:#EFF8FB; }
+  body{ background-color:#EFF8FB; }
+  .popup {margin-top: -14%; right:1%;}
+  #container {top:29%;left:35%;}
+  .form .btn {width: 53%;}
+  .form .cancel {width: 44%;}
 </style>
-</head>
+ <script src="{% static 'js/salle.js' %}"></script>
  <font color="#030303" face="georgia" size="3"> 
 <center>
-<html>
 <h1>Venta de activo</h1>
 <h3  id="demo"></h3>
 <script>
 window.onload = function() {
     var valor = comprobar();
-    var result = document.getElementById("demo").innerHTML = "La cantidad de activos disponibles: " + valor.cant;
+    document.getElementById("demo").innerHTML = "La cantidad de activos disponibles de " + valor.nombre + " es : " + valor.cant;
 };
 </script>
-
-<body>
-  <form action="" method="Post" name="formu" id="formu" onsubmit="return false;">
-  <br>
-    Tu cantidad: <br><input type="number" id="num" name="cantidad" value="" min="1"
-                       pattern="^[1-9]\d*$"><br>
-  </br>
+<div id="back0">
+  <div id="back">
+    </div>
+  </div>
+<div id="container">
+  <form action="" method="Post" name="formu" id="formu" onsubmit="return false;" class="form">
+    <br>Tu cantidad: <br><input required type="number" id="num" name="cantidad" value="" min="1"pattern="^[1-9]\d*$"><br></br>
+    <input type="button" class="btn" onclick="openForm({{virtual_money}})" value="Confirmar"/>
+    <input type="button" class="btn cancel" onclick="window.location='{% url 'wallet' %}'" value="Volver"/>
   </form>
-
-<button class="open-button" onclick="openForm({{virtual_money}})">Confirmar</button>
-<button
-    class="enlace" onclick="window.location='{% url 'wallet' %}'">Cancelar
-</button>
-
-<div class="form-popup" id="myForm" size= "10" width = 300">
-    <form method="POST" class="form-container" onsubmit="Respuesta({{virtual_money}})" id="form">{% csrf_token %}
+</div>
+<div class="popup" id="myForm">
+    <form method="POST" class="form" onsubmit="Respuesta({{virtual_money}})" id="form">{% csrf_token %}
     <h1>RESUMEN</h1>
       {{ form.as_p }}
     <p>Estas seguro de realizar esta operacion?</p>
-    <input id="accept" type="submit" value="Si">
-    <button type="button" class="btn" onclick="closeForm()">NO</button>
+    <input id="accept" type="submit" class="btn" value="Si"/>
+    <input type="button" class="btn cancel" onclick="closePop()" value="No"/>
   </form>
 </div>
-
-<script>
-function comprobar() {
-    var cantidad = document.formu.cantidad.value;
-    var loc= document.location.href;
-    var nombre,cotizacion, devolver;
-    var lista = [];
-    var getDato;
-    var virtual_money = virtual_money;
-    if(loc.indexOf('?')>0){
-        var getString1 = loc.split("?")[1];
-        for (i=0;i<3;i++) {
-            getDato = getString1.split("&")[i];
-            lista[i] = getDato.split("=")[1];
-        }
-        if (parseInt(lista[1]) < cantidad) {
-            closeForm();
-            alert("Te pasaste con la cantidad, intente nuevamente.");
-            document.getElementById("num").disabled = false;
-        } else if (cantidad < 0) {
-            closeForm();
-            alert("Numero negativo no esta permitido, intente nuevamente.");
-            document.getElementById("num").disabled = false;
-        } else {
-            devolver = {
-            nombre: lista[0],
-            cantidad: cantidad,
-            cotizacion: lista[2],
-            cant: lista[1],
-            }
-            return devolver;
-        }
-    }
-}
-
-function Respuesta(v_money) {
-    alert("La venta se realizo con exito, Felicidades!!!");
-    document.getElementById("id_name").disabled = false;
-    document.getElementById("id_total_amount").disabled = false;
-    document.getElementById("id_price_sell").disabled = false;
-    document.getElementById("id_virtual_money").disabled = false;
-    document.getElementById("form").submit();
-    closeForm();
-}
-function openForm(v_money) {
-    var valor = comprobar();
-    var ganancia;
-    if(0 < valor.cantidad){
-        ganancia =  parseFloat(valor.cantidad)  * parseFloat(valor.cotizacion);
-        document.getElementById("myForm").style.display = "block";
-        document.getElementById("num").disabled = true;
-        document.getElementById("id_name").value = valor.nombre;
-        document.getElementById("id_total_amount").value = valor.cantidad;
-        document.getElementById("id_total_amount").disabled = true;
-        document.getElementById("id_price_sell").value = valor.cotizacion;
-        document.getElementById("id_price_sell").disabled = true;
-        document.getElementById("id_virtual_money").value = ganancia;
-        document.getElementById("id_virtual_money").disabled = true;
-        setTimeout('closeForm()',5000);
-        return v_money;
-    }else{
-        closeForm();
-    }
-}
-
-function closeForm() {
-    document.getElementById("myForm").style.display = "none";
-        document.getElementById("num").disabled = false;
-        document.getElementById("num").value = "";
-}
-</script>
-</body>
-</html>
-<center>
 {% endblock content %}
 
