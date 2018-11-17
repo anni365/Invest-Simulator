@@ -1,6 +1,6 @@
 from django.test import TestCase, RequestFactory
 from .models import CustomUser, Transaction, UserAsset, Alarm
-from .views import cons_ranking, low_alarms
+from .views import cons_ranking, low_alarms, list_alarms
 
 """
 ACLARACIÓN:
@@ -208,7 +208,7 @@ class UserAssetTest(TestCase):
         request.user = custom_user
         UserAsset.addAsset(request, "Apple", 3, "Share", price[1], True)
         user_assets = UserAsset.objects.filter(user=custom_user)
-        UserAsset.update_asset(request, user_assets[0], 7, price[1], True)
+        UserAsset.update_asset(user_assets[0], 7, price[1], True)
         self.assertEqual(user_assets[0].total_amount, 10)
 
     """
@@ -278,6 +278,27 @@ class AlarmTest(TestCase):
         request.user = custom_user
         Alarm.addAlarm(request, "Compra", "Superior", 25, 23, "Apple")
         user_alarms = Alarm.objects.filter(user=custom_user)
+        self.assertEqual(len(user_alarms), 1)
+
+    """
+    Se comprueba que se pueda desactivar una alarma creada por el usuario
+    logueado.
+    """
+    def test_low_alarm(self):
+        custom_user = CustomUser.objects.get(pk=1)
+        self.assertTrue(custom_user.is_active)
+        request = self.factory.get('/alarm/')
+        request.user = custom_user
+        #El usuario1 crea dos alarmas.
+        Alarm.addAlarm(request, "Compra", "Superior", 25, 23, "Apple")
+        Alarm.addAlarm(request, "Venta", "Inferior", 16, 18, "Microsoft")
+        user_alarms = list_alarms(request)
+        #Comprobamos que tenga dos alarmas creadas.
+        self.assertEqual(len(user_alarms), 2)
+        #Desactivamos una alarma.
+        low_alarms(request, 1)
+        #Comprobamos que la lista de alarmas activadas ahora tiene longitud 1.
+        user_alarms = Alarm.objects.filter(user=custom_user, type_alarm='low')
         self.assertEqual(len(user_alarms), 1)
 
 class IntegrationTest(TestCase):
