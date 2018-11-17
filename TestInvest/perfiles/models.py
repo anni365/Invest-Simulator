@@ -31,6 +31,10 @@ class CustomUser(AbstractUser):
         return cap
 
     def update_money_user(request, total_amount, data, virtual_money):
+        """ update_money_user: Actualiza el dinero virtual del usuario.
+            update_money_user = update_money_user +/- total de activo en
+            operacion multiplicado la cotizacion
+        """
         if request.get_full_path() == '/buy/':
             virtual_money -= total_amount * data
         else:
@@ -61,6 +65,8 @@ class UserAsset(models.Model):
 
     def addAsset(request, name, total_amount, type_asset, old_unit_value,
                  visibility):
+        """ addAsset: Agrega un activo a la Base de Datos.
+        """
         asset = UserAsset.objects.create(
                   user_id=request.user.id, name=name,
                   total_amount=total_amount,
@@ -70,6 +76,8 @@ class UserAsset(models.Model):
         return asset
 
     def update_asset(asset, total_amount, data, visibility):
+        """ update_asset: Actualiza la cantidad de un activo.
+        """
         asset.total_amount += total_amount
         asset.old_unit_value = data
         asset.visibility = visibility
@@ -91,6 +99,8 @@ class Transaction(models.Model):
 
     def addTransaction(request, value_buy, value_sell, total_amount,
                        user_asset_id):
+        """ addTransaction: Agrega una transaccion a la Base de Datos.
+        """
         if request.get_full_path() == '/buy/':
             type_t = str("compra")
         else:
