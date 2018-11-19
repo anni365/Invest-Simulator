@@ -6,11 +6,11 @@ from django.contrib.auth import login, authenticate, update_session_auth_hash
 from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import CreateView, TemplateView, UpdateView
 from django.contrib.auth.forms import PasswordChangeForm
-from .forms import (SignUpForm, BuyForm, SellForm, UpdateProfileForm,
-                    AssetForm, AlarmForm, Visibility, LowAlarmForm)
+from .forms import SignUpForm, UpdateProfileForm, Visibility
 from django.contrib import messages
-from .models import CustomUser, UserAsset, Transaction, Alarm
-import json
+from .models import CustomUser, UserAsset, Transaction
+from .data_api import open_jsons, quit_null_assets
+from .views_alarm import get_data_of_alarm
 import threading
 import time
 from django.template import RequestContext
@@ -33,19 +33,32 @@ class SignUpView(CreateView):
         return render(self.request, 'perfiles/signup.html', {'form': form})
 
 
-
-def welcomeView(request):
+def WelcomeView(request):
     """ welcomeView: Envia a la pagina de inicio, con el puesto en el ranking
         y el dinero liquido del usuario logueado, o para que inicie sesion o
         se registre.
     """
     if request.user.is_authenticated:
-        return render(request, 'perfiles/home.html', {'pos_ranking': rank_virtualm(request)})
+        return render(request, 'perfiles/home.html',
+                        {'pos_ranking': CustomUser.rank_virtualm(request)})
     else:
         return render(request, 'perfiles/home.html')
 
+
+class ProfileView(TemplateView):
+    template_name = 'perfiles/profile.html'
+
+
+def profileView(request):
+    """ profileView: Muestra en la pagina de perfil el puesto en el ranking y
+        el dinero liquido del usuario logueado
+    """
+    pos_ranking = CustomUser.rank_virtualm(request)
+    return render(request, 'perfiles/profile.html', {'pos_ranking': pos_ranking})
+
+
 def change_password(request):
-    pos_ranking = rank_virtualm(request)
+    pos_ranking = CustomUser.rank_virtualm(request)
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
@@ -66,17 +79,6 @@ class SignOutView(LogoutView):
     pass
 
 
-class ProfileView(TemplateView):
-    template_name = 'perfiles/profile.html'
-
-def profileView(request):
-    """ profileView: Muestra en la pagina de perfil el puesto en el ranking y
-        el dinero liquido del usuario logueado
-    """
-    pos_ranking = rank_virtualm(request)
-    return render(request, 'perfiles/profile.html', {'pos_ranking': pos_ranking})
-
-
 class UpdateProfileView(UpdateView):
     model = CustomUser
     template_name = 'perfiles/update_profile.html'
@@ -84,140 +86,6 @@ class UpdateProfileView(UpdateView):
 
     def get_object(self):
         return get_object_or_404(CustomUser, pk=self.request.user.id)
-
-
-def open_jsons():
-    with open('perfiles/asset/assets.json') as assets_json:
-        assets_name = json.load(assets_json)
-    assets_name = assets_name.get("availableAssets")
-    assets_price = []
-    assets = {}
-    cap = 0
-    if assets_name is not None:
-        for asset in assets_name:
-            name_as = 'perfiles/asset/'+str(asset.get("name"))+'.json'
-            with open(name_as) as assets_price:
-                price = json.load(assets_price)
-                assets.update({(asset.get("type"), asset.get("name")): price})
-    assets = assets.items()
-    return assets
-
-
-def show_my_assets(request):
-    pos_ranking = rank_virtualm(request)
-    user = request.user
-    virtual_money = request.user.virtual_money
-    my_assets = UserAsset.objects.filter(user=request.user.id)
-    my_assets = my_assets.filter(total_amount__gt=0)
-    assets = open_jsons()
-    cap = CustomUser.calculate_capital(assets, my_assets, virtual_money)
-    form = Visibility(request.POST)
-    if form.is_valid():
-        name = form.cleaned_data.get("name")
-        visibility = form.cleaned_data.get("visibility")
-        for asset in my_assets:
-            if (name == asset.name):
-                asset.visibility = visibility
-                asset.save()
-                my_assets = UserAsset.objects.filter(user=request.user.id)
-                my_assets = my_assets.filter(total_amount__gt=0)
-                return render(request, 'perfiles/wallet.html',
-                                       {'assets': assets, 'user': user,
-                                        'my_assets': my_assets,
-                                        'capital': cap, 'form': form, 'pos_ranking': pos_ranking})
-    return render(request, 'perfiles/wallet.html',
-                           {'assets': assets, 'user': user,
-                            'my_assets': my_assets, 'capital': cap,
-                            'form': form, 'pos_ranking': pos_ranking})
-
-
-def sell_assets(request):
-    pos_ranking = rank_virtualm(request)
-    user = CustomUser
-    virtual_money = request.user.virtual_money
-    assets = open_jsons()
-    form = SellForm(request.POST)
-    if form.is_valid():
-        name = form.cleaned_data.get("name")
-        total_amount = form.cleaned_data.get("total_amount")
-        my_assets = UserAsset.objects.filter(user=request.user.id, name=name)
-        for names, datas in assets:
-            if my_assets.exists():
-                for asset in my_assets:
-                    if ((names[1] == asset.name) & (asset.total_amount > 0)):
-                        asset.total_amount = asset.total_amount - total_amount
-                        asset.save()
-                        transaction = Transaction.addTransaction(
-                                      request, datas['sell'], datas['buy'],
-                                      total_amount, asset.id)
-                        virtual_money = CustomUser.update_money_user(
-                          request, total_amount, datas['buy'], virtual_money)
-                        return redirect('http://localhost:8000/wallet')
-    return render(request, 'perfiles/salle.html', {
-                  'assets': assets, 'my_assets': my_assets,
-                  'virtual_money': virtual_money, 'form': form, 'pos_ranking': pos_ranking})
-
-
-def quit_null_assets(assets):
-    assets_a = []
-    for keys, values in assets:
-        if values['sell'] is not None and values['buy'] is not None:
-            assets_a.append(((keys[0],  keys[1]), {"sell": values['sell'],
-                            "buy": values['buy']}))
-    return assets_a
-
-
-def show_assets(request):
-    pos_ranking = rank_virtualm(request)
-    user = request.user
-    virtual_money = request.user.virtual_money
-    my_assets = UserAsset.objects.filter(user=request.user.id)
-    assets = open_jsons()
-    assets_a = quit_null_assets(assets)
-    mj = False
-    cap = CustomUser.calculate_capital(assets, my_assets, virtual_money)
-    if request.get_full_path() == '/buy/':
-        if request.method == 'POST':
-            form = BuyForm(request.POST)
-            virtual_money, assets, mj = buy_assets(
-              request, form, assets, virtual_money, mj)
-        else:
-            form = BuyForm()
-        return render(request, 'perfiles/buy.html', {
-          'assets': assets_a, 'virtual_money': virtual_money, 'form': form,
-          'mj': mj, 'pos_ranking': pos_ranking})
-    if request.get_full_path() == '/price/':
-        return render_to_response('perfiles/price.html', {'assets': assets_a,
-                                  'user': user, 'pos_ranking': pos_ranking})
-    if request.get_full_path() == '/wallet/':
-        return render_to_response('perfiles/wallet.html', {
-          'assets': assets, 'user': user, 'my_assets': my_assets,
-          'capital': cap, 'pos_ranking': pos_ranking})
-
-
-def buy_assets(request, form, assets, capital, mj):
-    """ buy_assets: Compra activos disponibles.
-    """
-    virtual_money = request.user.virtual_money
-    if form.is_valid():
-        name = form.cleaned_data.get("name")
-        total_amount = form.cleaned_data.get("total_amount")
-        visibility = form.cleaned_data.get("visibility")
-        assets_user = UserAsset.objects.filter(user=request.user.id, name=name)
-        for nametype, prices in assets:
-            if nametype[1] == name and (prices['sell'] is None or prices['buy'] is None):
-                messages.add_message(
-                  request, messages.INFO, 'El Activo seleccionado ya no se'
-                  'encuentra  disponible, no se pudo concretar la compra. Para'
-                  ' ver la actual lista de activos recargue la pagina')
-                break
-            sell = prices['sell']
-            buy = prices['buy']
-            addOperation(request, assets_user, nametype, name,
-                         total_amount, sell, buy, virtual_money, visibility)
-            virtual_money = request.user.virtual_money
-            mj = True
-        return virtual_money, assets, mj
 
 
 def addOperation(request, assets_user, nametype, name_form,
@@ -243,7 +111,7 @@ def addOperation(request, assets_user, nametype, name_form,
 
 
 def mytransactions(request):
-    pos_ranking = rank_virtualm(request)
+    pos_ranking = CustomUser.rank_virtualm(request)
     my_transactions = Transaction.objects.filter(user=request.user.id)
     my_transactions = my_transactions.order_by('-date')
     return render_to_response(
@@ -251,268 +119,24 @@ def mytransactions(request):
         'my_transactions': my_transactions, 'user': request.user, 'pos_ranking': pos_ranking})
 
 
-def cons_ranking():
-    """ cons_ranking: Brinda la lista de puestos en el ranking de los usuarios
-    con su capital.
-    [[posicion, nombre usuario, capital]]
-    """
-    assets = open_jsons()
-    dict_cap = {}
-    users = CustomUser.objects.all()
-    i = 1
-    ranking = []
-    for user in users:
-        assets_users = UserAsset.objects.filter(user=user.id)
-        capital = CustomUser.calculate_capital(assets, assets_users,
-                                               user.virtual_money)
-        dict_cap.update({user.username: capital})
-    dict_items = dict_cap.items()
-    list_cap = sorted(dict_items, key=lambda x: x[1], reverse=True)
-    total_user = CustomUser.objects.count()
-    for i in range(total_user):
-        ranking.append((i+1,) + list_cap[i])
-    return ranking
-
-
 def ranking(request):
     """ ranking: Renderiza la lista.
     """
-    pos_ranking = rank_virtualm(request)
-    list_cap = cons_ranking()
+    pos_ranking = CustomUser.rank_virtualm(request)
+    list_cap = CustomUser.cons_ranking()
     users = CustomUser.objects.all()
     return render_to_response('perfiles/see_ranking.html',
                               {'lista_capital': list_cap,
                                'user': request.user, 'pos_ranking': pos_ranking})
 
 
-def open_json_history(name_asset):
-    name_as = 'perfiles/asset/'+name_asset+'_history.json'
-    with open(name_as) as assets_json:
-        assets_name = json.load(assets_json)
-    assets_name = assets_name.get("prices")
-    return assets_name
-
-
-def get_asset_history(asset_history, since_date, until_date):
-    history = []
-    history_from_to = []
-    i = 0
-    for key, value in asset_history:
-        day = asset_history[i][key]
-        sell = asset_history[i][value][0]
-        buy = asset_history[i][value][1]
-        history.append([day, float(sell), float(buy)])
-        i += 1
-    for element in history:
-        date = datetime.strptime(element[0], "%Y-%m-%d").date()
-        since = datetime.strptime(since_date, "%Y-%m-%d").date()
-        until = datetime.strptime(until_date, "%Y-%m-%d").date()
-        if date >= since and date <= until:
-            history_from_to.append([element[0], element[1], element[2]])
-    if not history_from_to:
-        for element in history:
-            history_from_to.append([element[0], element[1], element[2]])
-    return history_from_to
-
-
-def assets_history(request):
-    pos_ranking = rank_virtualm(request)
-    assets = open_jsons()
-    assets_a = quit_null_assets(assets)
-    form = AssetForm()
-    if request.method == 'POST':
-        form = AssetForm(request.POST)
-        if form.is_valid():
-            name = form.cleaned_data.get("name")
-            since_date = form.cleaned_data.get("since")
-            until_date = form.cleaned_data.get("until")
-            asset_history = open_json_history(name)
-            is_history = True
-            history_from_to = []
-            history_from_to = get_asset_history(
-              asset_history, since_date, until_date)
-            grap_history = [["Fecha", "Venta", "Compra"]]
-            grap_history += history_from_to
-            return render(request, 'perfiles/assets_history.html', {
-              'history': history_from_to, 'is_history': is_history,
-              'name_asset': name, 'grap': json.dumps(grap_history), 'pos_ranking': pos_ranking})
-    return render(request, 'perfiles/assets_history.html', {'assets': assets_a,
-                                                            'form': form, 'pos_ranking': pos_ranking})
-
-
-def send_email(list_alarms):
-    email_from = 'investsimulatorarg@gmail.com'
-    for alarm in list_alarms:
-        user = CustomUser.objects.get(pk=alarm[0])
-        subject = ("[Invest Simulator] El activo " + str(alarm[1]) +
-                   " ha alcanzado el valor esperado")
-        body = ("El activo " + str(alarm[1]) +
-                " ha alcanzado el valor esperado de " + str(alarm[2]) + ".\n"
-                + str(alarm[1]) + "\nValor de cotización previo: " +
-                str(alarm[4]) + "\n" + "Valor actual: " + str(alarm[3]) +
-                "\nFecha: " + str(datetime.now()))
-        send_mail(subject, body, email_from, [user.email], fail_silently=False)
-
-
-def get_data_of_alarm():
-    """ get_data_of_alarm: Chequea si una alarma debe ser disparada o no,
-        segun los precios de la API.
-    """
-    list_alarms = []
-    assets = open_jsons()
-    assets = quit_null_assets(assets)
-    alarms_buy = Alarm.objects.filter(type_quote="buy", type_alarm="high")
-    alarms_sell = Alarm.objects.filter(type_quote="sell", type_alarm="high")
-    update_alarm_notif(alarms_buy, list_alarms, assets, 'buy')
-    update_alarm_notif(alarms_sell, list_alarms, assets, 'sell')
-    send_email(list_alarms)
-
-
-def update_alarm_notif(alarms, list_alarms, assets_json, price):
-    """ update_alarm_notif: Chequea que el nombre del activo en la alarma
-        coincida con el que brinda en la API.
-    """
-    for alarm in alarms:
-        for nametype, data in assets_json:
-            if nametype[1] == alarm.name_asset:
-                check_alarms_json(list_alarms, alarm, data, price, nametype)
-
-
-def check_alarms_json(list_alarms, alarm, data, price, nametype):
-    """ check_alarms_json: Compara el precio de la alarma con el precio de
-        los activos en la API.
-    """
-    if alarm.umbral >= data[price] and alarm.type_umbral == "less":
-        if not alarm.email_send:
-            update_list_alarm(list_alarms, alarm, nametype, data, price)
-    elif alarm.type_umbral == "less" and alarm.email_send:
-        update_list_alarm(list_alarms, alarm, nametype, data, price)
-    if alarm.umbral <= data[price] and alarm.type_umbral == "top":
-        if not alarm.email_send:
-            update_list_alarm(list_alarms, alarm, nametype, data, price)
-    elif alarm.type_umbral == "top" and alarm.email_send:
-        update_list_alarm(list_alarms, alarm, nametype, data, price)
-
-
-def update_list_alarm(list_alarms, alarm, nametype, data, price):
-    """ update_list_alarm: Indica si una alarma fue enviada al mail del
-        usuario, o se debe enviar.
-        [id usuario, nombre activo, umbral, precio actual, precio de creacion]
-    """
-    if alarm.email_send:
-        alarm.email_send = False
-    else:
-        list_alarms.append([alarm.user_id, nametype[1], alarm.umbral,
-                            data[price], alarm.previous_quote])
-        alarm.email_send = True
-    alarm.save()
-
-
-def list_alarms(request):
-    """ list_alarms: Lista la alarmas creadas por el usuario.
-        [nombre activo, tipo umbral, umbral, id alarma, tipo cotizacion]
-    """
-    alarms = Alarm.objects.filter(user_id=request.user.id, type_alarm="high")
-    list_alarms = []
-    for alarm in alarms:
-        name_asset = alarm.name_asset
-        type_umbral = alarm.type_umbral
-        umbral = alarm.umbral
-        id_alarm = alarm.id
-        type_quote = alarm.type_quote
-        if type_umbral == "top":
-            type_umbral = "Superior"
-        elif type_umbral == "less":
-            type_umbral = "Inferior"
-        if type_quote == "buy":
-            type_quote = "Compra"
-        elif type_quote == "sell":
-            type_quote = "Venta"
-        list_alarms.append((name_asset, type_umbral, umbral, id_alarm,
-                            type_quote))
-    return list_alarms
-
-
-def low_alarms(request, id_alarm):
-    """ low_alarms: Da de baja la alarma deseada del usuario.
-    """
-    alarms = Alarm.objects.filter(user_id=request.user.id, type_alarm="high")
-    for alarm in alarms:
-        if id_alarm == alarm.id:
-            alarm.type_alarm = "low"
-            alarm.save()
-
-
-def view_alarm(request):
-    """ view_alarm: Llena el formulario para dar de baja la alarma deseada del
-        usuario.
-    """
-    pos_ranking = rank_virtualm(request)
-    list_alarm = list_alarms(request)
-    if request.method == 'POST':
-        form_low = LowAlarmForm(request.POST)
-        user = request.user.id
-        if form_low.is_valid():
-            id_low = form_low.cleaned_data.get("id")
-            low_alarms(request, id_low)
-            list_alarm = list_alarms(request)
-        return render(request, 'perfiles/view_alarms.html', {
-          'view_alarms': list_alarm, 'form_low': LowAlarmForm(), 'pos_ranking': pos_ranking})
-    else:
-        form_low = LowAlarmForm()
-    return render(
-      request, 'perfiles/view_alarms.html',
-      {'view_alarms': list_alarm, 'form_low': form_low, 'pos_ranking': pos_ranking})
-
-
-def config_alarm(request):
-    pos_ranking = rank_virtualm(request)
-    get_data_of_alarm()
-    assets = open_jsons()
-    assets = quit_null_assets(assets)
-    if request.method == 'POST':
-        form = AlarmForm(request.POST)
-        user = request.user.id
-        if form.is_valid():
-            type_alarm = form.cleaned_data.get("type_alarm")
-            type_quote = form.cleaned_data.get("type_quote")
-            type_umbral = form.cleaned_data.get("type_umbral")
-            previous_quote = form.cleaned_data.get("previous_quote")
-            umbral = form.cleaned_data.get("umbral")
-            name_asset = form.cleaned_data.get("name_asset")
-            alarm = Alarm.addAlarm(request, type_quote,
-                                   type_umbral, umbral, previous_quote,
-                                   name_asset)
-            list_alarm = list_alarms(request)
-        return render(request, 'perfiles/view_alarms.html', {
-          'view_alarms': list_alarm, 'form_low': LowAlarmForm(), 'pos_ranking': pos_ranking})
-    else:
-        form = AlarmForm()
-    return render(request, 'perfiles/alarm.html', {
-      'assets': assets, 'form': form, 'pos_ranking': pos_ranking})
-
-
-def consult_alarm_forever():
-    while True:
-        get_data_of_alarm()
-        time.sleep(15)
-
-
-def hilo():
-    hilo = threading.Thread(target=consult_alarm_forever)
-    hilo.setDaemon(True)
-    hilo.start()
-
-
-hilo()
-
-
 def visibility_investments(request):
-    pos_ranking = rank_virtualm(request)
-    ranking = cons_ranking()
+    pos_ranking = CustomUser.rank_virtualm(request)
+    ranking = CustomUser.cons_ranking()
     all_assets = open_jsons()
     assets_a = quit_null_assets(all_assets)
-    investments_v = UserAsset.objects.filter(visibility=True, total_amount__gt=0)
+    investments_v = UserAsset.objects.filter(visibility=True,
+                                             total_amount__gt=0)
     datas = []
     for invest in investments_v:
         assets = UserAsset.objects.filter(user_id=invest.user_id,
@@ -527,18 +151,19 @@ def visibility_investments(request):
     return render_to_response('perfiles/visibility_investments.html',
                               {'user': request.user,
                                'investments_v': investments_v,
-                               'ranking': ranking, 'pos_ranking' : pos_ranking, 
+                               'ranking': ranking, 'pos_ranking' : pos_ranking,
                                'datas': datas, 'assets': assets_a})
 
 
-def rank_virtualm(request):
-    """ rank_virtualm: Muestra la posicion en el ranking del usuario logueado.
-    """
-    ranking = cons_ranking()
-    pos_rank = 0
-    for rank in ranking:
-        if request.user.username == rank[1]:
-            request.user.pos_ranking = rank[0]
-            request.user.save()
-    return request.user.pos_ranking
+def consult_alarm_forever():
+    while True:
+        get_data_of_alarm()
+        time.sleep(15)
 
+def hilo():
+    hilo = threading.Thread(target=consult_alarm_forever)
+    hilo.setDaemon(True)
+    hilo.start()
+
+
+hilo()

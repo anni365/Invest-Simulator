@@ -10,6 +10,9 @@ from django.core.validators import MinValueValidator
 from django.utils import timezone
 from datetime import datetime
 
+from .data_api import (open_jsons, quit_null_assets, open_json_history,
+                        get_asset_history)
+
 
 class CustomUser(AbstractUser):
     avatar = models.ImageField(upload_to='perfiles/',
@@ -41,6 +44,41 @@ class CustomUser(AbstractUser):
             virtual_money += total_amount * data
         request.user.virtual_money = virtual_money
         request.user.save()
+
+    def cons_ranking():
+        """ cons_ranking: Brinda la lista de puestos en el ranking de los usuarios
+        con su capital.
+        [[posicion, nombre usuario, capital]]
+        """
+        assets = open_jsons()
+        dict_cap = {}
+        users = CustomUser.objects.all()
+        i = 1
+        ranking = []
+        for user in users:
+            assets_users = UserAsset.objects.filter(user=user.id)
+            capital = CustomUser.calculate_capital(assets, assets_users,
+                                                   user.virtual_money)
+            dict_cap.update({user.username: capital})
+        dict_items = dict_cap.items()
+        list_cap = sorted(dict_items, key=lambda x: x[1], reverse=True)
+        total_user = CustomUser.objects.count()
+        for i in range(total_user):
+            ranking.append((i+1,) + list_cap[i])
+        return ranking
+
+
+    def rank_virtualm(request):
+        """ rank_virtualm: Muestra la posicion en el ranking del usuario logueado.
+        """
+        ranking = CustomUser.cons_ranking()
+        pos_rank = 0
+        for rank in ranking:
+            if request.user.username == rank[1]:
+                request.user.pos_ranking = rank[0]
+                request.user.save()
+        return request.user.pos_ranking
+
 
 
 @receiver(post_save, sender=User)
