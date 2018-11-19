@@ -148,7 +148,7 @@ class LowAlarmForm(forms.Form):
     name_low = forms.CharField(
                     label="¿Desea dar de baja la alarma sobre el activo")
     umbral_low = forms.CharField(label="con umbral:")
-    price_low = forms.FloatField(label="al precio $")
+    price_low = forms.CharField(label="al precio $")
     id = forms.IntegerField()
 
     def __init__(self, *args, **kwargs):
