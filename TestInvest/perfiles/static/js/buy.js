@@ -43,7 +43,7 @@ function updateReloj() {
 function msg_confirm(amount, total_amount ){
   localStorage.setItem('amounts', amount);
   localStorage.setItem('total_amount', total_amount);
-  var msg = `Activo adquirido: ${localStorage.names}.
+  var msg = `Activo adquirido: ${localStorage.name}.
   A seleccionado: ${amount}.
   Precio compra: ${localStorage.sell},
   Precio venta: ${localStorage.buy}.
