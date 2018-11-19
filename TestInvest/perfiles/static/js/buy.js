@@ -1,4 +1,5 @@
 function enviar() {
+  //enviar: Arma y muestra mensaje para confirmar la compra.
   document.getElementById("myForm_buy").style.display = "none";
   var amount = document.getElementById("id_total_amount").value;
   var total_amount = localStorage.sell * amount;
@@ -10,10 +11,12 @@ function enviar() {
   buy_confirm.show();
 };
 function openFormu() {
+  //openFormu abre el popup de visibilidad.
   document.getElementById("id_visibility").disabled = true;
   document.getElementById("myForm_buy").style.display = "block";
 };
 function success() {
+  //success: envia formulario de compra.
   alert("La compra se realizo con exito!!");
   document.getElementById("id_total_amount").disabled = false;
   document.getElementById("id_name").disabled = false;
@@ -21,6 +24,8 @@ function success() {
   document.getElementById("buy_form").submit();
 };
 function enable_form() {
+  //enable_form: Habilita el formulario de compra.
+  document.getElementById("confirm").style.display = 'none';
   document.getElementById("accept").disabled = false;
   document.getElementById("cancel").disabled = false;
   document.getElementById("id_total_amount").disabled = false;
@@ -29,6 +34,7 @@ function enable_form() {
   document.getElementById("total").innerHTML = "Subtotal: $0";
 };
 function updateReloj() {
+  //updateReloj: Actualiza el reloj mostrado en mensaje de confirmacion.
   document.getElementById('time').innerHTML = `${totalTiempo}`;
   var close = $("#confirm");
   if (totalTiempo==0) {
@@ -40,11 +46,12 @@ function updateReloj() {
       setTimeout("updateReloj()",1000);
   }
 };
-function msg_confirm(amount, total_amount ){
+function msg_confirm(amount, total_amount ) {
+  //msg_confirm: Arma mensaje de confirmacion.
   localStorage.setItem('amounts', amount);
   localStorage.setItem('total_amount', total_amount);
-  var msg = `Activo adquirido: ${localStorage.name}.
-  A seleccionado: ${amount}.
+  var msg = `Activo adquirido: ${localStorage.name}
+  A seleccionado: ${amount}
   Precio compra: ${localStorage.sell},
   Precio venta: ${localStorage.buy}.
   A un total de: ${total_amount}.
@@ -52,7 +59,9 @@ function msg_confirm(amount, total_amount ){
   return msg
 };
 function confirm(event, virtual_money) {
+  //confirm: Comprueba que los datos ingresados por el usuario sean validos.
   event.preventDefault();
+  var virtual_money = parseFloat(virtual_money.replace(",", "."));
   document.getElementById("accept").disabled = true;
   document.getElementById("cancel").disabled = true;
   document.getElementById("id_total_amount").disabled = true;

@@ -1,4 +1,5 @@
 function name_enable(event) {
+  //name_enamble: Comprueba que los datos ingresados sean validos.
   event.preventDefault();
   var d = new Date();
   var y = d.getFullYear();

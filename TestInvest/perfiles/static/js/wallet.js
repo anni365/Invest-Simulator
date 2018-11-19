@@ -1,7 +1,9 @@
   function send() {
+    //send: envia formulario para visibilidad.
     document.getElementById("form").submit();
   };
   function mj(event, name, visibility) {
+    //mj: Envia mensaje de confirmacion/negacion de visibilidad sobre un activo, bloquea el fondo.
     event.preventDefault();
     document.getElementById("myForm").style.display = 'block';
     $("#back").addClass('disable_background');

@@ -145,10 +145,6 @@ class LowAlarmForm(forms.Form):
         Es necesario llenarlo con nombre del activo, el tipo de umbral y el
         precio del umbral.
     """
-    name_low = forms.CharField(
-                    label="¿Desea dar de baja la alarma sobre el activo")
-    umbral_low = forms.CharField(label="con umbral:")
-    price_low = forms.CharField(label="al precio $")
     id = forms.IntegerField()
 
     def __init__(self, *args, **kwargs):

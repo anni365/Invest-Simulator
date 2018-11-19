@@ -48,20 +48,19 @@
   <div class="popup" id="myPopup">
     <form class="form" action="{% url 'view_alarm' %}" method="POST" id="my_form">
       {% csrf_token %}
-      {{ form_low }}<w><b>?</b></w><br>
+      <h3 id="asd"></h3>
+      {{ form_low }}<br>
       <input id="accept" type="submit" value="Aceptar" onclick="send_low_form()" class="btn"/>
       <input type="button" class="btn cancel" onclick="closePop()" value="Cancelar"/>
     </form>
   </div>
 <script>
   function put_values_on_the_form() {
-    //put_values_on_the_form: Completa el formulario a partir del activo elejido por el usuario.
-    document.getElementById("id_name_low").disabled = true;
-    document.getElementById("id_name_low").value = localStorage.value;
-    document.getElementById("id_umbral_low").disabled = true;
-    document.getElementById("id_umbral_low").value = localStorage.name;
-    document.getElementById("id_price_low").disabled = true;
-    document.getElementById("id_price_low").value = localStorage.price;
+    //put_values_on_the_form: Completa el mensaje del formulario a partir del activo elejido por el usuario.
+    document.getElementById("asd").innerHTML = "¿Desea dar de baja la alarma sobre el activo " +
+    '<b>' + JSON.parse(localStorage.value) + '</b>' + " con umbral " +
+    '<b>' + localStorage.name + '</b>' + " a " +
+    '<b>'  + "$" + localStorage.price+ '</b>' + "?";
     setTimeout("enableDiv()",1);
   };
 </script>

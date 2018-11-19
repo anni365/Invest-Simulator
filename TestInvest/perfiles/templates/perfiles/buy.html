@@ -23,7 +23,7 @@
   </div>
   <div class="popup" id="myPopup">
     <form action="{% url 'buy' %}" method="POST" class="form"
-      onsubmit="confirm(event, {{virtual_money}})" id="buy_form">
+      onsubmit="confirm(event, '{{virtual_money}}')" id="buy_form">
       <h2>Comprar Activo</h2>
       {% csrf_token %}
       {{ form.as_p }}
