@@ -1,6 +1,6 @@
 from django.test import TestCase, RequestFactory
 from .models import CustomUser, Transaction, UserAsset, Alarm
-from .views import cons_ranking, low_alarms, list_alarms
+from .views_alarm import low_alarms, list_alarms
 
 """
 ACLARACIÓN:
@@ -234,7 +234,7 @@ class UserAssetTest(TestCase):
     def test_first_position_for_user_ranking(self):
         custom_user = CustomUser.objects.get(pk=1)
         self.assertTrue(custom_user.is_active)
-        ranking = cons_ranking()
+        ranking = CustomUser.cons_ranking()
         self.assertEqual(ranking[0][0], 1)
 
     """
@@ -250,7 +250,7 @@ class UserAssetTest(TestCase):
         request.user = custom_user
         #Agrego activos al usuario2, éste tendrá un capital mayor al usuario1.
         UserAsset.addAsset(request, "Apple", 5, "Share", price[1], False)
-        ranking = cons_ranking()
+        ranking = CustomUser.cons_ranking()
         self.assertEqual(ranking[1][0], 2)
 
 class AlarmTest(TestCase):
@@ -353,7 +353,7 @@ class IntegrationTest(TestCase):
         request.user = user_logged
         price = [23, 25]
         UserAsset.addAsset(request, "Microsoft", 5, "Share", price[1], False)
-        ranking = cons_ranking()
+        ranking = CustomUser.cons_ranking()
         #usuario1 está primero en el ranking porque gana con su capital.
         self.assertEqual(ranking[0][1], "usuario1")
         #usuario2 inicia sesión.
@@ -364,7 +364,7 @@ class IntegrationTest(TestCase):
         request.user = user_logged
         #usuario2 compra 10 acciones.
         UserAsset.addAsset(request, "Microsoft", 10, "Share", price[1], False)
-        ranking = cons_ranking()
+        ranking = CustomUser.cons_ranking()
         #usuario1 ahora pasó a estar segundo en el ranking.
         self.assertEqual(ranking[0][1], "usuario2")
 
@@ -448,7 +448,7 @@ class IntegrationTest(TestCase):
         CustomUser.update_money_user(request, 20, price[1], user_logged.virtual_money)
         self.assertEqual(user_logged.virtual_money, 500)
         #usuario1 está en segundo puesto.
-        ranking = cons_ranking()
+        ranking = CustomUser.cons_ranking()
         self.assertEqual(ranking[1][1], "usuario1")
         #El usuario3 tiene que estar en primer lugar.
         self.assertEqual(ranking[0][1], "usuario3")
@@ -458,5 +458,5 @@ class IntegrationTest(TestCase):
         CustomUser.update_money_user(request, 20, price[0], user_logged.virtual_money)
         self.assertEqual(user_logged.virtual_money, 960)
         #usuario2 pasa a estar en segundo lugar dejando último al usuario1.
-        ranking = cons_ranking()
+        ranking = CustomUser.cons_ranking()
         self.assertEqual(ranking[1][1], "usuario2")
