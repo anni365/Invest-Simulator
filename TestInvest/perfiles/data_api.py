@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 import time
 from django.template import RequestContext
-from django.utils import timezone
 from datetime import datetime
 from django.core.mail import EmailMessage, send_mail
 from django.contrib.auth.decorators import login_required

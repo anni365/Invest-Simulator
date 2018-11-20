@@ -8,7 +8,6 @@ from .forms import AlarmForm, LowAlarmForm
 from django.core.mail import EmailMessage, send_mail
 import time
 from django.template import RequestContext
-from django.utils import timezone
 from datetime import datetime
 
 

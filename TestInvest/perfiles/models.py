@@ -8,7 +8,6 @@ from django.dispatch import receiver
 from django.core.validators import MinValueValidator
 
 from django.utils import timezone
-from datetime import datetime
 
 from .data_api import (open_jsons, quit_null_assets, open_json_history,
                         get_asset_history)
@@ -148,7 +147,7 @@ class Transaction(models.Model):
                                                  value_buy=value_buy,
                                                  value_sell=value_sell,
                                                  amount=total_amount,
-                                                 date=datetime.now(),
+                                                 date=timezone.now(),
                                                  type_transaction=type_t)
         transaction.save()
         return transaction
