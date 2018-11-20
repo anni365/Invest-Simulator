@@ -13,6 +13,10 @@ from datetime import datetime
 
 
 def send_email(list_alarms):
+    """
+    send_email: Envía un correo alertando al usuario sobre una alarma
+    configurada previamente.
+    """
     email_from = 'investsimulatorarg@gmail.com'
     for alarm in list_alarms:
         user = CustomUser.objects.get(pk=alarm[0])

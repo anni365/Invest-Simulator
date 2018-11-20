@@ -85,6 +85,10 @@ class UpdateProfileView(UpdateView):
     form_class = UpdateProfileForm
 
     def get_object(self):
+        """
+        get_object: Retorna la información del usuario logueado. En caso de no
+        encontrarlo, devuelve error 404 not found.
+        """
         return get_object_or_404(CustomUser, pk=self.request.user.id)
 
 

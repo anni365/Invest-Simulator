@@ -158,10 +158,12 @@ class TransactionTest(TestCase):
         custom_user = CustomUser.objects.get(pk=1)
         self.assertTrue(custom_user.is_active)
         price = [23, 25]
-        request = self.factory.get('/sell/')
+        request = self.factory.get('/buy/')
         request.user = custom_user
         #Agrego activos al usuario.
         UserAsset.addAsset(request, "Apple", 3, "Share", price[1], False)
+        request = self.factory.get('/sell/')
+        request.user = custom_user
         user_assets_before = UserAsset.objects.filter(user=custom_user)
         current_a_before = user_assets_before[0].total_amount
         Transaction.addTransaction(request, price[0], price[1], 10, 1)
@@ -184,7 +186,7 @@ class UserAssetTest(TestCase):
         self.client.post('/login/', self.credentials, follow=True)
 
     """
-    Se verifica que se pueda hacer agregar un activo al usuario logueado.
+    Se verifica que se pueda agregar un activo al usuario logueado.
     """
     def test_add_asset_to_user(self):
         custom_user = CustomUser.objects.get(pk=1)
