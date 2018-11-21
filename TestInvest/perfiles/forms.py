@@ -80,6 +80,10 @@ class BuyForm(ModelForm):
 
 
 class SellForm(forms.Form):
+    '''Formulario necesario para vender un activo.
+       Es necesario llenarlo con nombre del activo, total a vender, precio de
+       venta y el dinero virtual.
+    '''
     name = forms.CharField(required=False, label="Nombre del Activo")
     total_amount = forms.IntegerField(label="Cantidad Activo", required=False)
     price_sell = forms.CharField(label="Precio de Venta", required=False)
@@ -152,6 +156,11 @@ class LowAlarmForm(forms.Form):
         self.fields['id'].widget = forms.HiddenInput()
 
 class Visibility(ModelForm):
+    '''Formulario para la visibilidad de un activo de un usuario frente a 
+       otros usuarios.
+       Se necesita nombre del activo y la visibilidad que solo puede ser
+       falsa o verdadera.
+    '''
     VISIBILITY = ((False, 'No'), (True, 'Si'))
     name = forms.CharField(required=False, label="Nombre del Activo")
     visibility = forms.ChoiceField(required=False, choices=VISIBILITY,
