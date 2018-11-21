@@ -132,13 +132,13 @@ def view_alarm(request):
             low_alarms(request, id_low)
             list_alarm = list_alarms(request)
         return render(request, 'perfiles/view_alarms.html',
-                        {'view_alarms': list_alarm, 'form_low': LowAlarmForm(),
-                        'pos_ranking': pos_ranking})
+                      {'view_alarms': list_alarm, 'form_low': LowAlarmForm(),
+                       'pos_ranking': pos_ranking})
     else:
         form_low = LowAlarmForm()
     return render(request, 'perfiles/view_alarms.html',
-                    {'view_alarms': list_alarm, 'form_low': form_low,
-                     'pos_ranking': pos_ranking})
+                  {'view_alarms': list_alarm, 'form_low': form_low,
+                   'pos_ranking': pos_ranking})
 
 
 def config_alarm(request):
@@ -164,8 +164,8 @@ def config_alarm(request):
                                    name_asset)
             list_alarm = list_alarms(request)
         return render(request, 'perfiles/view_alarms.html',
-                        {'view_alarms': list_alarm, 'form_low': LowAlarmForm(),
-                         'pos_ranking': pos_ranking})
+                      {'view_alarms': list_alarm, 'form_low': LowAlarmForm(),
+                       'pos_ranking': pos_ranking})
     else:
         form = AlarmForm()
     return render(request, 'perfiles/alarm.html', {

@@ -8,15 +8,12 @@ from django.views.generic import CreateView, TemplateView, UpdateView
 from django.contrib.auth.forms import PasswordChangeForm
 from .forms import BuyForm, SellForm, AssetForm, Visibility
 from django.contrib import messages
-
 from .data_api import (open_jsons, quit_null_assets, open_json_history,
-                        get_asset_history)
-
+                       get_asset_history)
 from .models import CustomUser, UserAsset, Transaction
-
 from .views import addOperation
-
 import json
+
 
 def show_assets(request):
     '''show_assets: Muestra los activos que posee la API:
@@ -75,13 +72,14 @@ def assets_history(request):
                       'name_asset': name, 'grap': json.dumps(grap_history),
                       'pos_ranking': pos_ranking})
     return render(request, 'perfiles/assets_history.html',
-                {'assets': assets_a, 'form': form, 'pos_ranking': pos_ranking})
+                  {'assets': assets_a, 'form': form,
+                   'pos_ranking': pos_ranking})
 
 
 def show_my_assets(request):
     '''show_my_assets: Muestra los activos que posee el usuario logueado con:
-       nombre del activo, cantidad, tipo, valor de adquisición, valor de compra,
-       valor de venta y su estado de visibilidad
+       nombre del activo, cantidad, tipo, valor de adquisición, valor de
+       compra, valor de venta y su estado de visibilidad
        Y tambien se configura la visibilidad del activo frente a otros usuarios
     '''
     pos_ranking = CustomUser.rank_virtualm(request)
@@ -104,7 +102,8 @@ def show_my_assets(request):
                 return render(request, 'perfiles/wallet.html',
                                        {'assets': assets, 'user': user,
                                         'my_assets': my_assets,
-                                        'capital': cap, 'form': form, 'pos_ranking': pos_ranking})
+                                        'capital': cap, 'form': form,
+                                        'pos_ranking': pos_ranking})
     return render(request, 'perfiles/wallet.html',
                            {'assets': assets, 'user': user,
                             'my_assets': my_assets, 'capital': cap,
@@ -121,7 +120,8 @@ def buy_assets(request, form, assets, capital, mj):
         visibility = form.cleaned_data.get("visibility")
         assets_user = UserAsset.objects.filter(user=request.user.id, name=name)
         for nametype, prices in assets:
-            if nametype[1] == name and (prices['sell'] is None or prices['buy'] is None):
+            if nametype[1] == name and (prices['sell'] is None
+                                        or prices['buy'] is None):
                 messages.add_message(
                   request, messages.INFO, 'El Activo seleccionado ya no se'
                   'encuentra  disponible, no se pudo concretar la compra. Para'
