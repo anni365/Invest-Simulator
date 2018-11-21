@@ -39,6 +39,11 @@ def open_json_history(name_asset):
     return assets_name
 
 def get_asset_history(asset_history, since_date, until_date):
+    """
+    get_asset_history: Retorna una lista de datos referidos al historial del
+    activo seleccionado entre las fechas elegidas por el usuario logueado.
+    Si éste no tiene datos entre esas fechas, retorna el historial completo.
+    """
     history = []
     history_from_to = []
     i = 0
