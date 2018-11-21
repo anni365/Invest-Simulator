@@ -7,6 +7,7 @@ from django.core.mail import EmailMessage, send_mail
 from django.contrib.auth.decorators import login_required
 import json
 
+
 def open_jsons():
     '''
     Lee los archivos .json y devuelve un diccionario con una lista de activos
@@ -27,6 +28,7 @@ def open_jsons():
     assets = assets.items()
     return assets
 
+
 def quit_null_assets(assets):
     '''
     Quita de la lista de retorno aquellos activos que tengan un precio no
@@ -40,6 +42,7 @@ def quit_null_assets(assets):
                             "buy": values['buy']}))
     return assets_a
 
+
 def open_json_history(name_asset):
     '''
     Abre y lee los archivos .json con el historial de cambios en los precios de
@@ -50,6 +53,7 @@ def open_json_history(name_asset):
         assets_name = json.load(assets_json)
     assets_name = assets_name.get("prices")
     return assets_name
+
 
 def get_asset_history(asset_history, since_date, until_date):
     '''
