@@ -158,15 +158,22 @@ def visibility_investments(request):
                                'datas': datas, 'assets': assets_a})
 
 
+'''Funciones para consultar los cambios en los datos de la API y enviar mail
+   al usuario que configuró su alarma
+'''
 def consult_alarm_forever():
+    '''consult_alarm_forever: Llama a la función get_data_of_alarm cada 15 segundos
+    '''
     while True:
         get_data_of_alarm()
         time.sleep(15)
 
 def hilo():
+    '''hilo: Se define como hilo principal a la función consult_alarm_forever()
+    '''
     hilo = threading.Thread(target=consult_alarm_forever)
     hilo.setDaemon(True)
     hilo.start()
 
-
 hilo()
+'''hilo(): se debe ejecutar al iniciar el programa'''

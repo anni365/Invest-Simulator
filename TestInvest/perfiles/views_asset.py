@@ -47,6 +47,9 @@ def show_assets(request):
 
 
 def assets_history(request):
+    '''assets_history: Devuelve el historial de cotización de un activo dentro
+       de dos fechas determinadas
+    '''
     pos_ranking = CustomUser.rank_virtualm(request)
     assets = open_jsons()
     assets_a = quit_null_assets(assets)
@@ -73,6 +76,11 @@ def assets_history(request):
 
 
 def show_my_assets(request):
+    '''show_my_assets: Muestra los activos que posee el usuario logueado con:
+       nombre del activo, cantidad, tipo, valor de adquisición, valor de compra,
+       valor de venta y su estado de visibilidad
+       Y tambien se configura la visibilidad del activo frente a otros usuarios
+    '''
     pos_ranking = CustomUser.rank_virtualm(request)
     user = request.user
     virtual_money = request.user.virtual_money
@@ -126,6 +134,8 @@ def buy_assets(request, form, assets, capital, mj):
 
 
 def sell_assets(request):
+    '''sell_assets: Vende los activos que dispone el usuario
+    '''
     pos_ranking = CustomUser.rank_virtualm(request)
     user = CustomUser
     virtual_money = request.user.virtual_money
