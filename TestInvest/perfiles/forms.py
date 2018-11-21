@@ -9,6 +9,11 @@ from django.forms import ModelForm
 
 
 class SignUpForm(UserCreationForm):
+    '''
+    Formulario para el registro de usuarios.
+    Permite que el usuario pueda rellenarlo con sus datos, que éstos sean
+    validados.
+    '''
     first_name = forms.CharField(label="Nombre", max_length=140, required=True)
     last_name = forms.CharField(label="Apellido", max_length=140,
                                 required=True)
@@ -45,6 +50,10 @@ class SignUpForm(UserCreationForm):
 
 
 class UpdateProfileForm(forms.ModelForm):
+    '''
+    Formulario que permite al usuario poder actualizar sus datos personales
+    para su perfil. Posteriormente estos datos son válidados.
+    '''
     first_name = forms.CharField(label="Nombre", max_length=140, required=True)
     last_name = forms.CharField(label="Apellido", max_length=140,
                                 required=True)
@@ -92,14 +101,24 @@ class SellForm(forms.Form):
 
 
 class DateInput(forms.DateTimeInput):
+    '''
+    Widget necesario que muestra el calendario.
+    '''
     input_type = 'date'
 
 
 class TimeInput(forms.TimeInput):
+    '''
+    Widget necesario que permite elegir un horario.
+    '''
     input_type = 'time'
 
 
 class AssetForm(forms.Form):
+    '''
+    Formulario necesario para que el usuario elija las fechas y el activo
+    para el cual desea saber su historial.
+    '''
     name = forms.CharField(required=False)
     since = forms.CharField(widget=DateInput())
     time_since = forms.CharField(widget=TimeInput())
@@ -116,6 +135,10 @@ class AssetForm(forms.Form):
 
 
 class AlarmForm(ModelForm):
+    '''
+    Formulario que permite al usuario configurar una alarma.
+    Le permite elegir un umbral, tipo de cotización esperada, entre otros.
+    '''
     type_quote = forms.ChoiceField(required=True, choices=(
       ('buy', 'Compra'), ('sell', 'Venta')))
     type_umbral = forms.ChoiceField(required=True, choices=(
@@ -156,7 +179,7 @@ class LowAlarmForm(forms.Form):
         self.fields['id'].widget = forms.HiddenInput()
 
 class Visibility(ModelForm):
-    '''Formulario para la visibilidad de un activo de un usuario frente a 
+    '''Formulario para la visibilidad de un activo de un usuario frente a
        otros usuarios.
        Se necesita nombre del activo y la visibilidad que solo puede ser
        falsa o verdadera.
