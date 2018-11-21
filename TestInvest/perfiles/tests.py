@@ -23,17 +23,17 @@ class CustomUserTest(TestCase):
         CustomUser.objects.create_user(**self.credentials)
         self.factory = RequestFactory()
 
-    """
-    Se verifica que el usuario creado anteriormente pueda loguearse.
-    """
     def test_login(self):
+        '''
+        Se verifica que el usuario creado anteriormente pueda loguearse.
+        '''
         response = self.client.post('/login/', self.credentials, follow=True)
         self.assertTrue(response.context['user'].is_active)
 
-    """
-    Se verifica que un usuario no registrado no pueda iniciar sesión.
-    """
     def test_login_false(self):
+        '''
+        Se verifica que un usuario no registrado no pueda iniciar sesión.
+        '''
         data = {
             "username":"usuario2",
             "password":"user2458"
@@ -41,10 +41,10 @@ class CustomUserTest(TestCase):
         response = self.client.post('/login/', data, follow=True)
         self.assertFalse(response.context['user'].is_active)
 
-    """
-    Verificación del capital inicial del usuario logueado.
-    """
     def test_initial_user_capital(self):
+        '''
+        Verificación del capital inicial del usuario logueado.
+        '''
         custom_user = CustomUser.objects.get(pk=1)
         self.assertTrue(custom_user.is_active)
         assets = UserAsset.objects.all()
@@ -52,11 +52,11 @@ class CustomUserTest(TestCase):
         current_money = CustomUser.calculate_capital(assets, my_assets, custom_user.virtual_money)
         self.assertEqual(current_money, 1000)
 
-    """
-    Verificación del dinero actual del usuario logueado después de hacer una
-    compra de un activo.
-    """
     def test_current_money_after_buy(self):
+        '''
+        Verificación del dinero actual del usuario logueado después de hacer una
+        compra de un activo.
+        '''
         custom_user = CustomUser.objects.get(pk=1)
         self.assertTrue(custom_user.is_active)
         price = [23, 25]
@@ -65,11 +65,11 @@ class CustomUserTest(TestCase):
         CustomUser.update_money_user(request, 5, price[1], custom_user.virtual_money)
         self.assertEqual(custom_user.virtual_money, 875)
 
-    """
-    Verificación del dinero actual del usuario logueado después de hacer una
-    venta de un activo.
-    """
     def test_current_money_after_sell(self):
+        '''
+        Verificación del dinero actual del usuario logueado después de hacer una
+        venta de un activo.
+        '''
         custom_user = CustomUser.objects.get(pk=1)
         self.assertTrue(custom_user.is_active)
         price = [23, 25]
@@ -97,12 +97,12 @@ class TransactionTest(TestCase):
         self.factory = RequestFactory()
         self.client.post('/login/', self.credentials, follow=True)
 
-    """
-    Se verifica que una nueva transacción de compra pueda guardarse
-    correctamente para el usuario logueado.
-    Solo agrega una transacción de compra.
-    """
     def test_add_one_buy_transaction_to_user(self):
+        '''
+        Se verifica que una nueva transacción de compra pueda guardarse
+        correctamente para el usuario logueado.
+        Solo agrega una transacción de compra.
+        '''
         custom_user = CustomUser.objects.get(pk=1)
         self.assertTrue(custom_user.is_active)
         price = [23, 25]
@@ -113,12 +113,12 @@ class TransactionTest(TestCase):
         self.assertEqual(len(user_transactions), 1)
         self.assertEqual(user_transactions[0].type_transaction, "compra")
 
-    """
-    Se verifica que una nueva transacción de venta pueda guardarse
-    correctamente para el usuario logueado.
-    Solo se agrega una transacción de venta.
-    """
     def test_add_one_sell_transaction_to_user(self):
+        '''
+        Se verifica que una nueva transacción de venta pueda guardarse
+        correctamente para el usuario logueado.
+        Solo se agrega una transacción de venta.
+        '''
         custom_user = CustomUser.objects.get(pk=1)
         self.assertTrue(custom_user.is_active)
         price = [23, 25]
@@ -130,12 +130,14 @@ class TransactionTest(TestCase):
         self.assertEqual(len(user_transactions), 1)
         self.assertEqual(user_transactions[0].type_transaction, "venta")
 
-    """
-    El usuario logueado quiere hacer una transacción de una compra de activos
-    cuyo valor supera su dinero virtual.
-    Se verifica que la transacción no se efectúa y dicho dinero sea el mismo.
-    """
     def test_no_money_for_transaction(self):
+        '''
+        El usuario logueado quiere hacer una transacción de una compra de
+        activos
+        cuyo valor supera su dinero virtual.
+        Se verifica que la transacción no se efectúa y dicho dinero sea el
+        mismo.
+        '''
         custom_user = CustomUser.objects.get(pk=1)
         current_money = custom_user.virtual_money
         self.assertTrue(custom_user.is_active)
@@ -148,13 +150,14 @@ class TransactionTest(TestCase):
         self.assertEqual(len(user_t_before), len(user_t_after))
         self.assertEqual(custom_user.virtual_money, current_money)
 
-    """
-    El usuario logueado quiere vender una cantidad de activos que es superior
-    a la que actualmente tiene.
-    Se verifica que la cantidad actual de ese activo no cambia debido a que
-    la transacción no se realiza.
-    """
     def test_sell_more_assets_than_current_amount(self):
+        '''
+        El usuario logueado quiere vender una cantidad de activos que es
+        superior
+        a la que actualmente tiene.
+        Se verifica que la cantidad actual de ese activo no cambia debido a que
+        la transacción no se realiza.
+        '''
         custom_user = CustomUser.objects.get(pk=1)
         self.assertTrue(custom_user.is_active)
         price = [23, 25]
@@ -185,10 +188,10 @@ class UserAssetTest(TestCase):
         self.factory = RequestFactory()
         self.client.post('/login/', self.credentials, follow=True)
 
-    """
-    Se verifica que se pueda agregar un activo al usuario logueado.
-    """
     def test_add_asset_to_user(self):
+        '''
+        Se verifica que se pueda agregar un activo al usuario logueado.
+        '''
         custom_user = CustomUser.objects.get(pk=1)
         self.assertTrue(custom_user.is_active)
         price = [23, 25]
@@ -198,11 +201,11 @@ class UserAssetTest(TestCase):
         user_assets = UserAsset.objects.filter(user=custom_user)
         self.assertEqual(len(user_assets), 1)
 
-    """
-    Verificación de poder actualizar la cantidad actual de activos para el
-    usuario logueado.
-    """
     def test_update_user_asset_amount(self):
+        '''
+        Verificación de poder actualizar la cantidad actual de activos para el
+        usuario logueado.
+        '''
         custom_user = CustomUser.objects.get(pk=1)
         self.assertTrue(custom_user.is_active)
         price = [23, 25]
@@ -213,11 +216,12 @@ class UserAssetTest(TestCase):
         UserAsset.update_asset(user_assets[0], 7, price[1], True)
         self.assertEqual(user_assets[0].total_amount, 10)
 
-    """
-    Se verifica que no se pueda agregar un activo con un precio negativo.
-    Se comparan las cantidades antes de intentar agregar ese activo y después.
-    """
     def test_add_asset_to_user_with_negative_price(self):
+        '''
+        Se verifica que no se pueda agregar un activo con un precio negativo.
+        Se comparan las cantidades antes de intentar agregar ese activo y
+        después.
+        '''
         custom_user = CustomUser.objects.get(pk=1)
         self.assertTrue(custom_user.is_active)
         price = [-23, -25]
@@ -229,21 +233,21 @@ class UserAssetTest(TestCase):
         user_a_after = UserAsset.objects.filter(user=custom_user)
         self.assertEqual(user_a_before[0].total_amount, user_a_after[0].total_amount)
 
-    """
-    Se comprueba que el único usuario registrado esté en primer lugar en el
-    ranking.
-    """
     def test_first_position_for_user_ranking(self):
+        '''
+        Se comprueba que el único usuario registrado esté en primer lugar en el
+        ranking.
+        '''
         custom_user = CustomUser.objects.get(pk=1)
         self.assertTrue(custom_user.is_active)
         ranking = CustomUser.cons_ranking()
         self.assertEqual(ranking[0][0], 1)
 
-    """
-    Se comprueba que el usuario logueado está en el puesto 2 del ranking
-    debido a que su capital es menor al del usuario recién registrado.
-    """
     def test_second_position_for_user_ranking(self):
+        '''
+        Se comprueba que el usuario logueado está en el puesto 2 del ranking
+        debido a que su capital es menor al del usuario recién registrado.
+        '''
         CustomUser.objects.create(username="usuario2", email="usuario2@example.com",
             first_name="Nombre2", last_name="Apellido2", password="user2458")
         price = [23, 25]
@@ -269,11 +273,11 @@ class AlarmTest(TestCase):
         self.factory = RequestFactory()
         self.client.post('/login/', self.credentials, follow=True)
 
-    """
-    Verifica que se puede agregar correctamente una alarma para el usuario
-    logueado.
-    """
     def test_add_alarm_to_user(self):
+        '''
+        Verifica que se puede agregar correctamente una alarma para el usuario
+        logueado.
+        '''
         custom_user = CustomUser.objects.get(pk=1)
         self.assertTrue(custom_user.is_active)
         request = self.factory.get('/alarm/')
@@ -282,11 +286,11 @@ class AlarmTest(TestCase):
         user_alarms = Alarm.objects.filter(user=custom_user)
         self.assertEqual(len(user_alarms), 1)
 
-    """
-    Se comprueba que se pueda desactivar una alarma creada por el usuario
-    logueado.
-    """
     def test_low_alarm(self):
+        '''
+        Se comprueba que se pueda desactivar una alarma creada por el usuario
+        logueado.
+        '''
         custom_user = CustomUser.objects.get(pk=1)
         self.assertTrue(custom_user.is_active)
         request = self.factory.get('/alarm/')
@@ -333,15 +337,16 @@ class IntegrationTest(TestCase):
         CustomUser.objects.create_user(**data_new_user_3)
         self.factory = RequestFactory()
 
-    """
-    Se hace una prueba de ranking entre dos usuarios registrados en el sistema.
-    Primero uno de ellos compra activos y se chequea que esté en primer lugar
-    ya que aumenta su capital.
-    Luego, el nuevo usuario realiza una compra de mayor cantidad de acciones y
-    se comprueba que le ganó al usuario anterior y por lo tanto está en
-    primer lugar.
-    """
     def test_ranking_between_two_users(self):
+        '''
+        Se hace una prueba de ranking entre dos usuarios registrados en el
+        sistema.
+        Primero uno de ellos compra activos y se chequea que esté en primer
+        lugar ya que aumenta su capital.
+        Luego, el nuevo usuario realiza una compra de mayor cantidad de
+        acciones y se comprueba que le ganó al usuario anterior y por lo tanto
+        está en primer lugar.
+        '''
         data_new_user = {
             "username":"usuario2",
             "password":"user2458"
@@ -370,15 +375,15 @@ class IntegrationTest(TestCase):
         #usuario1 ahora pasó a estar segundo en el ranking.
         self.assertEqual(ranking[0][1], "usuario2")
 
-    """
-    Se comprueban funcionalidades aleatorias.
-    El usuario1 está logueado, realiza una compra de activos, se calcula
-    su dinero virtual.
-    El usuario1 configura dos alarmas. Luego realiza la venta de 2 activos
-    comprados anteriormente y se calcula su dinero virtual.
-    El usuario1 dehabilita una alarma.
-    """
     def test_random_1(self):
+        '''
+        Se comprueban funcionalidades aleatorias.
+        El usuario1 está logueado, realiza una compra de activos, se calcula
+        su dinero virtual.
+        El usuario1 configura dos alarmas. Luego realiza la venta de 2 activos
+        comprados anteriormente y se calcula su dinero virtual.
+        El usuario1 dehabilita una alarma.
+        '''
         #usuario1 inicia sesión.
         self.client.post('/login/', self.credentials, follow=True)
         user_logged = CustomUser.objects.get(pk=1)
@@ -412,12 +417,12 @@ class IntegrationTest(TestCase):
         user_alarms = Alarm.objects.filter(user=user_logged, type_alarm="low")
         self.assertEqual(len(user_alarms), 1)
 
-    """
-    Se chequean funcionalidades aleatorias distintas al test random 1.
-    Se utilizan 3 usuarios para ir viendo como van cambiando de posiciones
-    según las compras y ventas que realiza cada uno.
-    """
     def test_random_2(self):
+        '''
+        Se chequean funcionalidades aleatorias distintas al test random 1.
+        Se utilizan 3 usuarios para ir viendo como van cambiando de posiciones
+        según las compras y ventas que realiza cada uno.
+        '''
         data_new_user = {
             "username":"usuario2",
             "password":"user2458"
