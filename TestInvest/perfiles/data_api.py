@@ -8,6 +8,10 @@ from django.contrib.auth.decorators import login_required
 import json
 
 def open_jsons():
+    '''
+    Lee los archivos .json y devuelve un diccionario con una lista de activos
+    con el nombre, tipo, precio de compra y venta de cada activo.
+    '''
     with open('perfiles/asset/assets.json') as assets_json:
         assets_name = json.load(assets_json)
     assets_name = assets_name.get("availableAssets")
@@ -24,6 +28,11 @@ def open_jsons():
     return assets
 
 def quit_null_assets(assets):
+    '''
+    Quita de la lista de retorno aquellos activos que tengan un precio no
+    definido o null.
+    Retorna la lista de activos disponibles.
+    '''
     assets_a = []
     for keys, values in assets:
         if values['sell'] is not None and values['buy'] is not None:
@@ -32,6 +41,10 @@ def quit_null_assets(assets):
     return assets_a
 
 def open_json_history(name_asset):
+    '''
+    Abre y lee los archivos .json con el historial de cambios en los precios de
+    compra y/o venta de cada activo.
+    '''
     name_as = 'perfiles/asset/'+name_asset+'_history.json'
     with open(name_as) as assets_json:
         assets_name = json.load(assets_json)
