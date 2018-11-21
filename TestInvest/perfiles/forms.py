@@ -178,6 +178,7 @@ class LowAlarmForm(forms.Form):
         super(LowAlarmForm, self).__init__(*args, **kwargs)
         self.fields['id'].widget = forms.HiddenInput()
 
+
 class Visibility(ModelForm):
     '''Formulario para la visibilidad de un activo de un usuario frente a
        otros usuarios.

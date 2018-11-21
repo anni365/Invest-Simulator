@@ -1,16 +1,12 @@
 from __future__ import unicode_literals
-
 from django.db import models
-
 from django.contrib.auth.models import User, AbstractUser
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.validators import MinValueValidator
-
 from django.utils import timezone
-
 from .data_api import (open_jsons, quit_null_assets, open_json_history,
-                        get_asset_history)
+                       get_asset_history)
 
 
 class CustomUser(AbstractUser):
@@ -66,7 +62,6 @@ class CustomUser(AbstractUser):
             ranking.append((i+1,) + list_cap[i])
         return ranking
 
-
     def rank_virtualm(request):
         """ rank_virtualm: Muestra la posicion en el ranking del usuario logueado.
         """
@@ -77,7 +72,6 @@ class CustomUser(AbstractUser):
                 request.user.pos_ranking = rank[0]
                 request.user.save()
         return request.user.pos_ranking
-
 
 
 @receiver(post_save, sender=User)
