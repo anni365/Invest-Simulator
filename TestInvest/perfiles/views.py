@@ -39,7 +39,7 @@ def WelcomeView(request):
     """
     if request.user.is_authenticated:
         return render(request, 'perfiles/home.html',
-                        {'pos_ranking': CustomUser.rank_virtualm(request)})
+                      {'pos_ranking': CustomUser.rank_virtualm(request)})
     else:
         return render(request, 'perfiles/home.html')
 
@@ -53,7 +53,8 @@ def profileView(request):
         el dinero liquido del usuario logueado
     """
     pos_ranking = CustomUser.rank_virtualm(request)
-    return render(request, 'perfiles/profile.html', {'pos_ranking': pos_ranking})
+    return render(request, 'perfiles/profile.html',
+                  {'pos_ranking': pos_ranking})
 
 
 def change_password(request):
@@ -67,9 +68,8 @@ def change_password(request):
             update_session_auth_hash(request, user)
     else:
         form = PasswordChangeForm(request.user)
-    return render(request, 'perfiles/change_password.html', {
-        'form': form, 'pos_ranking': pos_ranking
-    })
+    return render(request, 'perfiles/change_password.html',
+                  {'form': form, 'pos_ranking': pos_ranking})
 
 
 class SignInView(LoginView):
@@ -122,8 +122,9 @@ def mytransactions(request):
     my_transactions = Transaction.objects.filter(user=request.user.id)
     my_transactions = my_transactions.order_by('-date')
     return render_to_response(
-      'perfiles/transaction_history.html', {
-        'my_transactions': my_transactions, 'user': request.user, 'pos_ranking': pos_ranking})
+      'perfiles/transaction_history.html', {'my_transactions': my_transactions,
+                                            'user': request.user,
+                                            'pos_ranking': pos_ranking})
 
 
 def ranking(request):
@@ -134,7 +135,8 @@ def ranking(request):
     users = CustomUser.objects.all()
     return render_to_response('perfiles/see_ranking.html',
                               {'lista_capital': list_cap,
-                               'user': request.user, 'pos_ranking': pos_ranking})
+                               'user': request.user,
+                               'pos_ranking': pos_ranking})
 
 
 def visibility_investments(request):
@@ -160,19 +162,22 @@ def visibility_investments(request):
     return render_to_response('perfiles/visibility_investments.html',
                               {'user': request.user,
                                'investments_v': investments_v,
-                               'ranking': ranking, 'pos_ranking' : pos_ranking,
+                               'ranking': ranking, 'pos_ranking': pos_ranking,
                                'datas': datas, 'assets': assets_a})
 
 
 '''Funciones para consultar los cambios en los datos de la API y enviar mail
    al usuario que configuró su alarma
 '''
+
+
 def consult_alarm_forever():
     '''consult_alarm_forever: Llama a la función get_data_of_alarm cada 15 segundos
     '''
     while True:
         get_data_of_alarm()
         time.sleep(15)
+
 
 def hilo():
     '''hilo: Se define como hilo principal a la función consult_alarm_forever()
@@ -183,3 +188,4 @@ def hilo():
 
 hilo()
 '''hilo(): se debe ejecutar al iniciar el programa'''
+
