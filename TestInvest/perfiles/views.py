@@ -186,6 +186,6 @@ def hilo():
     hilo.setDaemon(True)
     hilo.start()
 
+
 hilo()
 '''hilo(): se debe ejecutar al iniciar el programa'''
-
