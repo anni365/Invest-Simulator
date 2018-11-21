@@ -142,6 +142,9 @@ def view_alarm(request):
 
 
 def config_alarm(request):
+    """ config_alarm: Recibe los datos del formulario para crear la alarma
+        deseada.
+    """
     pos_ranking = CustomUser.rank_virtualm(request)
     get_data_of_alarm()
     assets = open_jsons()

@@ -19,6 +19,9 @@ from .views import addOperation
 import json
 
 def show_assets(request):
+    '''show_assets: Muestra los activos que posee la API:
+       nombre del activo, valor de compra, valor de venta y tipo.
+    '''
     pos_ranking = CustomUser.rank_virtualm(request)
     user = request.user
     virtual_money = request.user.virtual_money

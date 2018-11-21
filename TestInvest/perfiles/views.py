@@ -57,6 +57,8 @@ def profileView(request):
 
 
 def change_password(request):
+    '''change_password: Cambia la contraseña del usuario logueado
+    '''
     pos_ranking = CustomUser.rank_virtualm(request)
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
@@ -114,6 +116,8 @@ def addOperation(request, assets_user, nametype, name_form,
 
 
 def mytransactions(request):
+    """ mytransactions: devuelve las transacciones del usuario logeado.
+    """
     pos_ranking = CustomUser.rank_virtualm(request)
     my_transactions = Transaction.objects.filter(user=request.user.id)
     my_transactions = my_transactions.order_by('-date')
@@ -134,6 +138,8 @@ def ranking(request):
 
 
 def visibility_investments(request):
+    """visibility_investments: Renderiza las transacciones visibles.
+    """
     pos_ranking = CustomUser.rank_virtualm(request)
     ranking = CustomUser.cons_ranking()
     all_assets = open_jsons()
