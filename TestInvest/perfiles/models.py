@@ -10,6 +10,11 @@ from .data_api import (open_jsons, quit_null_assets, open_json_history,
 
 
 class CustomUser(AbstractUser):
+    '''
+    Modelo usuario que reemplaza al tradicional utilizado internamente por
+    Django.
+    Se le agregan atributos como avatar y moneda virtual.
+    '''
     avatar = models.ImageField(upload_to='perfiles/',
                                default='perfiles/default.jpg')
     virtual_money = models.FloatField(
@@ -20,6 +25,10 @@ class CustomUser(AbstractUser):
         return self.email
 
     def calculate_capital(assets, my_assets, virtual_money):
+        '''
+        calculate_capital: Calcula el capital del usuario logueado tomando
+        los activos que tiene y su cotización actual más su dinero virtual.
+        '''
         cap = 0
         for name, data in assets:
             for asset in my_assets:
@@ -86,6 +95,10 @@ def guardar_usuario_perfil(sender, instance, **kwargs):
 
 
 class UserAsset(models.Model):
+    '''
+    Modelo de activo para el usuario.
+    Se forma una relación varios - uno con el usuario registrado en el sistema.
+    '''
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     name = models.CharField(max_length=30)
     type_asset = models.CharField(max_length=30)
@@ -116,6 +129,10 @@ class UserAsset(models.Model):
 
 
 class Transaction(models.Model):
+    '''
+    Modelo de transacción para cuando un usuario registrado y logueado realiza
+    una compra o una venta de un activo.
+    '''
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     user_asset = models.ForeignKey(UserAsset, on_delete=models.CASCADE)
     type_transaction = models.CharField(max_length=30)
@@ -148,6 +165,9 @@ class Transaction(models.Model):
 
 
 class Alarm(models.Model):
+    '''
+    Modelo de alarma. Se relaciona con varios - uno con el usuario registrado.
+    '''
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     name_asset = models.CharField(max_length=30)
     type_alarm = models.CharField(max_length=30)
@@ -161,6 +181,9 @@ class Alarm(models.Model):
 
     def addAlarm(request, type_quote, type_umbral,
                  umbral, previous_quote, name_asset):
+        '''
+        addAlarm: Crea y guarda una alarma en la base de datos.
+        '''
         alarm = Alarm.objects.create(
                     user_id=request.user.id, name_asset=name_asset,
                     type_alarm="high", type_quote=type_quote,
