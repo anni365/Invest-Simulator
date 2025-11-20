@@ -69,3 +69,9 @@ funcionalidades:
     su capital y también su dinero virtual.
   - Comprobar su historial de transacciones con toda la información de cada
     una de ellas.
+
+---
+
+Este proyecto fue desarrollado en equipo. Esta es una copia del repositorio original (privado en GitLab) para mostrarlo en mi portfolio.
+
+
